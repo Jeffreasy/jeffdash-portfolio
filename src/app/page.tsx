@@ -5,11 +5,11 @@ import { ProjectDetails } from '@/components/sections/ProjectDetails/ProjectDeta
 
 export default function Home() {
   return (
-    <>
+    <main className="min-h-screen">
       <Hero />
       <Projects />
       <About />
       <ProjectDetails />
-    </>
+    </main>
   )
 }
