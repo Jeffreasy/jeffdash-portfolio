@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Jeff Dashwood Portfolio
+
+Een modern portfolio gebouwd met Next.js, Tailwind CSS en Framer Motion.
+
+## Features
+
+- 🚀 Gebouwd met Next.js 15
+- 💅 Styling met Tailwind CSS
+- 🎨 Soepele animaties met Framer Motion
+- 📱 Volledig responsive design
+- 🌙 Dark mode ondersteuning
+- ⚡ Optimale performance met Next.js Image optimalisatie
+- 📊 Analytics met Vercel Analytics
+
+## Tech Stack
+
+- Next.js
+- TypeScript
+- Tailwind CSS
+- Framer Motion
+- Vercel Analytics
+- Class Variance Authority
 
 ## Getting Started
 
-First, run the development server:
-
+1. Clone de repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/Jeffreasy/jeffdash-portfolio.git
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Installeer dependencies:
+```bash
+cd jeffdash-portfolio
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Start de development server:
+```bash
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Open [http://localhost:3000](http://localhost:3000) in je browser.
 
-## Learn More
+## Project Structuur
 
-To learn more about Next.js, take a look at the following resources:
+```
+src/
+  app/              # Next.js app directory
+  components/       # React components
+    common/         # Herbruikbare components
+    layout/         # Layout components
+    sections/       # Page sections
+  config/          # Site configuratie
+  lib/             # Utility functies
+  types/           # TypeScript types
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Contact
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Website: [jeffdashwood.nl](https://jeffdashwood.nl)
+- GitHub: [@Jeffreasy](https://github.com/Jeffreasy)
