@@ -33,7 +33,7 @@ export const PROJECTS_DATA: Project[] = [
     shortDescription: "Een platform voor whisky veilingen met een goed doel. Gebouwd met moderne web technologieën voor een naadloze gebruikerservaring.",
     image: "/images/WHSKSNAP.png",
     techStack: [
-      { name: "Next.js", icon: "/icons/nextjs.svg" },
+      { name: "Next.js", icon: "/icons/next.svg" },
       { name: "TypeScript", icon: "/icons/typescript.svg" },
       { name: "Tailwind CSS", icon: "/icons/tailwind.svg" },
       { name: "Prisma", icon: "/icons/prisma.svg" },

@@ -8,16 +8,6 @@ interface SiteConfig {
     github: string
     linkedin: string
   }
-  contact: {
-    email: string
-    phone?: string
-  }
-  seo: {
-    title: string
-    description: string
-    ogImage: string
-    twitterHandle?: string
-  }
 }
 
 export const siteConfig: SiteConfig = {
@@ -33,6 +23,10 @@ export const siteConfig: SiteConfig = {
       href: "/projects",
     },
     {
+      title: "Blog",
+      href: "/blog",
+    },
+    {
       title: "Over Mij",
       href: "/about",
     },
@@ -42,17 +36,7 @@ export const siteConfig: SiteConfig = {
     },
   ],
   links: {
-    github: "https://github.com/yourusername",
+    github: "https://github.com/Jeffreasy",
     linkedin: "https://linkedin.com/in/yourusername",
-  },
-  contact: {
-    email: "your@email.com",
-    phone: "+31 6 12345678", // Optioneel
-  },
-  seo: {
-    title: "Jeff Dashwood - Full-stack Developer",
-    description: "Portfolio van Jeff Dashwood, full-stack developer gespecialiseerd in React, Next.js, en moderne web technologieën.",
-    ogImage: "/images/og-image.jpg",
-    twitterHandle: "@yourusername", // Optioneel
   },
 }
