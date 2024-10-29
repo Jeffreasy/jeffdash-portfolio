@@ -1,7 +1,6 @@
 // src/app/layout.tsx
 
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import { cookies } from "next/headers";
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Header } from "@/components/layout/Header/Header";
@@ -14,12 +13,6 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import type { Database } from '@/types/supabase';
 
 export const dynamic = 'force-dynamic'
-
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
-  display: 'swap',
-});
 
 export const metadata: Metadata = {
   title: siteConfig.name,
@@ -70,12 +63,11 @@ export default async function RootLayout({
     session = await getSession();
   } catch (error) {
     console.error('Layout error:', error);
-    // Continue without session
   }
 
   return (
     <html lang="nl" suppressHydrationWarning className="h-full">
-      <body className={`${inter.variable} min-h-screen bg-background font-sans antialiased flex flex-col`}>
+      <body className="min-h-screen bg-background font-sans antialiased flex flex-col">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
