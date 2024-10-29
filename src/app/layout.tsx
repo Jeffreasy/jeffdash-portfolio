@@ -7,6 +7,8 @@ import { Header } from "@/components/layout/Header/Header";
 import { Footer } from "@/components/layout/Footer/Footer";
 import { siteConfig } from "@/config/site.config";
 import { ThemeProvider } from 'next-themes';
+import { GeistSans } from 'geist/font/sans';
+import { GeistMono } from 'geist/font/mono';
 import './globals.css';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
@@ -66,7 +68,7 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang="nl" suppressHydrationWarning className="h-full">
+    <html lang="nl" suppressHydrationWarning className={`${GeistSans.variable} ${GeistMono.variable} h-full`}>
       <body className="min-h-screen bg-background font-sans antialiased flex flex-col">
         <ThemeProvider
           attribute="class"
