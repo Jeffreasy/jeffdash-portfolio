@@ -13,6 +13,9 @@ import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import type { Database } from '@/types/supabase';
 
+// Voeg deze export toe om aan te geven dat deze route dynamisch is
+export const dynamic = 'force-dynamic'
+
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',

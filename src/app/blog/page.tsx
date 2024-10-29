@@ -18,8 +18,9 @@ interface Category {
 export default function BlogPage() {
   const searchParams = useSearchParams()
   const router = useRouter()
-  const categoryId = searchParams.get('category')
-  const tagIds = searchParams.get('tags')?.split(',').filter(Boolean) || []
+  
+  const categoryId = searchParams?.get('category') ?? null
+  const tagIds = searchParams?.get('tags')?.split(',').filter(Boolean) || []
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(categoryId)
   const [selectedTags, setSelectedTags] = useState<string[]>(tagIds)
@@ -30,7 +31,7 @@ export default function BlogPage() {
 
   function handleCategoryChange(categoryId: string | null) {
     setSelectedCategory(categoryId)
-    const params = new URLSearchParams(searchParams.toString())
+    const params = new URLSearchParams(searchParams?.toString() || '')
     if (categoryId) {
       params.set('category', categoryId)
     } else {
@@ -45,7 +46,7 @@ export default function BlogPage() {
       : [...selectedTags, tagId]
     
     setSelectedTags(newTags)
-    const params = new URLSearchParams(searchParams.toString())
+    const params = new URLSearchParams(searchParams?.toString() || '')
     if (newTags.length > 0) {
       params.set('tags', newTags.join(','))
     } else {
@@ -60,7 +61,6 @@ export default function BlogPage() {
   return (
     <div className="container py-12">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Sidebar met filters */}
         <aside className="lg:sticky lg:top-20 lg:h-fit">
           <BlogFilter
             categories={categories as Category[]}
@@ -72,7 +72,6 @@ export default function BlogPage() {
           />
         </aside>
 
-        {/* Blog posts grid */}
         <div className="lg:col-span-3">
           <div className="grid gap-8">
             {posts?.map((post) => (

@@ -10,9 +10,6 @@ const nextConfig = {
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',
   },
-  experimental: {
-    optimizeCss: true,
-  },
 }
 
 module.exports = nextConfig 
