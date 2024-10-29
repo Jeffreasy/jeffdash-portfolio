@@ -1,0 +1,36 @@
+/* Import Tailwind */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* Custom styles */
+:root {
+  --background: 0 0% 100%;
+  --foreground: 240 10% 3.9%;
+  /* ... andere CSS variabelen */
+}
+
+/* Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Base styles */
+html,
+body {
+  height: 100%;
+  width: 100%;
+}
+
+/* Icon styles */
+.tech-icon {
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  min-height: 16px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+} 

@@ -10,7 +10,8 @@ export interface ProjectCardProps {
   className?: string;
 }
 
-const PLACEHOLDER_IMAGE = '/images/project-placeholder.jpg'; // Voeg deze toe aan public/images/
+// Base64 encoded placeholder image
+const PLACEHOLDER_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mN8/x8AAuMB8DtXNJsAAAAASUVORK5CYII=';
 
 export function ProjectCard({ project, className }: ProjectCardProps) {
   const { 
@@ -30,14 +31,14 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
     >
       <div className="relative h-48 md:h-64">
         <Image
-          src={image_url || '/images/project-placeholder.jpg'}
+          src={image_url || PLACEHOLDER_IMAGE}
           alt={title}
           fill
           className="object-cover"
           priority
           onError={(e) => {
             const target = e.target as HTMLImageElement;
-            target.src = '/images/project-placeholder.jpg';
+            target.src = PLACEHOLDER_IMAGE;
           }}
         />
       </div>

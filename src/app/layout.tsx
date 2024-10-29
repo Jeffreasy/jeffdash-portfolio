@@ -12,6 +12,7 @@ import './globals.css';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import type { Database } from '@/types/supabase';
+import '@/styles/index.css'
 
 // Voeg deze export toe om aan te geven dat deze route dynamisch is
 export const dynamic = 'force-dynamic'
