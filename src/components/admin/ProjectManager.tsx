@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
-import type { Project } from '@/types/project'
+import type { Project, ProjectResponse, ProjectDB, ProjectFormData } from '@/types/project'
 import { ProjectForm } from './ProjectForm'
 
 export function ProjectManager() {
@@ -11,37 +11,80 @@ export function ProjectManager() {
   const [error, setError] = useState<string | null>(null)
   const [editingProject, setEditingProject] = useState<Project | null>(null)
 
-  // Fetch projects
+  // Fetch projects alleen bij mount
   useEffect(() => {
+    let isMounted = true
+
     async function fetchProjects() {
       try {
+        console.log('Fetching projects...')
         const { data, error } = await supabase
           .from('projects')
           .select('*')
           .order('created_at', { ascending: false })
 
         if (error) throw error
-        setProjects(data || [])
+        
+        if (isMounted) {
+          const transformedData: Project[] = (data || []).map((project: ProjectResponse) => ({
+            ...project,
+            tech_stack: project.tech_stack || [],
+            features: project.features || [],
+            challenges: project.challenges || [],
+          }))
+          
+          setProjects(transformedData)
+          setLoading(false)
+        }
       } catch (e) {
-        setError(e instanceof Error ? e.message : 'Er is een fout opgetreden')
-      } finally {
-        setLoading(false)
+        if (isMounted) {
+          setError(e instanceof Error ? e.message : 'Er is een fout opgetreden')
+          setLoading(false)
+        }
       }
     }
 
     fetchProjects()
-  }, [])
+
+    // Cleanup functie
+    return () => {
+      isMounted = false
+    }
+  }, []) // Lege dependency array
 
   // Add new project
-  async function addProject(project: Omit<Project, 'id' | 'created_at'>) {
+  async function addProject(project: ProjectFormData) {
     try {
+      // Converteer naar database formaat
+      const dbProject: Omit<ProjectDB, 'id' | 'created_at' | 'updated_at'> = {
+        title: project.title,
+        slug: project.slug,
+        description: project.description,
+        short_description: project.short_description,
+        image_url: project.image_url,
+        technologies: project.technologies,
+        is_featured: project.is_featured,
+        github_url: project.github_url,
+        demo_url: project.demo_url
+      }
+
       const { data, error } = await supabase
         .from('projects')
-        .insert([project])
+        .insert([dbProject])
         .select()
 
       if (error) throw error
-      if (data) setProjects([data[0], ...projects])
+      
+      // Converteer terug naar UI formaat
+      if (data) {
+        const newProject: Project = {
+          ...data[0],
+          tech_stack: project.tech_stack,
+          features: project.features,
+          challenges: project.challenges
+        }
+        setProjects([newProject, ...projects])
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Er is een fout opgetreden')
     }

@@ -29,16 +29,17 @@ export const metadata: Metadata = {
   },
 };
 
-async function getSession() {
+async function createClient() {
   const cookieStore = await cookies();
-  const supabase = createServerComponentClient<Database>({
-    cookies: () => cookieStore
+  return createServerComponentClient<Database>({ 
+    cookies: () => cookieStore 
   });
+}
 
+async function getSession() {
   try {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
+    const supabase = await createClient();
+    const { data: { session } } = await supabase.auth.getSession();
     return session;
   } catch (error) {
     console.error('Error getting session:', error);
@@ -54,21 +55,19 @@ export default async function RootLayout({
   const session = await getSession();
 
   return (
-    <html lang="nl" suppressHydrationWarning>
-      <body
-        className={`${inter.variable} min-h-screen bg-background font-sans antialiased`}
-      >
+    <html lang="nl" suppressHydrationWarning className="h-full">
+      <body className={`${inter.variable} min-h-screen bg-background font-sans antialiased flex flex-col`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          <div className="relative flex min-h-screen flex-col">
-            <Header session={session} />
+          <Header session={session} />
+          <main className="flex-grow">
             {children}
-            <Footer />
-          </div>
+          </main>
+          <Footer />
         </ThemeProvider>
         <Analytics />
         <SpeedInsights />

@@ -30,11 +30,15 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
     >
       <div className="relative h-48 md:h-64">
         <Image
-          src={image_url || PLACEHOLDER_IMAGE}
+          src={image_url || '/images/project-placeholder.jpg'}
           alt={title}
           fill
           className="object-cover"
           priority
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = '/images/project-placeholder.jpg';
+          }}
         />
       </div>
       <div className="p-6">
@@ -45,8 +49,15 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
             {technologies.map((tech) => (
               <span
                 key={tech}
-                className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm"
+                className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-sm"
               >
+                <Image
+                  src={`/icons/${tech.toLowerCase()}.svg`}
+                  alt={tech}
+                  width={16}
+                  height={16}
+                  className="object-contain"
+                />
                 {tech}
               </span>
             ))}

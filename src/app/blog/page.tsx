@@ -30,7 +30,7 @@ export default function BlogPage() {
 
   function handleCategoryChange(categoryId: string | null) {
     setSelectedCategory(categoryId)
-    const params = new URLSearchParams(searchParams)
+    const params = new URLSearchParams(searchParams.toString())
     if (categoryId) {
       params.set('category', categoryId)
     } else {
@@ -45,7 +45,7 @@ export default function BlogPage() {
       : [...selectedTags, tagId]
     
     setSelectedTags(newTags)
-    const params = new URLSearchParams(searchParams)
+    const params = new URLSearchParams(searchParams.toString())
     if (newTags.length > 0) {
       params.set('tags', newTags.join(','))
     } else {

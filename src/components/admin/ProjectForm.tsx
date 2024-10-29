@@ -1,9 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import type { Project, TechStack } from '@/types/project'
-
-type ProjectFormData = Omit<Project, 'id' | 'created_at'>
+import type { ProjectFormData, TechStack } from '@/types/project'
 
 interface ProjectFormProps {
   onSubmit: (data: ProjectFormData) => Promise<void>
@@ -13,15 +11,17 @@ interface ProjectFormProps {
 
 const emptyProject: ProjectFormData = {
   title: '',
+  slug: '',
   description: '',
   short_description: '',
   image_url: '',
+  technologies: [],
+  is_featured: false,
   tech_stack: [],
-  live_url: '',
-  github_url: '',
-  updated_at: new Date().toISOString(),
   features: [],
-  challenges: []
+  challenges: [],
+  github_url: '',
+  demo_url: ''
 }
 
 export function ProjectForm({ onSubmit, initialData, buttonText = 'Project Toevoegen' }: ProjectFormProps) {
@@ -52,6 +52,20 @@ export function ProjectForm({ onSubmit, initialData, buttonText = 'Project Toevo
           id="title"
           value={formData.title}
           onChange={e => setFormData({ ...formData, title: e.target.value })}
+          className="w-full px-4 py-2 rounded-lg border bg-background"
+          required
+        />
+      </div>
+
+      <div>
+        <label htmlFor="slug" className="block text-sm font-medium mb-2">
+          Slug
+        </label>
+        <input
+          type="text"
+          id="slug"
+          value={formData.slug}
+          onChange={e => setFormData({ ...formData, slug: e.target.value })}
           className="w-full px-4 py-2 rounded-lg border bg-background"
           required
         />
@@ -122,16 +136,32 @@ export function ProjectForm({ onSubmit, initialData, buttonText = 'Project Toevo
       </div>
 
       <div>
-        <label htmlFor="live_url" className="block text-sm font-medium mb-2">
-          Live URL
+        <label htmlFor="technologies" className="block text-sm font-medium mb-2">
+          Technologies (comma-separated)
+        </label>
+        <input
+          type="text"
+          id="technologies"
+          value={formData.technologies.join(',')}
+          onChange={e => setFormData({ 
+            ...formData, 
+            technologies: e.target.value.split(',').map(t => t.trim()).filter(Boolean)
+          })}
+          className="w-full px-4 py-2 rounded-lg border bg-background"
+          required
+        />
+      </div>
+
+      <div>
+        <label htmlFor="demo_url" className="block text-sm font-medium mb-2">
+          Demo URL
         </label>
         <input
           type="url"
-          id="live_url"
-          value={formData.live_url}
-          onChange={e => setFormData({ ...formData, live_url: e.target.value })}
+          id="demo_url"
+          value={formData.demo_url || ''}
+          onChange={e => setFormData({ ...formData, demo_url: e.target.value })}
           className="w-full px-4 py-2 rounded-lg border bg-background"
-          required
         />
       </div>
 
@@ -146,6 +176,18 @@ export function ProjectForm({ onSubmit, initialData, buttonText = 'Project Toevo
           onChange={e => setFormData({ ...formData, github_url: e.target.value })}
           className="w-full px-4 py-2 rounded-lg border bg-background"
         />
+      </div>
+
+      <div>
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={formData.is_featured}
+            onChange={e => setFormData({ ...formData, is_featured: e.target.checked })}
+            className="rounded border-gray-300"
+          />
+          <span className="text-sm font-medium">Featured Project</span>
+        </label>
       </div>
 
       <button

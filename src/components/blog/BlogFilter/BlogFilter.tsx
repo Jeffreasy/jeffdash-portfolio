@@ -1,16 +1,13 @@
 'use client'
 
-import type { BlogTag } from '@/types/blog'
+import type { Database } from '@/types/supabase'
+
+type Category = Database['public']['Tables']['blog_categories']['Row']
+type Tag = Database['public']['Tables']['blog_tags']['Row']
 
 interface BlogFilterProps {
-  categories: {
-    id: string
-    name: string
-    slug: string
-    description: string | null
-    created_at: string
-  }[]
-  tags: BlogTag[]
+  categories: Category[]
+  tags: Tag[]
   selectedCategory: string | null
   selectedTags: string[]
   onCategoryChange: (categoryId: string | null) => void

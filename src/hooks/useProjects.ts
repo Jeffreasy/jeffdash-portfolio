@@ -1,52 +1,52 @@
-import type { Database } from '@/types/supabase';
-import type { PostgrestResponse, PostgrestError } from '@supabase/supabase-js';
-import { useSupabaseQuery } from '@/hooks/useSupabaseQuery';
-
-type ProjectResponse = Database['public']['Tables']['projects']['Row'];
+import { useState, useEffect } from 'react'
+import { supabase } from '@/lib/supabase'
+import type { Project, ProjectDB } from '@/types/project'
 
 export function useProjects() {
-  const { data: projects, isLoading, error } = useSupabaseQuery<'projects', ProjectResponse>(
-    'projects',
-    async (query) => {
+  const [data, setData] = useState<Project[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function fetchProjects() {
       try {
-        console.log('Fetching projects...'); // Debug log
-        
-        if (!query) {
-          throw new Error('Query builder is undefined');
+        const { data: projectsData, error: err } = await supabase
+          .from('projects')
+          .select('*')
+          .order('created_at', { ascending: false })
+
+        if (err) throw err
+
+        if (isMounted && projectsData) {
+          // Transform database data to Project type
+          const transformedData: Project[] = projectsData.map((dbProject: ProjectDB) => ({
+            ...dbProject,
+            tech_stack: [], // Deze worden later gevuld
+            features: [],   // Deze worden later gevuld
+            challenges: [], // Deze worden later gevuld
+          }))
+          setData(transformedData)
         }
-
-        // Direct query uitvoeren met is_featured filter
-        const result = await query
-          .select()
-          .eq('is_featured', true)
-          .order('created_at', { ascending: false });
-
-        console.log('Projects result:', result); // Debug log
-
-        // Return het volledige response object
-        return {
-          data: result.data || [],
-          error: result.error,
-          count: result.count,
-          status: result.status,
-          statusText: result.statusText,
-        } as unknown as PostgrestResponse<ProjectResponse[]>;
-
       } catch (e) {
-        console.error('Projects catch error:', e); // Debug log
-        
-        const errorResponse = {
-          data: [],
-          error: e as PostgrestError,
-          count: null,
-          status: 400,
-          statusText: 'Bad Request',
-        } as unknown as PostgrestResponse<ProjectResponse[]>;
-
-        return errorResponse;
+        if (isMounted) {
+          setError(e instanceof Error ? e : new Error('An error occurred'))
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false)
+        }
       }
     }
-  );
 
-  return { projects, isLoading, error };
+    fetchProjects()
+
+    // Cleanup
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  return { data, isLoading, error }
 }

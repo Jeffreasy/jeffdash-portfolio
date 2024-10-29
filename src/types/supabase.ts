@@ -20,13 +20,8 @@ export interface Database {
           excerpt: string
           content: string
           image_url: string
-          author: {
-            name: string
-            avatar_url?: string
-            bio?: string
-          }
+          author_id: string
           category_id: string
-          published: boolean
           created_at: string
           updated_at: string
         }
@@ -80,6 +75,17 @@ export interface Database {
         }
         Insert: Omit<Database['public']['Tables']['projects']['Row'], 'id' | 'created_at' | 'updated_at'>
         Update: Partial<Database['public']['Tables']['projects']['Insert']>
+      }
+      authors: {
+        Row: {
+          id: string
+          name: string
+          avatar_url?: string
+          bio?: string
+          created_at: string
+        }
+        Insert: Omit<Database['public']['Tables']['authors']['Row'], 'id' | 'created_at'>
+        Update: Partial<Database['public']['Tables']['authors']['Insert']>
       }
     }
     Views: Record<string, never>
