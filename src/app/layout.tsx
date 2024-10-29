@@ -12,9 +12,7 @@ import './globals.css';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import type { Database } from '@/types/supabase';
-import '@/styles/index.css'
 
-// Voeg deze export toe om aan te geven dat deze route dynamisch is
 export const dynamic = 'force-dynamic'
 
 const inter = Inter({
@@ -34,19 +32,30 @@ export const metadata: Metadata = {
 };
 
 async function createClient() {
-  const cookieStore = await cookies();
-  return createServerComponentClient<Database>({ 
-    cookies: () => cookieStore 
-  });
+  try {
+    const cookieStore = await cookies()
+    return createServerComponentClient<Database>({ 
+      cookies: () => cookieStore 
+    });
+  } catch (error) {
+    console.error('Error creating client:', error);
+    return null;
+  }
 }
 
 async function getSession() {
   try {
     const supabase = await createClient();
-    const { data: { session } } = await supabase.auth.getSession();
+    if (!supabase) return null;
+
+    const { data: { session }, error } = await supabase.auth.getSession();
+    if (error) {
+      console.error('Auth error:', error);
+      return null;
+    }
     return session;
   } catch (error) {
-    console.error('Error getting session:', error);
+    console.error('Session error:', error);
     return null;
   }
 }
@@ -56,7 +65,13 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const session = await getSession();
+  let session = null;
+  try {
+    session = await getSession();
+  } catch (error) {
+    console.error('Layout error:', error);
+    // Continue without session
+  }
 
   return (
     <html lang="nl" suppressHydrationWarning className="h-full">
