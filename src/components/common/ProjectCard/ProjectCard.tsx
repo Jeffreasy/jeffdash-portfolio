@@ -51,15 +51,17 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
                 key={tech}
                 className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-sm"
               >
-                <div className="w-4 h-4 relative">
+                <div className="w-4 h-4 relative shrink-0">
                   <Image
                     src={`/icons/${tech.toLowerCase()}.svg`}
                     alt={tech}
-                    fill
+                    width={16}
+                    height={16}
                     className="object-contain"
+                    style={{ maxWidth: '16px', maxHeight: '16px' }}
                   />
                 </div>
-                {tech}
+                <span className="truncate">{tech}</span>
               </span>
             ))}
           </div>
