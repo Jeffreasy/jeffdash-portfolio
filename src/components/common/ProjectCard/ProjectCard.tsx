@@ -51,13 +51,14 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
                 key={tech}
                 className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-sm"
               >
-                <Image
-                  src={`/icons/${tech.toLowerCase()}.svg`}
-                  alt={tech}
-                  width={16}
-                  height={16}
-                  className="object-contain"
-                />
+                <div className="w-4 h-4 relative">
+                  <Image
+                    src={`/icons/${tech.toLowerCase()}.svg`}
+                    alt={tech}
+                    fill
+                    className="object-contain"
+                  />
+                </div>
                 {tech}
               </span>
             ))}
