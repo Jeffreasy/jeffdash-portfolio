@@ -1,11 +1,18 @@
 import React from 'react';
 
-// Params type to access the slug
+// Define types for params and searchParams
+type PageParams = { slug: string };
+type SearchParams = { [key: string]: string | string[] | undefined };
+
+// Define the Props type using the above types
 type Props = {
-  params: { slug: string };
-  searchParams: { [key: string]: string | string[] | undefined };
+  params: PageParams;
+  searchParams: SearchParams;
 };
 
-export default function BlogDetailPage({ params }: Props) {
+// Explicitly type the component with React.FC
+const BlogDetailPage: React.FC<Props> = ({ params }) => {
   return <div>Blog Post Detail Page for: {params.slug}</div>;
-} 
+};
+
+export default BlogDetailPage; 
