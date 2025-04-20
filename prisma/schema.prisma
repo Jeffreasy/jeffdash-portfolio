@@ -3,8 +3,8 @@
 
 generator client {
   provider = "prisma-client-js"
-  // Standaard output locatie, aanpassen indien nodig voor monorepo etc.
-  output   = "node_modules/.prisma/client"
+  // Zorg dat de output naar de hoofd node_modules map wijst
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -101,4 +101,4 @@ model Post {
 
 //   // Relatie naar Posts (als auteur)
 //   // posts         Post[]
-// }
+// } 
