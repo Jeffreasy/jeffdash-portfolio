@@ -10,9 +10,7 @@ type Props = {
   searchParams: SearchParams;
 };
 
-// Explicitly type the component with React.FC
-const BlogDetailPage: React.FC<Props> = ({ params }) => {
+// Use a standard function component definition
+export default function BlogDetailPage({ params }: Props) {
   return <div>Blog Post Detail Page for: {params.slug}</div>;
-};
-
-export default BlogDetailPage; 
+} 
