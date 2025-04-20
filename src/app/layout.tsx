@@ -1,21 +1,21 @@
+// src/app/layout.tsx - OORSPRONKELIJKE STAAT HERSTELD
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-// Core Mantine styles package first
 import '@mantine/core/styles.css';
 import "./globals.css";
 import { MantineProvider, ColorSchemeScript, mantineHtmlProps } from '@mantine/core';
-import { GoogleAnalytics } from '@next/third-parties/google';
+// import { GoogleAnalytics } from '@next/third-parties/google'; // Houd GA even uitgeschakeld
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Jeffdash Portfolio", // Pas dit aan indien gewenst
-  description: "Portfolio van Jeffrey", // Pas dit aan indien gewenst
+  title: "Jeffdash Portfolio",
+  description: "Portfolio van Jeffrey",
 };
 
-const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+// const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
 export default function RootLayout({
   children,
@@ -29,11 +29,9 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <MantineProvider defaultColorScheme="light">
-          <Header />
           <main>{children}</main>
-          <Footer />
         </MantineProvider>
-        {gaId && <GoogleAnalytics gaId={gaId} />}
+        {/* {gaId && <GoogleAnalytics gaId={gaId} />} */}
       </body>
     </html>
   );

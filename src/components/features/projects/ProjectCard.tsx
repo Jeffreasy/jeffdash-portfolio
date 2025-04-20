@@ -33,7 +33,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
 
         {/* NU ACTIEF: Tags (Technologieën) */}
         <Group gap="xs" mt="auto">
-          {project.technologies?.slice(0, 3).map((tag: string) => (
+          {project.technologies?.slice(0, 3).map((tag) => (
             <Badge key={tag} size="sm" variant="light">
               {tag}
             </Badge>
@@ -88,7 +88,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
           </Text>
         )}
         <Group gap="xs" mt="auto">
-          {project.technologies?.slice(0, 3).map((tag: string) => (
+          {project.technologies?.slice(0, 3).map((tag) => (
             <Badge key={tag} size="sm" variant="light">
               {tag}
             </Badge>

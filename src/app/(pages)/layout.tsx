@@ -1,3 +1,4 @@
+// src/app/(pages)/layout.tsx - Hersteld naar simpele wrapper
 import React from 'react';
 
 export default function PagesLayout({
@@ -5,6 +6,6 @@ export default function PagesLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Deze layout kan later uitgebreid worden met bijv. een gedeelde header/footer voor deze pagina's
+  // Deze layout erft de RootLayout (incl. Header/Footer)
   return <>{children}</>;
 } 
