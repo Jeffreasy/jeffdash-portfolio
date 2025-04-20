@@ -1,0 +1,47 @@
+# Zie https://help.github.com/articles/ignoring-files/ voor meer over .gitignore bestanden.
+
+# Dependencies
+/node_modules
+/.pnp
+.pnp.js
+.pnp.loader.mjs
+
+# Testing
+/coverage
+
+# Next.js
+/.next/
+/out/
+
+# Production
+/build
+
+# Miscellaneous
+.DS_Store
+*.local
+
+# Environment variables
+.env
+.env*.local
+
+# Prisma
+# Voeg hier eventuele gegenereerde Prisma client mappen toe als je een custom output pad gebruikt
+# /generated/prisma-client
+
+# IDE configuration files
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.sublime-workspace
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+.idea
+.fleet
