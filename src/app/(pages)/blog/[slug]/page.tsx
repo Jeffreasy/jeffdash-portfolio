@@ -1,8 +1,11 @@
 import React from 'react';
 
-// Use inline type for props, removing custom Props, PageParams, SearchParams
-export default function BlogDetailPage({ params }: { params: { slug: string } }) {
-  // We only need params for this example, so searchParams can be omitted
-  // if not used, to keep the component signature minimal.
+// Revert to Props type similar to ProjectDetailPage
+type Props = {
+  params: { slug: string };
+  // searchParams removed for now to match ProjectDetailPage structure
+};
+
+export default function BlogDetailPage({ params }: Props) {
   return <div>Blog Post Detail Page for: {params.slug}</div>;
 } 
