@@ -14,6 +14,7 @@ import { notFound } from 'next/navigation'; // Importeer notFound
 export const revalidate = 3600;
 
 // --- Dynamische Metadata Generatie (SEO) --- //
+// Restore explicit type for props
 export async function generateMetadata(props: { params: { slug: string } }, parent: ResolvingMetadata): Promise<Metadata> {
   const slug = props.params.slug;
   // Haal de post op specifiek voor metadata
@@ -87,7 +88,7 @@ export async function generateMetadata(props: { params: { slug: string } }, pare
 }
 
 // --- Pagina Component --- //
-// Gebruik het type direct in de functiehandtekening
+// Restore explicit type for props/params
 export default async function BlogPostPage({ params }: { params: { slug: string } }) {
   const slug = params.slug;
 

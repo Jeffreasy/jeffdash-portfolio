@@ -52,7 +52,7 @@ export default function BlogPostCard({ post }: BlogPostCardProps) {
 
         {/* Tags */}
         <Group gap="xs" mt="auto">
-          {post.tags?.slice(0, 3).map((tag) => (
+          {post.tags?.slice(0, 3).map((tag: string) => (
             <Badge key={tag} size="sm" variant="outline">
               {tag}
             </Badge>

@@ -57,7 +57,7 @@ export default function ProjectForm({
   // --- State Management --- 
   // State voor bestaande afbeeldingen (incl. hun bijgewerkte alt teksten)
   const [existingImagesData, setExistingImagesData] = useState<ExistingImage[]>(() => {
-    return project?.images?.map(img => ({ 
+    return project?.images?.map((img: FullProjectType['images'][number]) => ({ 
       id: img.id,
       url: img.url,
       altText: img.altText,

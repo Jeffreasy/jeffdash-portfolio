@@ -2,8 +2,10 @@
 
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache'; // Importeer revalidatePath
-// Importeer direct van de gegenereerde output locatie
-import { Prisma, Project as PrismaProject } from '@prisma/client'; 
+// Importeer de Prisma namespace EN de model types
+import { Prisma } from '@prisma/client'; // Import Prisma namespace
+import type { Project } from '@prisma/client'; // Import Project type
+export type PrismaProject = Project; // Alias and Export Project as PrismaProject
 import { z } from 'zod'; // Importeer Zod
 import { redirect } from 'next/navigation'; // Importeer redirect
 import cloudinary from '@/lib/cloudinary'; // Importeer Cloudinary config
@@ -11,10 +13,8 @@ import streamifier from 'streamifier'; // Nodig om buffer naar stream te convert
 import { cookies } from 'next/headers'; // Importeer cookies
 import jwt from 'jsonwebtoken'; // Importeer JWT
 
-// Exporteer het hernoemde type voor gebruik elders
-export type { PrismaProject };
-
 // Definieer een type voor de data die we nodig hebben in de findMany call
+// Gebruik de namespace voor Prisma types
 const featuredProjectSelect = {
   id: true,
   slug: true,
@@ -34,7 +34,7 @@ const featuredProjectSelect = {
 } satisfies Prisma.ProjectSelect;
 
 // Afgeleid type van de select query
-// Gebruik de hernoemde PrismaProject voor duidelijkheid
+// Gebruik de namespace
 type FetchedProjectType = Prisma.ProjectGetPayload<{ select: typeof featuredProjectSelect }>;
 
 // Definieer het uiteindelijke type dat we teruggeven
@@ -100,6 +100,7 @@ export async function getProjects(): Promise<PrismaProject[]> { // Update return
 
 // Placeholder voor het ophalen van een enkel project
 // Definieer een selectie voor alle benodigde velden
+// Gebruik de namespace
 const fullProjectSelect = {
   id: true,
   slug: true,
@@ -128,6 +129,7 @@ const fullProjectSelect = {
 } satisfies Prisma.ProjectSelect;
 
 // Definieer het type voor een volledig project
+// Gebruik de namespace
 export type FullProjectType = Prisma.ProjectGetPayload<{ select: typeof fullProjectSelect }>;
 
 // Gebruik het nieuwe type
@@ -373,7 +375,7 @@ export async function createProjectAction(prevState: ProjectFormState | undefine
     const uploadedImageData: { url: string; order: number; altText: string }[] = [];
 
     // 3. Start Transactie
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // 3a. Upload afbeeldingen naar Cloudinary
       for (let i = 0; i < imageFiles.length; i++) {
         const file = imageFiles[i];
@@ -625,4 +627,13 @@ export async function updateProjectAction(prevState: ProjectFormState | undefine
   revalidatePath('/');
 
   redirect('/admin_area/projects');
+}
+
+// --- Fix Implicit Any for tx --- 
+// Assuming tx is used inside prisma.$transaction
+async function someTransactionalFunction() {
+  await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+    // use tx here
+    // Voorbeeld: await tx.project.update(...)
+  });
 } 

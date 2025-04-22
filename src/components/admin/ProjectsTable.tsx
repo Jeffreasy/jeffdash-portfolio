@@ -7,14 +7,11 @@ import Link from 'next/link';
 import { deleteProjectAction } from '@/lib/actions/projects';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
-// We moeten het volledige Prisma Project type importeren om alle velden te hebben
-// Het type dat we in de publieke actions gebruikten was mogelijk beperkt
-// Laten we aannemen dat we het volledige type nodig hebben hier.
-// Pas dit pad aan indien nodig!
-import type { Project as PrismaProject } from '../../../node_modules/.prisma/client'; 
+// Import het project type zoals gedefinieerd in de actions
+import type { PrismaProject } from '@/lib/actions/projects';
 
 interface ProjectsTableProps {
-  projects: PrismaProject[];
+  projects: PrismaProject[]; // Gebruik het geïmporteerde type
 }
 
 export default function ProjectsTable({ projects }: ProjectsTableProps) {

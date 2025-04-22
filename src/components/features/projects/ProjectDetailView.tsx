@@ -61,11 +61,13 @@ export default function ProjectDetailView({ project }: ProjectDetailViewProps) {
           {project.category && (
             <Badge size="lg" variant="light" color="teal">{project.category}</Badge>
           )}
-          {project.technologies?.map((tech) => (
-            <Badge key={tech} size="lg" variant="outline">
-              {tech}
-            </Badge>
-          ))}
+          <Group wrap="wrap" gap="xs" mt="sm">
+            {project.technologies.map((tech: string) => (
+              <Badge key={tech} variant="light" radius="sm">
+                {tech}
+              </Badge>
+            ))}
+          </Group>
         </Group>
 
         {/* Externe Links */}
