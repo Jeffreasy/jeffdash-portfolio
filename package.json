@@ -26,6 +26,7 @@
     "bcrypt": "^5.1.1",
     "cloudinary": "^2.6.0",
     "framer-motion": "^11.3.19",
+    "jose": "^6.0.10",
     "jsonwebtoken": "^9.0.2",
     "next": "^15.3.1",
     "react": "^19.1.0",
