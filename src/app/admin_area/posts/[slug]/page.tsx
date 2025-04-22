@@ -5,12 +5,13 @@ import { IconAlertCircle } from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
 
 interface EditPostPageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
-export default async function EditPostPage({ params }: EditPostPageProps) {
+export default async function EditPostPage(props: EditPostPageProps) {
+  const params = await props.params;
   const { slug } = params;
   const post = await getPostBySlugForAdmin(slug);
 

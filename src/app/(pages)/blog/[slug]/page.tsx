@@ -11,11 +11,8 @@ import { notFound } from 'next/navigation'; // Importeer notFound
 // }
 
 // --- Dynamische Metadata Generatie (SEO) --- //
-export async function generateMetadata(
-  // Gebruik het type direct hier
-  { params }: { params: { slug: string } },
-  parent: ResolvingMetadata 
-): Promise<Metadata> {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }, parent: ResolvingMetadata): Promise<Metadata> {
+  const params = await props.params;
   const slug = params.slug;
   // Haal de post op specifiek voor metadata
   const post = await getPostBySlug(slug);
@@ -89,7 +86,8 @@ export async function generateMetadata(
 
 // --- Pagina Component --- //
 // Gebruik het type direct in de functiehandtekening
-export default async function BlogPostPage({ params }: { params: { slug: string } }) {
+export default async function BlogPostPage(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const slug = params.slug;
 
   // Haal de volledige post data op voor de pagina weergave

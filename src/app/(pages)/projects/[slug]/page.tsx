@@ -7,14 +7,12 @@ import { notFound } from 'next/navigation'; // Importeer notFound
 
 // Definieer het type voor de props, inclusief params
 interface ProjectDetailPageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 // Genereer dynamische metadata voor SEO
-export async function generateMetadata(
-  { params }: ProjectDetailPageProps,
-  parent: ResolvingMetadata
-): Promise<Metadata> {
+export async function generateMetadata(props: ProjectDetailPageProps, parent: ResolvingMetadata): Promise<Metadata> {
+  const params = await props.params;
   const slug = params.slug;
   const project = await getProjectBySlug(slug);
 
@@ -62,7 +60,8 @@ export async function generateMetadata(
 }
 
 // De pagina component zelf
-export default async function ProjectDetailPage({ params }: ProjectDetailPageProps) {
+export default async function ProjectDetailPage(props: ProjectDetailPageProps) {
+  const params = await props.params;
   // Haal de slug op (niet meer nodig om params te awaiten hier,
   // want we gebruiken het type ProjectDetailPageProps)
   const slug = params.slug;
