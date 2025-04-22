@@ -14,9 +14,8 @@ import { notFound } from 'next/navigation'; // Importeer notFound
 export const revalidate = 3600;
 
 // --- Dynamische Metadata Generatie (SEO) --- //
-export async function generateMetadata(props: { params: Promise<{ slug: string }> }, parent: ResolvingMetadata): Promise<Metadata> {
-  const params = await props.params;
-  const slug = params.slug;
+export async function generateMetadata(props: { params: { slug: string } }, parent: ResolvingMetadata): Promise<Metadata> {
+  const slug = props.params.slug;
   // Haal de post op specifiek voor metadata
   const post = await getPostBySlug(slug);
 
