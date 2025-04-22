@@ -5,16 +5,16 @@ import { Metadata, ResolvingMetadata } from 'next';
 import { SITE_CONFIG } from '@/lib/config'; // Importeer site config
 import { notFound } from 'next/navigation'; // Importeer notFound
 
-// Definieer het type voor de props, inclusief params
-interface BlogPostPageProps {
-  params: { slug: string };
-  // searchParams?: { [key: string]: string | string[] | undefined }; // Optioneel, indien nodig
-}
+// Verwijder of commentarieer de aparte interface (niet strikt nodig hier)
+// interface BlogPostPageProps {
+//   params: { slug: string };
+// }
 
 // --- Dynamische Metadata Generatie (SEO) --- //
 export async function generateMetadata(
-  { params }: BlogPostPageProps,
-  parent: ResolvingMetadata // Toegang tot metadata van bovenliggende layouts
+  // Gebruik het type direct hier
+  { params }: { params: { slug: string } },
+  parent: ResolvingMetadata 
 ): Promise<Metadata> {
   const slug = params.slug;
   // Haal de post op specifiek voor metadata
@@ -88,7 +88,8 @@ export async function generateMetadata(
 }
 
 // --- Pagina Component --- //
-export default async function BlogPostPage({ params }: BlogPostPageProps) {
+// Gebruik het type direct in de functiehandtekening
+export default async function BlogPostPage({ params }: { params: { slug: string } }) {
   const slug = params.slug;
 
   // Haal de volledige post data op voor de pagina weergave
