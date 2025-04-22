@@ -81,7 +81,7 @@ export default function Header() {
         position: 'sticky',
         top: 0,
         zIndex: 1000,
-        backgroundColor: 'var(--mantine-color-gray-1)',
+        backgroundColor: 'var(--mantine-color-dark-6)',
       }}
     >
       <Container size="lg">

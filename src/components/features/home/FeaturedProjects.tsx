@@ -1,63 +1,49 @@
 // Dit is nu een Server Component
 import React from 'react';
-// Belangrijk: Zorg ervoor dat ProjectCard goed is ontworpen.
-// Deze zou Mantine's Card, Image, Text, Badge, Group, Button/Anchor moeten gebruiken.
-import ProjectCard from '../projects/ProjectCard';
-import { SimpleGrid, Container, Title, Button, Group, Text } from '@mantine/core'; // Title, Button, Group, Text toegevoegd
+// Verwijder ProjectCard import hier, wordt nu gebruikt in AnimatedProjectGrid
+import { Container, Title, Button, Group, Text } from '@mantine/core';
 import Link from 'next/link';
-import { IconArrowRight } from '@tabler/icons-react'; // Voor button icoon (installeer @tabler/icons-react)
-// Importeer de data ophaal functie en het type
+import { IconArrowRight } from '@tabler/icons-react';
 import { getFeaturedProjects, FeaturedProjectType } from '@/lib/actions/projects';
+// Verwijder motion import
+// Importeer de nieuwe client component voor de animatie
+import AnimatedProjectGrid from './AnimatedProjectGrid';
 
-// Component is nu async om data te kunnen awaiten
+// Verwijder animatie varianten hier
+
+// Component is async om data te kunnen awaiten
 export default async function FeaturedProjects() {
-  // --- Data Ophalen --- (Gebeurt nu op de server)
+  // --- Data Ophalen --- (Gebeurt op de server)
   const { featuredProjects, totalProjectCount } = await getFeaturedProjects();
 
-  // --- Render Logic ---
-  // Toon niets of een bericht als er geen projecten zijn
+  // --- Render Logic --- (Geen data? Toon bericht)
   if (!featuredProjects || featuredProjects.length === 0) {
     return (
       <Container size="lg" py={{ base: 'xl', sm: 'calc(var(--mantine-spacing-xl) * 2)' }}>
-        <Text ta="center" c="dimmed">Momenteel geen projecten om weer te geven.</Text>
+        <Text ta="center" c="dimmed">Momenteel geen uitgelichte projecten om weer te geven.</Text>
       </Container>
     );
   }
 
+  // --- Render Logic --- (Wel data? Toon titel, grid en knop)
   return (
     <Container size="lg" py={{ base: 'xl', sm: 'calc(var(--mantine-spacing-xl) * 2)' }}>
-      {/* Sectie Titel */}
       <Title order={2} ta="center" mb="xl">
         Uitgelichte Projecten
       </Title>
 
-      {/* Grid met Project Kaarten */}
-      <SimpleGrid
-        cols={{ base: 1, sm: 2, md: 3 }} // Responsive kolommen
-        spacing="xl" // Ruimte tussen de kaarten
-      >
-        {/* Gebruik de opgehaalde featuredProjects */}
-        {featuredProjects.map((project: FeaturedProjectType) => (
-          // De ProjectCard component toont de details.
-          // Zorg ervoor dat deze component de 'project' prop gebruikt om:
-          // - De afbeelding (imageUrl) te tonen
-          // - De titel (title) te tonen
-          // - De beschrijving (description) te tonen
-          // - De tags (tags) weer te geven (bijv. met Mantine's <Badge>)
-          // - Te linken naar de detailpagina: <Anchor component={Link} href={`/projects/${project.slug}`}>
-          <ProjectCard key={project.id} project={project} />
-        ))}
-      </SimpleGrid>
+      {/* Render de Client Component met de project data */}
+      <AnimatedProjectGrid projects={featuredProjects} />
 
-      {/* Toon knop alleen als er meer projecten zijn dan getoond */}
+      {/* Knop blijft hetzelfde */}
       {totalProjectCount > featuredProjects.length && (
         <Group justify="center" mt="xl">
           <Button
             component={Link}
-            href="/projects" // Link naar je hoofd projectenpagina
-            variant="outline" // Subtielere stijl dan primaire CTA
+            href="/projects"
+            variant="outline"
             size="md"
-            rightSection={<IconArrowRight size={16} />} // Optioneel: icoon
+            rightSection={<IconArrowRight size={16} />}
           >
             Bekijk alle projecten
           </Button>

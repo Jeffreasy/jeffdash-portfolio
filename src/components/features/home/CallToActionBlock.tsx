@@ -4,7 +4,15 @@ import Link from 'next/link';
 
 const CallToActionBlock: React.FC = () => {
   return (
-    <Container size="md" py="xl" style={{ backgroundColor: 'var(--mantine-color-gray-1)', borderRadius: 'var(--mantine-radius-md)' }}>
+    <Container 
+      size="md" 
+      py="xl" 
+      style={{
+         // Gebruik een donkerdere achtergrond voor dark mode
+         backgroundColor: 'var(--mantine-color-dark-6)', // Gewijzigd van gray-1 naar dark-6
+         borderRadius: 'var(--mantine-radius-md)' 
+      }}
+    >
       <Title order={2} ta="center">Klaar om samen te werken?</Title>
       <Text ta="center" mt="sm">Laten we bespreken hoe ik kan helpen met jouw volgende project.</Text>
       <Group justify="center" mt="xl">

@@ -1,115 +1,130 @@
 "use client"; // Image component vereist client-side rendering
 
-import React from 'react';
+import React, { useRef } from 'react';
 import Link from 'next/link';
 import { Card, Image, Text, Stack, Badge, Group, Button } from '@mantine/core';
 import type { FeaturedProjectType } from '@/lib/actions/projects';
+import {
+  motion,
+  useMotionValue,
+  useTransform,
+  useSpring,
+} from 'framer-motion';
 
 type ProjectCardProps = {
   project: FeaturedProjectType;
 };
 
 export default function ProjectCard({ project }: ProjectCardProps) {
-  // Stap 5: Voeg Knop toe (volledige kaart hersteld)
+  const cardRef = useRef<HTMLDivElement>(null);
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  const handleMouseLeave = () => {
+    mouseX.set(0);
+    mouseY.set(0);
+  };
+
+  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    const { left, top, width, height } = cardRef.current.getBoundingClientRect();
+    mouseX.set((event.clientX - left) / width - 0.5);
+    mouseY.set((event.clientY - top) / height - 0.5);
+  };
+
+  // --- Tilt Animatie (Verfijnd) ---
+  // Iets subtielere rotatie
+  const rotateX = useTransform(mouseY, [-0.5, 0.5], [8, -8]); // Was 10
+  const rotateY = useTransform(mouseX, [-0.5, 0.5], [-8, 8]); // Was 10
+
+  // Iets strakkere spring physics
+  const springConfig = { stiffness: 350, damping: 35, mass: 1 }; // Iets stijver
+  const rotateXSpring = useSpring(rotateX, springConfig);
+  const rotateYSpring = useSpring(rotateY, springConfig);
+
+  // --- Interne Parallax (Nieuw) ---
+  // Transformeer muispositie naar Z-translatie voor interne elementen
+  // Verschillende ranges voor diepte effect
+  const imageTranslateZ = useTransform(mouseY, [-0.5, 0.5], [-15, 35]); // Afbeelding beweegt meer
+  const contentTranslateZ = useTransform(mouseY, [-0.5, 0.5], [-10, 25]);
+  const buttonTranslateZ = useTransform(mouseY, [-0.5, 0.5], [-5, 45]); // Knop komt het meest naar voren
+
+  const imageZSpring = useSpring(imageTranslateZ, springConfig);
+  const contentZSpring = useSpring(contentTranslateZ, springConfig);
+  const buttonZSpring = useSpring(buttonTranslateZ, springConfig);
+
   return (
-    <Card shadow="sm" padding="lg" radius="md" withBorder h="100%">
-      {/* NU ACTIEF: Afbeelding */}
-      <Card.Section>
-        <Image
-          src={project.featuredImageUrl || 'https://via.placeholder.com/400x200/dee2e6/868e96.png?text=No+Image'}
-          height={180}
-          alt={project.featuredImageAlt || project.title}
-        />
-      </Card.Section>
-
-      <Stack mt="md" mb="xs" gap="xs" style={{ flexGrow: 1 }}>
-        <Text fw={600} size="lg" lineClamp={2}>{project.title}</Text>
-
-        {project.shortDescription && (
-          <Text size="sm" c="dimmed" lineClamp={3}>
-            {project.shortDescription}
-          </Text>
-        )}
-
-        {/* NU ACTIEF: Tags (Technologieën) */}
-        <Group gap="xs" mt="auto">
-          {project.technologies?.slice(0, 3).map((tag: string) => (
-            <Badge key={tag} size="sm" variant="light">
-              {tag}
-            </Badge>
-          ))}
-          {project.technologies && project.technologies.length > 3 && (
-             <Badge size="sm" variant="outline">+{project.technologies.length - 3}</Badge>
-          )}
-        </Group>
-      </Stack>
-
-      {/* NU ACTIEF: Knop naar detailpagina */}
-      <Button
-        component={Link}
-        href={`/projects/${project.slug}`}
-        variant="light"
-        color="blue"
-        fullWidth
-        mt="md"
-        radius="md"
+    <motion.div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        perspective: '1000px',
+        rotateX: rotateXSpring,
+        rotateY: rotateYSpring,
+        transformStyle: 'preserve-3d', // Belangrijk voor interne Z-translatie
+      }}
+      whileHover={{ scale: 1.02 }} // Iets subtielere schaal
+      transition={{ type: 'spring', stiffness: 350, damping: 35 }} // Overeenkomstige transitie
+    >
+      <Card
+        shadow="sm" padding="lg" radius="md" withBorder h="100%"
+        style={{ transformStyle: 'preserve-3d' }} // Ook hier preserve-3d
       >
-        Bekijk Details
-      </Button>
-    </Card>
+        <Card.Section>
+          <motion.div style={{ translateZ: imageZSpring }}> {/* Koppel Z aan spring */}
+            <Image
+              src={project.featuredImageUrl || 'https://via.placeholder.com/400x200/dee2e6/868e96.png?text=No+Image'}
+              height={180}
+              alt={project.featuredImageAlt || project.title}
+              style={{ transform: 'translateZ(0)' }} // Voorkom dubbele transformatie
+            />
+          </motion.div>
+        </Card.Section>
+
+        <motion.div style={{ translateZ: contentZSpring }}> {/* Koppel Z aan spring */}
+          <Stack
+            mt="md" mb="xs" gap="xs"
+            style={{ flexGrow: 1, transform: 'translateZ(0)' }} // Voorkom dubbele transformatie
+          >
+            <Text fw={600} size="lg" lineClamp={2}>{project.title}</Text>
+            {project.shortDescription && (
+              <Text size="sm" c="dimmed" lineClamp={3}>
+                {project.shortDescription}
+              </Text>
+            )}
+            <Group gap="xs" mt="auto">
+              {project.technologies?.slice(0, 3).map((tag: string) => (
+                <Badge key={tag} size="sm" variant="light">
+                  {tag}
+                </Badge>
+              ))}
+              {project.technologies && project.technologies.length > 3 && (
+                 <Badge size="sm" variant="outline">+{project.technologies.length - 3}</Badge>
+              )}
+            </Group>
+          </Stack>
+        </motion.div>
+
+        <motion.div style={{ translateZ: buttonZSpring }}> {/* Koppel Z aan spring */}
+          <Button
+            component={Link}
+            href={`/projects/${project.slug}`}
+            variant="light"
+            color="blue"
+            fullWidth
+            mt="md"
+            radius="md"
+            style={{ transform: 'translateZ(0)' }} // Voorkom dubbele transformatie
+          >
+            Bekijk Details
+          </Button>
+        </motion.div>
+      </Card>
+    </motion.div>
   );
 }
 
 /*
 // --- OORSPRONKELIJKE CODE HIERONDER (UITGECOMMENTEERD) ---
-import Link from 'next/link';
-import { Card, Image, Text, Badge, Group, Button, Stack } from '@mantine/core';
-import type { FeaturedProjectType } from '@/lib/actions/projects';
-
-type ProjectCardProps = {
-  project: FeaturedProjectType;
-};
-
-export default function ProjectCard({ project }: ProjectCardProps) {
-  return (
-    <Card shadow="sm" padding="lg" radius="md" withBorder h="100%">
-      <Card.Section>
-        <Image
-          src={project.featuredImageUrl || 'https://via.placeholder.com/400x200/dee2e6/868e96.png?text=No+Image'}
-          height={180}
-          alt={project.featuredImageAlt || project.title}
-        />
-      </Card.Section>
-      <Stack mt="md" mb="xs" gap="xs" style={{ flexGrow: 1 }}>
-        <Text fw={600} size="lg" lineClamp={2}>{project.title}</Text>
-        {project.shortDescription && (
-          <Text size="sm" c="dimmed" lineClamp={3}>
-            {project.shortDescription}
-          </Text>
-        )}
-        <Group gap="xs" mt="auto">
-          {project.technologies?.slice(0, 3).map((tag: string) => (
-            <Badge key={tag} size="sm" variant="light">
-              {tag}
-            </Badge>
-          ))}
-          {project.technologies && project.technologies.length > 3 && (
-             <Badge size="sm" variant="outline">+{project.technologies.length - 3}</Badge>
-          )}
-        </Group>
-      </Stack>
-      <Button
-        component={Link}
-        href={`/projects/${project.slug}`}
-        variant="light"
-        color="blue"
-        fullWidth
-        mt="md"
-        radius="md"
-      >
-        Bekijk Details
-      </Button>
-    </Card>
-  );
-}
-*/ 
+*/

@@ -1,0 +1,102 @@
+/* src/components/shared/MarkdownRenderer.module.css */
+
+/* Voeg hier je eigen styling toe voor markdown elementen */
+/* Dit zijn basisvoorbeelden, pas aan naar je eigen thema/design */
+
+.markdownContent {
+  line-height: 1.7;
+  color: var(--mantine-color-text); /* Gebruik Mantine's text kleur */
+}
+
+.markdownContent h1,
+.markdownContent h2,
+.markdownContent h3,
+.markdownContent h4,
+.markdownContent h5,
+.markdownContent h6 {
+  margin-top: 1.5em;
+  margin-bottom: 0.8em;
+  font-weight: 600;
+}
+
+.markdownContent h1 { font-size: 2em; }
+.markdownContent h2 { font-size: 1.6em; border-bottom: 1px solid var(--mantine-color-gray-3); padding-bottom: 0.3em; }
+.markdownContent h3 { font-size: 1.3em; }
+.markdownContent h4 { font-size: 1.1em; }
+
+.markdownContent p {
+  margin-bottom: 1em;
+}
+
+.markdownContent a {
+  color: var(--mantine-color-blue-filled); /* Mantine's link kleur */
+  text-decoration: none;
+}
+
+.markdownContent a:hover {
+  text-decoration: underline;
+}
+
+.markdownContent ul,
+.markdownContent ol {
+  margin-left: 1.5em;
+  margin-bottom: 1em;
+}
+
+.markdownContent li > p {
+    margin-bottom: 0.2em; /* Minder ruimte onder paragrafen in lijstitems */
+}
+
+.markdownContent blockquote {
+  border-left: 4px solid var(--mantine-color-gray-3);
+  padding-left: 1em;
+  margin-left: 0;
+  margin-bottom: 1em;
+  color: var(--mantine-color-dimmed);
+}
+
+.markdownContent pre,
+.markdownContent code {
+  font-family: var(--mantine-font-family-monospace);
+  font-size: 0.9em;
+}
+
+.markdownContent pre {
+  background-color: var(--mantine-color-dark-6); /* Aanpassen voor light/dark theme */
+  color: var(--mantine-color-gray-0);
+  padding: 1em;
+  border-radius: var(--mantine-radius-sm);
+  overflow-x: auto;
+  margin-bottom: 1em;
+}
+
+.markdownContent code:not(pre > code) {
+  background-color: var(--mantine-color-gray-1);
+  padding: 0.2em 0.4em;
+  border-radius: var(--mantine-radius-xs);
+}
+
+.markdownContent table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1em;
+}
+
+.markdownContent th,
+.markdownContent td {
+  border: 1px solid var(--mantine-color-gray-3);
+  padding: 0.6em;
+}
+
+.markdownContent th {
+  font-weight: 600;
+  background-color: var(--mantine-color-gray-0);
+}
+
+.markdownContent img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin-top: 1em;
+    margin-bottom: 1em;
+} 
