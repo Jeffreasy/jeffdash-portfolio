@@ -8,7 +8,7 @@ declare global {
 }
 
 // Log the DATABASE_URL to verify it's being read correctly at runtime
-console.log('DATABASE_URL:', process.env.DATABASE_URL);
+// console.log('DATABASE_URL:', process.env.DATABASE_URL); // Removed after debugging
 
 export const prisma =
   global.prisma ||
