@@ -2,6 +2,9 @@ import React from 'react';
 import { getProjects } from '@/lib/actions/projects';
 import ProjectList from '@/components/features/projects/ProjectList';
 
+// Add ISR revalidation (1 hour)
+export const revalidate = 3600;
+
 // Deze pagina is een Server Component
 export default async function ProjectsPage() {
   // Haal de projecten op aan de server-kant

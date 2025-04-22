@@ -59,6 +59,9 @@ export async function generateMetadata(props: ProjectDetailPageProps, parent: Re
   };
 }
 
+// Add ISR revalidation (1 hour)
+export const revalidate = 3600;
+
 // De pagina component zelf
 export default async function ProjectDetailPage(props: ProjectDetailPageProps) {
   const params = await props.params;

@@ -10,6 +10,9 @@ import { notFound } from 'next/navigation'; // Importeer notFound
 //   params: { slug: string };
 // }
 
+// Add ISR revalidation (1 hour)
+export const revalidate = 3600;
+
 // --- Dynamische Metadata Generatie (SEO) --- //
 export async function generateMetadata(props: { params: Promise<{ slug: string }> }, parent: ResolvingMetadata): Promise<Metadata> {
   const params = await props.params;
@@ -86,8 +89,7 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
 
 // --- Pagina Component --- //
 // Gebruik het type direct in de functiehandtekening
-export default async function BlogPostPage(props: { params: Promise<{ slug: string }> }) {
-  const params = await props.params;
+export default async function BlogPostPage({ params }: { params: { slug: string } }) {
   const slug = params.slug;
 
   // Haal de volledige post data op voor de pagina weergave

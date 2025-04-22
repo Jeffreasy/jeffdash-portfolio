@@ -13,6 +13,9 @@ import CallToActionBlock from '@/components/features/home/CallToActionBlock';
 import { getPublishedPosts, type PublishedPostPreviewType } from '@/lib/actions/blog';
 import BlogPostCard from '@/components/features/blog/BlogPostCard';
 
+// Add ISR revalidation (1 hour)
+export const revalidate = 3600;
+
 // Pagina wordt async vanwege data fetching
 export default async function HomePage() {
   // Haal de laatste 3 blog posts op
