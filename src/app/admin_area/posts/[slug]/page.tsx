@@ -5,13 +5,13 @@ import { IconAlertCircle } from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
 
 interface EditPostPageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 export default async function EditPostPage(props: EditPostPageProps) {
-  const { slug } = props.params;
+  const { slug } = (await props.params);
   const post = await getPostBySlugForAdmin(slug);
 
   // Als de post niet gevonden wordt, toon een 404 pagina

@@ -7,12 +7,12 @@ import { notFound } from 'next/navigation'; // Importeer notFound
 
 // Definieer het type voor de props, inclusief params
 interface ProjectDetailPageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 // Genereer dynamische metadata voor SEO
 export async function generateMetadata(props: ProjectDetailPageProps, parent: ResolvingMetadata): Promise<Metadata> {
-  const slug = props.params.slug;
+  const slug = (await props.params).slug;
   const project = await getProjectBySlug(slug);
 
   if (!project) {
@@ -63,7 +63,7 @@ export const revalidate = 3600;
 
 // De pagina component zelf
 export default async function ProjectDetailPage(props: ProjectDetailPageProps) {
-  const slug = props.params.slug;
+  const slug = (await props.params).slug;
 
   // Haal het project op aan de server-kant
   const project = await getProjectBySlug(slug);

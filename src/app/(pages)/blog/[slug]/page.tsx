@@ -5,31 +5,21 @@ import { Metadata, ResolvingMetadata } from 'next';
 import { SITE_CONFIG } from '@/lib/config';
 import { notFound } from 'next/navigation';
 
-// Define the expected resolved type for params
-type PageParams = {
-  slug: string;
-};
-
-// Define the expected resolved type for searchParams
-type PageSearchParams = {
-  [key: string]: string | string[] | undefined;
-};
-
-// Define the type for the component props, including Promises for both params and searchParams
-type Props = {
-  params: Promise<PageParams>;
-  searchParams?: Promise<PageSearchParams>; // Wrap searchParams in a Promise
+// Define a specific type for this page's props
+// Only include params since searchParams are not used
+type BlogPageProps = {
+  params: Promise<{ slug: string }>;
 };
 
 export const revalidate = 3600;
 
+// Use the specific BlogPageProps type for generateMetadata
 export async function generateMetadata(
-  props: Props,
+  props: BlogPageProps,
   parent: ResolvingMetadata
 ): Promise<Metadata> {
   const params = await props.params; // Await the params promise
-  // const searchParams = await props.searchParams; // Await searchParams if needed
-  const slug = params.slug;
+  const slug = params.slug; // Access slug from the resolved object
 
   const post = await getPostBySlug(slug);
 
@@ -82,9 +72,9 @@ export async function generateMetadata(
   };
 }
 
-export default async function BlogPostPage(props: Props) {
+// Use the specific BlogPageProps type for BlogPostPage
+export default async function BlogPostPage(props: BlogPageProps) {
   const params = await props.params; // Await the params promise
-  // const searchParams = await props.searchParams; // Await searchParams if needed
   const slug = params.slug; // Access slug from the resolved object
 
   const post = await getPostBySlug(slug); // Use the resolved slug
