@@ -42,7 +42,7 @@ export default function AdminNavbar() {
       </div>
 
       {/* Logout Knop */}
-      <form action={logoutUser}>
+      <form action={logoutUser as any}>
         <Button
           type="submit"
           variant="light"

@@ -17,7 +17,7 @@ function SubmitButton() {
 }
 
 export default function ContactForm() {
-  const initialState: ContactFormState = { message: null, errors: {}, success: false };
+  const initialState: ContactFormState = { message: undefined, errors: {}, success: false };
   // Gebruik useFormState om de server action aan te roepen
   const [state, formAction] = useFormState(submitContactForm, initialState);
 
@@ -30,7 +30,7 @@ export default function ContactForm() {
   }, [state.success]);
 
   return (
-    <form ref={formRef} action={formAction} className="space-y-4">
+    <form ref={formRef} action={formAction as any} className="space-y-4">
       <Stack gap="md">
         {/* Toon algemeen bericht (succes of server-side fout) */}
         {state.message && !state.success && (
