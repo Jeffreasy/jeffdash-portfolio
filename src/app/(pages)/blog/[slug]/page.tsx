@@ -7,15 +7,8 @@ import { notFound } from 'next/navigation';
 
 export const revalidate = 3600;
 
-type PageProps = {
-  params: {
-    slug: string;
-  };
-};
-
-// Metadata functie
 export async function generateMetadata(
-  { params }: PageProps,
+  { params }: { params: { slug: string } },
   parent: ResolvingMetadata
 ): Promise<Metadata> {
   const slug = params.slug;
@@ -29,7 +22,8 @@ export async function generateMetadata(
   }
 
   const metaTitle = post.metaTitle || post.title;
-  const metaDescription = post.metaDescription || post.excerpt || SITE_CONFIG.description;
+  const metaDescription =
+    post.metaDescription || post.excerpt || SITE_CONFIG.description;
   const featuredImageUrl = post.featuredImageUrl;
   const canonicalUrl = `${SITE_CONFIG.url}/blog/${slug}`;
 
@@ -69,8 +63,11 @@ export async function generateMetadata(
   };
 }
 
-// Page component
-export default async function BlogPostPage({ params }: PageProps) {
+export default async function BlogPostPage({
+  params,
+}: {
+  params: { slug: string };
+}) {
   const post = await getPostBySlug(params.slug);
 
   if (!post) {
