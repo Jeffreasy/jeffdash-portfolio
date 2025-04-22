@@ -7,17 +7,13 @@ import ProjectForm from '@/components/admin/ProjectForm';
 import { getProjectBySlug, updateProjectAction } from '@/lib/actions/projects'; // Importeer get en update actions
 
 interface EditProjectPageProps {
-  params: Promise<{
+  params: {
     slug: string;
-  }>;
+  };
 }
 
 export default async function EditProjectPage(props: EditProjectPageProps) {
-  const params = await props.params;
-
-  const {
-    slug
-  } = params;
+  const { slug } = props.params;
 
   // Haal het project op met de direct beschikbare slug
   const project = await getProjectBySlug(slug);
