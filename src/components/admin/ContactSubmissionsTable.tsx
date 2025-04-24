@@ -160,7 +160,7 @@ export default function ContactSubmissionsTable({
         <Text size="sm" lineClamp={2}>{submission.message}</Text> {/* Toon eerste paar regels */}
         {/* TODO: Optioneel: knop om volledige bericht te zien in modal? */}
       </Table.Td>
-      <Table.Td>{formatDate(submission.createdAt)}</Table.Td>
+      <Table.Td>{formatDate(new Date(submission.createdAt))}</Table.Td>
       <Table.Td>
         <Badge color={submission.isRead ? 'gray' : 'blue'} variant="light">
           {submission.isRead ? 'Gelezen' : 'Nieuw'}

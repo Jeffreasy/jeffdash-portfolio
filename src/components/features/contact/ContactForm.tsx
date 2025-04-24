@@ -1,7 +1,7 @@
 'use client'; // Contact form will likely need client-side interaction
 
-import React, { useEffect } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
+import React, { useEffect, useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { TextInput, Textarea, Button, Stack, Group, Alert, LoadingOverlay } from '@mantine/core';
 import { IconCheck, IconAlertCircle } from '@tabler/icons-react';
 import { submitContactForm, type ContactFormState } from '@/lib/actions/contact';
@@ -18,8 +18,8 @@ function SubmitButton() {
 
 export default function ContactForm() {
   const initialState: ContactFormState = { message: undefined, errors: {}, success: false };
-  // Gebruik useFormState om de server action aan te roepen
-  const [state, formAction] = useFormState(submitContactForm, initialState);
+  // Gebruik nu React.useActionState
+  const [state, formAction] = useActionState(submitContactForm, initialState);
 
   // Optioneel: Reset formulier na succes
   const formRef = React.useRef<HTMLFormElement>(null);

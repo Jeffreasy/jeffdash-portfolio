@@ -1,123 +1,73 @@
 'use server';
 
-import { prisma } from '@/lib/prisma';
+import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
-import { Prisma, Post as PrismaPost } from '@prisma/client'; // Gebruik alias
 import { logger } from '@/lib/logger';
 import { z } from 'zod';
 import { redirect } from 'next/navigation';
-import { cookies } from 'next/headers';
-import jwt from 'jsonwebtoken';
-import { validateAdminSession } from './projects'; // Importeer validatie helper
+import { validateAdminSession } from './auth';
 
-// --- Types --- //
-export type { PrismaPost };
+// --- Types (Vereenvoudigd - TODO: Verbeteren) --- //
 
-// Herdefinieer JwtPayload hier of importeer uit gedeelde types
-interface JwtPayload {
-  userId: string;
-  role: string;
+// Basis interface voor een Post (pas aan op basis van tabel)
+interface Post {
+  id: string;
+  slug: string;
+  title: string;
+  content: string;
+  excerpt: string | null;
+  featuredImageUrl: string | null;
+  tags: string[];
+  category: string | null;
+  published: boolean;
+  publishedAt: string | null; // Timestamps zijn strings van Supabase
+  metaTitle: string | null;
+  metaDescription: string | null;
+  featuredImageAltText: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
-// Selecteer velden voor de blog post preview (lijstpagina)
-const postPreviewSelect = {
-  id: true,
-  slug: true,
-  title: true,
-  excerpt: true,
-  featuredImageUrl: true,
-  tags: true,
-  category: true,
-  publishedAt: true,
-  // SEO veld voor alt text van preview image
-  featuredImageAltText: true,
-} satisfies Prisma.PostSelect;
+// Type voor publieke post preview
+export type PublishedPostPreviewType = Pick<Post,
+  'id' | 'slug' | 'title' | 'excerpt' | 'featuredImageUrl' | 'tags' | 'category' | 'publishedAt' | 'featuredImageAltText'
+>;
 
-// Type voor de blog post preview
-export type PublishedPostPreviewType = Prisma.PostGetPayload<{ select: typeof postPreviewSelect }>;
+// Type voor volledige publieke post
+export type FullPostType = Post; // Voor nu, alle velden
 
-// Selecteer alle velden voor de volledige blog post (detailpagina)
-const fullPostSelect = {
-  id: true,
-  slug: true,
-  title: true,
-  content: true, // Volledige inhoud
-  excerpt: true,
-  featuredImageUrl: true,
-  tags: true,
-  category: true,
-  published: true,
-  publishedAt: true,
-  metaTitle: true, // SEO velden
-  metaDescription: true,
-  featuredImageAltText: true,
-  createdAt: true,
-  updatedAt: true,
-  // author: { select: { name: true } } // Optioneel: selecteer auteur naam als relatie actief is
-} satisfies Prisma.PostSelect;
+// Type voor admin lijst item
+export type AdminPostListItemType = Pick<Post,
+  'id' | 'slug' | 'title' | 'category' | 'published' | 'publishedAt' | 'createdAt'
+>;
 
-// Type voor de volledige blog post
-export type FullPostType = Prisma.PostGetPayload<{ select: typeof fullPostSelect }>;
+// Type voor volledige admin post
+export type FullAdminPostType = Post; // Voor nu, alle velden
 
-// Selecteer velden voor de admin post lijst
-const adminPostListSelect = {
-  id: true,
-  slug: true,
-  title: true,
-  category: true,
-  published: true,
-  publishedAt: true,
-  createdAt: true,
-} satisfies Prisma.PostSelect;
-
-// Type voor de admin post lijst
-export type AdminPostListItemType = Prisma.PostGetPayload<{ select: typeof adminPostListSelect }>;
-
-// Selecteer alle velden voor bewerken/details in admin
-const fullPostSelectAdmin = {
-  id: true,
-  slug: true,
-  title: true,
-  content: true,
-  excerpt: true,
-  featuredImageUrl: true,
-  tags: true,
-  category: true,
-  published: true,
-  publishedAt: true,
-  metaTitle: true,
-  metaDescription: true,
-  featuredImageAltText: true,
-  createdAt: true,
-  updatedAt: true,
-} satisfies Prisma.PostSelect;
-
-// Type voor volledige post in admin
-export type FullAdminPostType = Prisma.PostGetPayload<{ select: typeof fullPostSelectAdmin }>;
-
-// --- Zod Schema voor Post Validatie --- 
+// --- Zod Schema voor Post Validatie (blijft grotendeels hetzelfde) ---
 const PostSchema = z.object({
   title: z.string().min(3, { message: 'Titel moet minimaal 3 tekens bevatten.' }),
   slug: z.string().min(3, { message: 'Slug moet minimaal 3 tekens bevatten.' })
             .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, { message: 'Slug mag alleen kleine letters, cijfers en koppeltekens bevatten.' }),
   content: z.string().min(10, { message: 'Inhoud moet minimaal 10 tekens bevatten.'}),
-  excerpt: z.string().optional(),
-  featuredImageUrl: z.string().url({ message: 'Ongeldige URL voor uitgelichte afbeelding.' }).optional().or(z.literal('')),
-  featuredImageAltText: z.string().optional(),
+  excerpt: z.string().optional().nullable(), // Sta null toe
+  featuredImageUrl: z.string().url({ message: 'Ongeldige URL voor uitgelichte afbeelding.' }).optional().or(z.literal('')).nullable(), // Sta null toe
+  featuredImageAltText: z.string().optional().nullable(), // Sta null toe
   tags: z.preprocess((arg) => {
     if (typeof arg === 'string') return arg.split(',').map(item => item.trim()).filter(Boolean);
     return arg;
   }, z.array(z.string()).optional()),
-  category: z.string().optional(),
+  category: z.string().optional().nullable(), // Sta null toe
   published: z.preprocess((arg) => arg === 'on' || arg === true, z.boolean().default(false)),
-  metaTitle: z.string().optional(),
-  metaDescription: z.string().optional(),
+  metaTitle: z.string().optional().nullable(), // Sta null toe
+  metaDescription: z.string().optional().nullable(), // Sta null toe
 });
 
 // Type voor de state van de post actions
 export type PostFormState = {
   success: boolean;
   message?: string;
+  // Correct type voor errors: map keys naar string arrays
   errors?: Partial<Record<keyof z.infer<typeof PostSchema>, string[]>> & { general?: string[] };
   postSlug?: string | null;
 };
@@ -128,40 +78,50 @@ export type PostFormState = {
  * Haalt ALLE blog posts op voor de admin lijst.
  */
 export async function getPosts(): Promise<AdminPostListItemType[]> {
-  logger.info('Fetching all posts for admin list');
+  logger.info('Fetching all posts for admin list with Supabase');
+  const supabase = await createClient();
   try {
-    // TODO: Autorisatie check? Of gebeurt dit in de layout/pagina?
-    // Voor nu gaan we ervan uit dat de pagina zelf beschermd is.
-    const posts = await prisma.post.findMany({
-      select: adminPostListSelect,
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
-    return posts;
-  } catch (error) {
-    logger.error('Failed to fetch posts for admin', { error });
+    // TODO: Autorisatie check? - Aangenomen dat de pagina beveiligd is.
+    const { data, error } = await supabase
+      .from('Post') // Tabelnaam 'Post'
+      .select('id, slug, title, category, published, publishedAt, createdAt') // Selecteer benodigde velden
+      .order('createdAt', { ascending: false });
+
+    if (error) throw error;
+
+    return data || [];
+  } catch (error: any) {
+    logger.error('Failed to fetch posts for admin', { error: error.message || error });
     return [];
   }
 }
 
 /**
  * Haalt een enkele post op basis van de slug voor de admin bewerkpagina.
- * Retourneert null als de post niet gevonden wordt.
  */
 export async function getPostBySlugForAdmin(slug: string): Promise<FullAdminPostType | null> {
-  logger.info('Fetching post for admin edit', { slug });
+  logger.info('Fetching post for admin edit with Supabase', { slug });
   if (!slug) return null;
+  const supabase = await createClient();
 
   try {
     // TODO: Autorisatie check?
-    const post = await prisma.post.findUnique({
-      where: { slug },
-      select: fullPostSelectAdmin,
-    });
-    return post;
-  } catch (error) {
-    logger.error('Failed to fetch post by slug for admin', { slug, error });
+    const { data, error } = await supabase
+      .from('Post')
+      .select('*') // Haal alle velden op voor bewerken
+      .eq('slug', slug)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') { // Not found
+         logger.warn('Post not found for admin edit', { slug });
+         return null;
+      }
+      throw error;
+    }
+    return data;
+  } catch (error: any) {
+    logger.error('Failed to fetch post by slug for admin', { slug, error: error.message || error });
     return null;
   }
 }
@@ -170,32 +130,35 @@ export async function getPostBySlugForAdmin(slug: string): Promise<FullAdminPost
  * Verwijdert een blog post.
  */
 export async function deletePostAction(postId: string): Promise<{ success: boolean; message?: string }> {
-  logger.info('Attempting to delete post', { postId });
+  logger.info('Attempting to delete post with Supabase', { postId });
+  const supabase = await createClient();
   try {
     const session = await validateAdminSession();
-    logger.info('Admin session validated for delete action', { userId: session.userId });
+    logger.info('Admin session validated for delete post action', { userId: session.userId });
 
-    // TODO: Verwijder eventuele gekoppelde resources (bv. afbeelding uit Cloudinary)
+    // Verwijder de post
+    const { error } = await supabase
+      .from('Post')
+      .delete()
+      .eq('id', postId);
 
-    await prisma.post.delete({
-      where: { id: postId },
-    });
+    if (error) throw error;
 
     logger.info('Post successfully deleted', { postId, userId: session.userId });
-    revalidatePath('/admin_area/posts'); // Revalideer admin lijst
-    revalidatePath('/blog'); // Revalideer publieke lijst
-    // TODO: Revalideer specifieke blog post pagina als die bestaat (/blog/[slug])
+    revalidatePath('/admin_area/posts');
+    revalidatePath('/blog');
+    // TODO: Revalidate specifieke post pagina
+    // const postSlug = ??? // Slug is niet bekend hier, mogelijk apart ophalen of niet revalideren.
+    // if (postSlug) revalidatePath(`/blog/${postSlug}`);
     return { success: true, message: 'Blog post succesvol verwijderd.' };
 
   } catch (error: any) {
-    logger.error('Failed to delete post', { postId, error: error.message });
+    logger.error('Failed to delete post', { postId, error: error.message || error });
     let errorMessage = 'Kon blog post niet verwijderen door een serverfout.';
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-      errorMessage = 'Blog post niet gevonden om te verwijderen.';
-    } else if (error.message?.startsWith('Unauthorized')) {
-      errorMessage = error.message;
-    } else if (error.message === 'Server configuration error') {
-       errorMessage = 'Server configuratiefout.';
+     if (error.message?.includes('Unauthorized') || error.message?.includes('Forbidden')) {
+         errorMessage = error.message;
+    } else if (error.code === 'PGRST116') {
+         errorMessage = 'Blog post niet gevonden om te verwijderen.';
     }
     return { success: false, message: errorMessage };
   }
@@ -205,240 +168,279 @@ export async function deletePostAction(postId: string): Promise<{ success: boole
  * Maakt een nieuwe blog post aan.
  */
 export async function createPostAction(prevState: PostFormState | undefined, formData: FormData): Promise<PostFormState> {
-  logger.info('Create post action initiated');
+  logger.info('Create post action started with Supabase');
+  const supabase = await createClient();
+
   try {
+    // Autorisatie
     const session = await validateAdminSession();
     logger.info('Admin session validated for create post action', { userId: session.userId });
 
-    const validatedFields = PostSchema.safeParse({
-      title: formData.get('title'),
-      slug: formData.get('slug'),
-      content: formData.get('content'),
-      excerpt: formData.get('excerpt'),
-      featuredImageUrl: formData.get('featuredImageUrl'),
-      featuredImageAltText: formData.get('featuredImageAltText'),
-      tags: formData.get('tags'),
-      category: formData.get('category'),
-      published: formData.get('published'),
-      metaTitle: formData.get('metaTitle'),
-      metaDescription: formData.get('metaDescription'),
-    });
-
+    // Validatie
+    const validatedFields = PostSchema.safeParse(Object.fromEntries(formData));
     if (!validatedFields.success) {
       logger.warn('Post validation failed (create)', { errors: validatedFields.error.flatten().fieldErrors });
-      const fieldErrors = validatedFields.error.flatten().fieldErrors;
       return {
         success: false,
         message: 'Validatiefouten gevonden.',
-        errors: { ...fieldErrors },
+        // Gebruik Zod's error object direct (met spread)
+        errors: { ...validatedFields.error.flatten().fieldErrors }, // Herstel spread, verwijder assertie
       };
     }
 
-    const { published, ...postData } = validatedFields.data;
-    const publishDate = published ? new Date() : null; // Zet publicatiedatum alleen als 'published' is aangevinkt
+    // Prepare data for Supabase (handle nulls)
+    const { published, ...restData } = validatedFields.data;
+    const postDataToInsert = {
+      ...restData,
+      excerpt: restData.excerpt || null,
+      featuredImageUrl: restData.featuredImageUrl || null,
+      featuredImageAltText: restData.featuredImageAltText || null,
+      tags: restData.tags || [],
+      category: restData.category || null,
+      metaTitle: restData.metaTitle || null,
+      metaDescription: restData.metaDescription || null,
+      published: published,
+      // Zet publishedAt alleen als de post gepubliceerd wordt
+      publishedAt: published ? new Date().toISOString() : null,
+      // createdAt en updatedAt worden beheerd door de database (als DEFAULT is ingesteld)
+      // Anders moeten we ze hier toevoegen:
+      // createdAt: new Date().toISOString(),
+      // updatedAt: new Date().toISOString(),
+    };
 
-    logger.info('Creating post in database', { slug: postData.slug });
-    const newPost = await prisma.post.create({
-      data: {
-        ...postData,
-        published,
-        publishedAt: publishDate,
-      },
-    });
 
-    logger.info('Post successfully created', { postId: newPost.id, userId: session.userId });
+    // Database Insert
+    logger.info('Attempting to insert post into Supabase', { slug: postDataToInsert.slug });
+    const { data: newPost, error: insertError } = await supabase
+      .from('Post')
+      .insert(postDataToInsert)
+      .select('id, slug') // Vraag id en slug terug
+      .single();
+
+    if (insertError || !newPost) {
+      logger.error('Supabase insert error Post:', { error: insertError });
+      if (insertError?.code === '23505' && insertError?.message.includes('Post_slug_key')) {
+         return {
+           success: false,
+           message: 'De opgegeven slug bestaat al.',
+           errors: { slug: ['Deze slug is al in gebruik.'] }
+         };
+      }
+      throw insertError || new Error('Kon post niet aanmaken in database.');
+    }
+
+    logger.info('Post successfully created', { postId: newPost.id, slug: newPost.slug, userId: session.userId });
+    const newPostSlug = newPost.slug;
+
+    // Revalidate paths
+    revalidatePath('/admin_area/posts');
+    if (published) {
+        revalidatePath('/blog');
+        revalidatePath(`/blog/${newPostSlug}`);
+    }
+
+    return {
+      success: true,
+      message: 'Blog post succesvol aangemaakt!',
+      postSlug: newPostSlug,
+    };
 
   } catch (error: any) {
-     logger.error('Failed to create post', { error: error.message });
-     let errorMessage = 'Kon blog post niet aanmaken door een serverfout.';
-     let errors: PostFormState['errors'] = {}; // Start met leeg object
-
-     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-        if ((error.meta?.target as string[])?.includes('slug')) {
-           errorMessage = 'Deze slug bestaat al.';
-           errors = { slug: [errorMessage] }; // Direct toewijzen
-        }
-     } else if (error.message?.startsWith('Unauthorized')) {
-         errorMessage = error.message;
-         errors = { general: [errorMessage] }; // Direct toewijzen
-     } else if (error.message === 'Server configuration error') {
-         errorMessage = 'Server configuratiefout.';
-         errors = { general: [errorMessage] }; // Direct toewijzen
-     } else if (error instanceof z.ZodError) {
-         errorMessage = 'Validatiefouten.';
-         errors = { ...error.flatten().fieldErrors }; // Spread fieldErrors
-     } else {
-       // Algemene serverfout of onbekende fout
-       errorMessage = error.message || errorMessage;
-       errors = { general: [errorMessage] };
-     }
-
-     // Return het correct opgebouwde object
-     return { success: false, message: errorMessage, errors };
-   }
-
-  // Revalidate paden
-  revalidatePath('/admin_area/posts');
-  revalidatePath('/blog');
-  // TODO: Revalideer specifieke blog post pagina als die bestaat (/blog/[slug])
-
-  redirect('/admin_area/posts');
+    logger.error('Failed to create post', { error: error.message || error });
+    return {
+      success: false,
+      message: error.message || 'Kon post niet aanmaken door een serverfout.',
+      errors: { general: [error.message || 'Serverfout.'] },
+    };
+  }
 }
 
 /**
  * Werkt een bestaande blog post bij.
  */
 export async function updatePostAction(prevState: PostFormState | undefined, formData: FormData): Promise<PostFormState> {
-  logger.info('Update post action initiated');
+  logger.info('Update post action started with Supabase');
   const postId = formData.get('postId') as string;
-   if (!postId) {
-     return { success: false, message: 'Post ID ontbreekt.', errors: { general: ['Post ID ontbreekt.'] } };
-   }
-   logger.info('Attempting to update post', { postId });
-   const currentSlug = formData.get('slug') as string | null; // Sla huidige slug op voor return bij error
+  const supabase = await createClient();
 
-   try {
-     const session = await validateAdminSession();
+  if (!postId) {
+      return { success: false, message: 'Post ID ontbreekt.', errors: { general: ['Post ID niet gevonden.'] } };
+  }
+  logger.info('Attempting to update post', { postId });
+
+  try {
+    // Autorisatie
+    const session = await validateAdminSession();
      logger.info('Admin session validated for update post action', { userId: session.userId, postId });
 
-     const validatedFields = PostSchema.safeParse({
-       title: formData.get('title'),
-       slug: formData.get('slug'),
-       content: formData.get('content'),
-       excerpt: formData.get('excerpt'),
-       featuredImageUrl: formData.get('featuredImageUrl'),
-       featuredImageAltText: formData.get('featuredImageAltText'),
-       tags: formData.get('tags'),
-       category: formData.get('category'),
-       published: formData.get('published'),
-       metaTitle: formData.get('metaTitle'),
-       metaDescription: formData.get('metaDescription'),
-     });
-
+    // Validatie
+    const validatedFields = PostSchema.safeParse(Object.fromEntries(formData));
      if (!validatedFields.success) {
-       logger.warn('Post validation failed (update)', { postId, errors: validatedFields.error.flatten().fieldErrors });
-       const fieldErrors = validatedFields.error.flatten().fieldErrors;
-       return {
-         success: false,
-         message: 'Validatiefouten gevonden.',
-         errors: { ...fieldErrors },
-         postSlug: currentSlug // Geef slug terug voor formulier
-       };
-     }
+      logger.warn('Post validation failed (update)', { postId, errors: validatedFields.error.flatten().fieldErrors });
+      return {
+        success: false,
+        message: 'Validatiefouten gevonden.',
+        errors: { ...validatedFields.error.flatten().fieldErrors }, // Herstel spread, verwijder assertie
+        postSlug: formData.get('slug') as string | null // Geef huidige slug terug voor formulier
+      };
+    }
 
-     const { published, ...postData } = validatedFields.data;
+    // Haal huidige publicatiestatus op om publishedAt correct te zetten
+    const { data: currentPost, error: currentPostError } = await supabase
+       .from('Post')
+       .select('published, publishedAt')
+       .eq('id', postId)
+       .single();
 
-     // Bepaal publicatiedatum:
-     // - Als post al gepubliceerd was, behoud de datum.
-     // - Als post nu gepubliceerd wordt (en nog niet was), zet huidige datum.
-     // - Als post gedepubliceerd wordt, zet datum op null.
-     const existingPost = await prisma.post.findUnique({ where: { id: postId }, select: { publishedAt: true, published: true } });
-     let publishDate: Date | null;
-     if (published && !existingPost?.published) {
-       publishDate = new Date(); // Wordt nu gepubliceerd
-     } else if (!published) {
-       publishDate = null; // Wordt gedepubliceerd
-     } else {
-       publishDate = existingPost?.publishedAt ?? null; // Behoud bestaande datum of null
-     }
+    if (currentPostError) {
+       logger.error('Could not fetch current post status before update', { postId, error: currentPostError });
+       // Ga door, maar publishedAt is mogelijk niet perfect
+    }
 
-     logger.info('Updating post in database', { postId, slug: postData.slug });
-     const updatedPost = await prisma.post.update({
-       where: { id: postId },
-       data: {
-         ...postData,
-         published,
-         publishedAt: publishDate,
-       },
-     });
+    // Prepare data for Supabase
+    const { published, ...restData } = validatedFields.data;
+    let publishedAtValue = currentPost?.publishedAt; // Behoud oude waarde standaard
 
-     logger.info('Post successfully updated', { postId: updatedPost.id, userId: session.userId });
+    // Update publishedAt:
+    // 1. Als post NU gepubliceerd wordt en NOG NIET gepubliceerd was: zet timestamp
+    if (published && !currentPost?.published) {
+       publishedAtValue = new Date().toISOString();
+    }
+    // 2. Als post NIET MEER gepubliceerd wordt: zet op null
+    else if (!published) {
+       publishedAtValue = null;
+    }
+    // 3. Anders (was al gepubliceerd en blijft gepubliceerd): behoud bestaande waarde
 
-   } catch (error: any) {
-     logger.error('Failed to update post', { postId, error: error.message });
-     let errorMessage = 'Kon blog post niet bijwerken door een serverfout.';
-     let errors: PostFormState['errors'] = {}; // Start met leeg object
+    const postDataToUpdate = {
+      ...restData,
+      excerpt: restData.excerpt || null,
+      featuredImageUrl: restData.featuredImageUrl || null,
+      featuredImageAltText: restData.featuredImageAltText || null,
+      tags: restData.tags || [],
+      category: restData.category || null,
+      metaTitle: restData.metaTitle || null,
+      metaDescription: restData.metaDescription || null,
+      published: published,
+      publishedAt: publishedAtValue,
+      updatedAt: new Date().toISOString(), // Altijd updatedAt bijwerken
+    };
 
-     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2002' && (error.meta?.target as string[])?.includes('slug')) {
-          errorMessage = 'Deze slug bestaat al.';
-          errors = { slug: [errorMessage] }; // Direct toewijzen
-        } else if (error.code === 'P2025') {
-          errorMessage = 'Te bewerken post niet gevonden.';
-          errors = { general: [errorMessage] }; // Direct toewijzen
+    // Database Update
+     logger.info('Attempting to update post in Supabase', { postId, slug: postDataToUpdate.slug });
+     const { data: updatedPost, error: updateError } = await supabase
+       .from('Post')
+       .update(postDataToUpdate)
+       .eq('id', postId)
+       .select('slug') // Vraag slug terug
+       .single();
+
+     if (updateError || !updatedPost) {
+       logger.error('Supabase update error Post:', { postId, error: updateError });
+       if (updateError?.code === '23505' && updateError?.message.includes('Post_slug_key')) {
+          return {
+            success: false,
+            message: 'De opgegeven slug bestaat al.',
+            errors: { slug: ['Deze slug is al in gebruik.'] },
+            postSlug: formData.get('slug') as string | null
+          };
+       }
+        if (updateError?.code === 'PGRST116') {
+             return { success: false, message: 'Post niet gevonden om bij te werken.', errors: { general: ['Post niet gevonden.'] } };
         }
-     } else if (error.message?.startsWith('Unauthorized')) {
-         errorMessage = error.message;
-         errors = { general: [errorMessage] }; // Direct toewijzen
-     } else if (error.message === 'Server configuration error') {
-         errorMessage = 'Server configuratiefout.';
-         errors = { general: [errorMessage] }; // Direct toewijzen
-     } else if (error instanceof z.ZodError) {
-         errorMessage = 'Validatiefouten.';
-         errors = { ...error.flatten().fieldErrors }; // Spread fieldErrors
-     } else {
-        // Algemene serverfout of onbekende fout
-        errorMessage = error.message || errorMessage;
-        errors = { general: [errorMessage] };
+       throw updateError || new Error('Kon post niet bijwerken in database.');
      }
 
-     // Return het correct opgebouwde object
-     return { success: false, message: errorMessage, errors, postSlug: currentSlug }; // Geef slug terug
-   }
+     logger.info('Post successfully updated', { postId, slug: updatedPost.slug, userId: session.userId });
+     const updatedPostSlug = updatedPost.slug;
 
-   // Revalidate paden
-   const finalSlug = formData.get('slug') as string;
-   revalidatePath('/admin_area/posts');
-   revalidatePath('/blog');
-   if (finalSlug) {
-     revalidatePath(`/blog/${finalSlug}`);
-     revalidatePath(`/admin_area/posts/${finalSlug}`); // Revalideer ook admin bewerkpagina
-   }
+    // Revalidate paths
+    revalidatePath('/admin_area/posts');
+    revalidatePath(`/admin_area/posts/${updatedPostSlug}`); // Admin detail/edit
+    revalidatePath('/blog'); // Publieke lijst
+    revalidatePath(`/blog/${updatedPostSlug}`); // Publieke detail
 
-   redirect('/admin_area/posts');
+    return {
+      success: true,
+      message: 'Blog post succesvol bijgewerkt!',
+      postSlug: updatedPostSlug,
+    };
+
+  } catch (error: any) {
+     logger.error('Failed to update post', { postId, error: error.message || error });
+     return {
+       success: false,
+       message: error.message || 'Kon post niet bijwerken door een serverfout.',
+       errors: { general: [error.message || 'Serverfout.'] },
+       postSlug: formData.get('slug') as string | null // Geef slug terug voor formulier
+     };
+  }
 }
 
-// --- Functies voor publieke site (getPublishedPosts, getPostBySlug) --- //
+// --- Publieke Actions ---
 
 /**
- * Haalt een lijst van gepubliceerde blog posts op.
+ * Haalt gepubliceerde blog posts op (voor publieke weergave).
+ * @param limit Optioneel: Het maximale aantal posts om op te halen.
  */
-export async function getPublishedPosts(): Promise<PublishedPostPreviewType[]> {
+export async function getPublishedPosts(limit?: number): Promise<PublishedPostPreviewType[]> {
+  logger.info(`Fetching published posts for public view${limit ? ` (limit: ${limit})` : ''} with Supabase`);
+  const supabase = await createClient();
   try {
-    const posts = await prisma.post.findMany({
-      where: {
-        published: true,
-      },
-      select: postPreviewSelect,
-      orderBy: {
-        publishedAt: 'desc',
-      },
-    });
-    return posts;
-  } catch (error) {
-    logger.error('Failed to fetch published posts', { error });
+    // Bouw de query op
+    let query = supabase
+      .from('Post')
+      .select('id, slug, title, excerpt, featuredImageUrl, tags, category, publishedAt, featuredImageAltText')
+      .eq('published', true)
+      .order('publishedAt', { ascending: false });
+
+    // Voeg limiet toe indien opgegeven
+    if (limit) {
+      query = query.limit(limit);
+    }
+
+    // Voer de query uit
+    const { data, error } = await query;
+
+    if (error) throw error;
+
+    // Filter posts zonder publishedAt (shouldn't happen with .eq('published', true) and order, but safety check)
+    const validPosts = (data || []).filter(post => post.publishedAt);
+
+    return validPosts;
+  } catch (error: any) {
+    logger.error('Failed to fetch published posts', { error: error.message || error });
     return [];
   }
 }
 
 /**
- * Haalt een enkele gepubliceerde blog post op basis van de slug.
- * Retourneert null als de post niet gevonden wordt of niet gepubliceerd is.
+ * Haalt een enkele gepubliceerde post op basis van de slug.
  */
 export async function getPostBySlug(slug: string): Promise<FullPostType | null> {
+  logger.info('Fetching published post by slug with Supabase', { slug });
   if (!slug) return null;
+  const supabase = await createClient();
 
   try {
-    const post = await prisma.post.findUnique({
-      where: {
-        slug: slug,
-        published: true,
-      },
-      select: fullPostSelect,
-    });
-    return post;
-  } catch (error) {
-    logger.error('Failed to fetch post by slug', { slug, error });
-    return null;
-  }
+    const { data, error } = await supabase
+      .from('Post')
+      .select('*') // Alle velden nodig voor detailweergave
+      .eq('slug', slug)
+      .eq('published', true) // Moet gepubliceerd zijn
+      // .lte('publishedAt', new Date().toISOString()) // Optioneel: check toekomst datum
+      .single();
+
+      if (error) {
+         if (error.code === 'PGRST116') { // Not found (of niet gepubliceerd)
+            logger.warn('Published post not found by slug', { slug });
+            return null;
+         }
+         throw error;
+      }
+      return data;
+   } catch (error: any) {
+     logger.error('Failed to fetch published post by slug', { slug, error: error.message || error });
+     return null;
+   }
 } 

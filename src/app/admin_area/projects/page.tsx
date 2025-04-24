@@ -1,26 +1,32 @@
 import React from 'react';
 import { Title, Text, Button, Alert } from '@mantine/core';
 import Link from 'next/link';
-import { prisma } from '@/lib/prisma'; // Importeer Prisma client
+// import { prisma } from '@/lib/prisma'; // Remove Prisma client import
 import { IconInfoCircle } from '@tabler/icons-react';
 import ProjectsTable from '@/components/admin/ProjectsTable'; // Importeer de tabel component
-import type { Project as PrismaProject } from '@prisma/client'; // Gebruik package alias
+// import type { Project as PrismaProject } from '@prisma/client'; // Remove Prisma type import
+import { getProjectsForAdmin } from '@/lib/actions/projects'; // Importeer de nieuwe action
+import type { AdminProjectListItemType } from '@/lib/actions/projects'; // Importeer het bijbehorende type
 
 export default async function AdminProjectsPage() {
-  let projects: PrismaProject[] = []; // Voeg type toe
+  // let projects: PrismaProject[] = []; // Use Supabase Project type
+  let projects: AdminProjectListItemType[] = []; // Gebruik het nieuwe type
   let fetchError = null;
 
   try {
-    // Haal projecten op uit de database, sorteer op nieuwste eerst
-    projects = await prisma.project.findMany({
-      orderBy: {
-        createdAt: 'desc',
-      },
-      // Geen select hier, tabel heeft mogelijk alle velden nodig
-    });
+    // // Haal projecten op uit de database, sorteer op nieuwste eerst
+    // projects = await prisma.project.findMany({
+    //   orderBy: {
+    //     createdAt: 'desc',
+    //   },
+    //   // Geen select hier, tabel heeft mogelijk alle velden nodig
+    // });
+    // Fetch projects using the Supabase server action
+    projects = await getProjectsForAdmin();
   } catch (error) {
-    console.error("Fout bij ophalen projecten:", error);
-    fetchError = "Kon projecten niet laden door een serverfout.";
+    console.error("Fout bij ophalen projecten voor admin:", error);
+    // De action gooit nu mogelijk een error, vang die op
+    fetchError = (error instanceof Error) ? error.message : "Kon projecten niet laden door een serverfout.";
   }
 
   return (

@@ -2,16 +2,23 @@
 
 import { z } from 'zod';
 import { logger } from '@/lib/logger';
-import { prisma } from '@/lib/prisma';
+import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
-import { Prisma, ContactSubmission as PrismaContactSubmission } from '@prisma/client';
-import { validateAdminSession } from './projects'; // Importeer validatie helper
+import { validateAdminSession } from './auth';
+import crypto from 'crypto';
 
-// --- Types --- //
+// --- Types (Vereenvoudigd - TODO: Verbeteren) --- //
+interface ContactSubmission {
+    id: string;
+    name: string;
+    email: string;
+    message: string;
+    isRead: boolean;
+    createdAt: string; // Timestamp als string
+}
 
-// --- EXPORT type --- 
-// Type voor een enkele contact inzending (alle velden)
-export type ContactSubmissionType = PrismaContactSubmission;
+// --- EXPORT type ---
+export type ContactSubmissionType = ContactSubmission; // Gebruik de nieuwe interface
 
 // Zod schema voor het valideren van het formulier (Frontend)
 const ContactFormSchema = z.object({
@@ -24,12 +31,14 @@ const ContactFormSchema = z.object({
 export type ContactFormState = {
   success: boolean;
   message?: string;
-  errors?: Partial<Record<keyof z.infer<typeof ContactFormSchema>, string[]>>;
+  // Correct type for errors
+  errors?: Partial<Record<keyof z.infer<typeof ContactFormSchema>, string[]>> & { general?: string[] };
 };
 
 // Server Action voor het verwerken van het contactformulier
 export async function submitContactForm(prevState: ContactFormState | undefined, formData: FormData): Promise<ContactFormState> {
-  logger.info('Contact form submission initiated');
+  logger.info('Contact form submission initiated with Supabase');
+  const supabase = await createClient();
 
   const validatedFields = ContactFormSchema.safeParse({
     name: formData.get('name'),
@@ -39,30 +48,50 @@ export async function submitContactForm(prevState: ContactFormState | undefined,
 
   if (!validatedFields.success) {
     logger.warn('Contact form validation failed', { errors: validatedFields.error.flatten().fieldErrors });
-    const fieldErrors = validatedFields.error.flatten().fieldErrors;
     return {
       success: false,
       message: 'Validatiefouten gevonden.',
-      errors: { ...fieldErrors },
+      // Gebruik Zod's error object direct
+      errors: { ...validatedFields.error.flatten().fieldErrors },
     };
   }
 
   try {
-    logger.info('Saving contact submission to database', { email: validatedFields.data.email });
-    await prisma.contactSubmission.create({
-      data: validatedFields.data,
-    });
-    logger.info('Contact submission successfully saved');
+    logger.info('Saving contact submission to Supabase database', { email: validatedFields.data.email });
+    
+    // Genereer een unieke ID voor de inzending
+    const submissionId = crypto.randomUUID();
+
+    // Insert data into Supabase, inclusief de gegenereerde ID
+    const { error } = await supabase
+      .from('ContactSubmission')
+      .insert([
+        {
+          id: submissionId,
+          name: validatedFields.data.name,
+          email: validatedFields.data.email,
+          message: validatedFields.data.message,
+          // isRead en createdAt worden door DB defaults afgehandeld
+        }
+      ]);
+
+    if (error) {
+        logger.error('Supabase insert error ContactSubmission', { error });
+        throw error; // Gooi error door naar catch block
+    }
+
+    logger.info('Contact submission successfully saved', { submissionId });
 
     // TODO: Stuur eventueel een e-mail notificatie
 
     return { success: true, message: 'Bedankt voor je bericht! Ik neem zo snel mogelijk contact op.' };
 
-  } catch (error) {
-    logger.error('Failed to save contact submission', { error });
+  } catch (error: any) {
+    logger.error('Failed to save contact submission', { error: error.message || error });
     return {
       success: false,
       message: 'Er is een serverfout opgetreden bij het versturen van het formulier. Probeer het later opnieuw.',
+      errors: { general: ['Serverfout.'] } // Voeg general error toe
     };
   }
 }
@@ -72,23 +101,25 @@ export async function submitContactForm(prevState: ContactFormState | undefined,
 /**
  * Haalt alle contact inzendingen op voor de admin lijst.
  */
-export async function getContactSubmissions(): Promise<PrismaContactSubmission[]> {
-  logger.info('Fetching all contact submissions for admin');
+export async function getContactSubmissions(): Promise<ContactSubmissionType[]> {
+  logger.info('Fetching all contact submissions for admin with Supabase');
+  const supabase = await createClient();
   try {
     await validateAdminSession(); // Check admin rights
-    const submissions = await prisma.contactSubmission.findMany({
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
-    logger.info(`Fetched ${submissions.length} contact submissions`);
-    return submissions;
+    logger.info('Admin session validated for getContactSubmissions');
+
+    const { data, error } = await supabase
+      .from('ContactSubmission')
+      .select('*')
+      .order('createdAt', { ascending: false });
+
+    if (error) throw error;
+
+    logger.info(`Fetched ${data?.length ?? 0} contact submissions`);
+    return data || [];
   } catch (error: any) {
-    logger.error('Failed to fetch contact submissions', { error: error.message });
-    // Gooi de error door zodat de aanroepende pagina weet dat er iets mis is
-    // of return een lege array afhankelijk van de gewenste error handling.
-    // Hier gooien we hem door zodat de pagina een fout kan tonen.
-    throw new Error(error.message?.startsWith('Unauthorized') ? error.message : 'Kon inzendingen niet ophalen.');
+    logger.error('Failed to fetch contact submissions', { error: error.message || error });
+    throw new Error(error.message?.includes('Unauthorized') || error.message?.includes('Forbidden') ? error.message : 'Kon inzendingen niet ophalen.');
   }
 }
 
@@ -96,44 +127,49 @@ export async function getContactSubmissions(): Promise<PrismaContactSubmission[]
  * Wijzigt de 'isRead' status van een inzending.
  */
 export async function toggleSubmissionReadStatus(submissionId: string): Promise<{ success: boolean; message?: string; newState?: boolean }> {
-  logger.info('Toggling read status for submission', { submissionId });
+  logger.info('Toggling read status for submission with Supabase', { submissionId });
+  const supabase = await createClient();
   try {
     const session = await validateAdminSession();
     logger.info('Admin session validated for toggling read status', { userId: session.userId, submissionId });
 
-    const submission = await prisma.contactSubmission.findUnique({
-      where: { id: submissionId },
-      select: { isRead: true },
-    });
+    // Haal huidige status op
+    const { data: currentSubmission, error: fetchError } = await supabase
+      .from('ContactSubmission')
+      .select('isRead')
+      .eq('id', submissionId)
+      .single();
 
-    if (!submission) {
-      throw new Error('Inzending niet gevonden.');
+    if (fetchError || !currentSubmission) {
+       if (fetchError?.code === 'PGRST116') throw new Error('Inzending niet gevonden.');
+       throw fetchError || new Error('Kon huidige status niet ophalen.');
     }
 
-    const newReadState = !submission.isRead;
+    const newReadState = !currentSubmission.isRead;
 
-    await prisma.contactSubmission.update({
-      where: { id: submissionId },
-      data: { isRead: newReadState },
-    });
+    // Update de status
+    const { error: updateError } = await supabase
+      .from('ContactSubmission')
+      .update({ isRead: newReadState })
+      .eq('id', submissionId);
+
+    if (updateError) throw updateError;
 
     logger.info('Read status successfully toggled', { submissionId, newReadState, userId: session.userId });
     revalidatePath('/admin_area/contacts');
-    return { 
-      success: true, 
+    return {
+      success: true,
       message: `Status gewijzigd naar ${newReadState ? 'gelezen' : 'ongelezen'}.`,
       newState: newReadState
     };
 
   } catch (error: any) {
-    logger.error('Failed to toggle read status', { submissionId, error: error.message });
+    logger.error('Failed to toggle read status', { submissionId, error: error.message || error });
     let errorMessage = 'Kon status niet wijzigen door een serverfout.';
     if (error.message === 'Inzending niet gevonden.') {
       errorMessage = error.message;
-    } else if (error.message?.startsWith('Unauthorized')) {
+    } else if (error.message?.includes('Unauthorized') || error.message?.includes('Forbidden')) {
       errorMessage = error.message;
-    } else if (error.message === 'Server configuration error') {
-       errorMessage = 'Server configuratiefout.';
     }
     return { success: false, message: errorMessage };
   }
@@ -143,28 +179,30 @@ export async function toggleSubmissionReadStatus(submissionId: string): Promise<
  * Verwijdert een contact inzending.
  */
 export async function deleteContactSubmission(submissionId: string): Promise<{ success: boolean; message?: string }> {
-  logger.info('Attempting to delete contact submission', { submissionId });
+  logger.info('Attempting to delete contact submission with Supabase', { submissionId });
+  const supabase = await createClient();
   try {
     const session = await validateAdminSession();
     logger.info('Admin session validated for delete submission action', { userId: session.userId, submissionId });
 
-    await prisma.contactSubmission.delete({
-      where: { id: submissionId },
-    });
+    const { error } = await supabase
+      .from('ContactSubmission')
+      .delete()
+      .eq('id', submissionId);
+
+    if (error) throw error;
 
     logger.info('Contact submission successfully deleted', { submissionId, userId: session.userId });
     revalidatePath('/admin_area/contacts');
     return { success: true, message: 'Inzending succesvol verwijderd.' };
 
   } catch (error: any) {
-    logger.error('Failed to delete contact submission', { submissionId, error: error.message });
+    logger.error('Failed to delete contact submission', { submissionId, error: error.message || error });
     let errorMessage = 'Kon inzending niet verwijderen door een serverfout.';
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-      errorMessage = 'Inzending niet gevonden om te verwijderen.';
-    } else if (error.message?.startsWith('Unauthorized')) {
+    if (error.code === 'PGRST116') { // Check for Supabase 'not found'
+       errorMessage = 'Inzending niet gevonden om te verwijderen.';
+    } else if (error.message?.includes('Unauthorized') || error.message?.includes('Forbidden')) {
       errorMessage = error.message;
-    } else if (error.message === 'Server configuration error') {
-       errorMessage = 'Server configuratiefout.';
     }
     return { success: false, message: errorMessage };
   }

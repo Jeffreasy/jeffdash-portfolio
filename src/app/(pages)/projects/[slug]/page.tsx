@@ -26,7 +26,7 @@ export async function generateMetadata(props: ProjectDetailPageProps, parent: Re
   // Gebruik project data voor metadata, met fallbacks
   const title = project.metaTitle || project.title;
   const description = project.metaDescription || project.shortDescription || (await parent).description || SITE_CONFIG.description;
-  const ogImage = project.images?.[0]?.url; // Gebruik eerste afbeelding als OG image
+  const ogImage = project.ProjectImage?.[0]?.url; // Change images to ProjectImage
 
   return {
     title: `${title} | ${SITE_CONFIG.name}`,
@@ -42,7 +42,7 @@ export async function generateMetadata(props: ProjectDetailPageProps, parent: Re
         }
       ] : (await parent).openGraph?.images || [],
       type: 'article', // Type voor een project/artikel
-      publishedTime: project.createdAt?.toISOString(),
+      publishedTime: project.createdAt ? new Date(project.createdAt).toISOString() : undefined, // Wrap with new Date()
       // Aangepast voor SEO
       siteName: SITE_CONFIG.name,
     },

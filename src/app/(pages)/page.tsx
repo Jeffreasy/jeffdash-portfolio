@@ -10,18 +10,22 @@ import ShortAboutBlurb from '@/components/features/home/ShortAboutBlurb';
 import CallToActionBlock from '@/components/features/home/CallToActionBlock';
 
 // Importeer blog-gerelateerde zaken
-import { getPublishedPosts, type PublishedPostPreviewType } from '@/lib/actions/blog';
+import { getPublishedPosts } from '@/lib/actions/blog';
 import BlogPostCard from '@/components/features/blog/BlogPostCard';
+
+// Importeer profielfoto action
+import { getProfilePicture } from '@/lib/actions/content';
 
 // Add ISR revalidation (1 hour)
 export const revalidate = 3600;
 
 // Pagina wordt async vanwege data fetching
 export default async function HomePage() {
-  // Haal de laatste 3 blog posts op
-  const recentPosts = await getPublishedPosts(); //.slice(0, 3); // .slice is niet nodig als getPublishedPosts al limiteert of sorteert
-  // Aanpassing: getPublishedPosts haalt nu alle posts op, we slicen hier.
-  const limitedRecentPosts = recentPosts.slice(0, 3);
+  // Haal data parallel op
+  const [recentPosts, profilePicture] = await Promise.all([
+    getPublishedPosts(3),
+    getProfilePicture()
+  ]);
 
   return (
     // De <main> tag wordt nu door de RootLayout verzorgd
@@ -41,7 +45,7 @@ export default async function HomePage() {
       </section>
 
       {/* 3. Recent Blog Posts (NIEUW) */}
-      {limitedRecentPosts.length > 0 && (
+      {recentPosts.length > 0 && (
         <section aria-labelledby="recent-blog-title" className="mt-16">
            <Container size="lg">
              <Group justify="space-between" mb="xl">
@@ -58,7 +62,7 @@ export default async function HomePage() {
                </Button>
              </Group>
              <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="xl">
-                {limitedRecentPosts.map((post) => (
+                {recentPosts.map((post) => (
                   <BlogPostCard key={post.id} post={post} />
                 ))}
              </SimpleGrid>
@@ -66,9 +70,12 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* 4. Short About Blurb */}
+      {/* 4. Short About Blurb - Nu met image props */}
       <section aria-labelledby="about-blurb-title" className="mt-16">
-        <ShortAboutBlurb />
+        <ShortAboutBlurb 
+          profileImageUrl={profilePicture.url} 
+          profileImageAlt={profilePicture.alt}
+        />
       </section>
 
       {/* 5. Call to Action */}

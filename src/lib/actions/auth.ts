@@ -1,28 +1,22 @@
 'use server';
 
 import { z } from 'zod';
-import { redirect } from 'next/navigation'; // Importeer redirect
-import { cookies } from 'next/headers'; // Importeer cookies
-import { prisma } from '@/lib/prisma';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken'; // Importeer jsonwebtoken
+import { redirect } from 'next/navigation';
+// import { cookies } from 'next/headers'; // Niet meer direct nodig voor sessie
+// import { prisma } from '@/lib/prisma'; // Verwijderd
+// import bcrypt from 'bcrypt'; // Verwijderd
+// import jwt from 'jsonwebtoken'; // Verwijderd
+import { createClient } from '@/lib/supabase/server'; // Importeer Supabase server client
 
 // Zod schema voor login formulier validatie
 const LoginSchema = z.object({
   email: z.string().email({ message: 'Ongeldig e-mailadres.' }),
-  password: z.string().min(6, { message: 'Wachtwoord moet minimaal 6 tekens bevatten.' }),
+  password: z.string().min(1, { message: 'Wachtwoord is vereist.' }), // Min 1 is voldoende, Supabase valideert verder
 });
 
-// Definieer de verwachte structuur van de JWT payload
-interface JwtPayload {
-  userId: string;
-  role: string;
-  // Voeg eventueel andere benodigde velden toe
-}
-
-// Sessie cookie configuratie
-const SESSION_COOKIE_NAME = 'session';
-const JWT_EXPIRATION = '1h'; // Verlooptijd token
+// Verwijderd: Interface JwtPayload
+// Verwijderd: SESSION_COOKIE_NAME
+// Verwijderd: JWT_EXPIRATION
 
 export type LoginState = {
   success: boolean;
@@ -35,7 +29,8 @@ export type LoginState = {
 };
 
 export async function loginUser(prevState: LoginState | undefined, formData: FormData): Promise<LoginState> {
-  console.log('Login action aangeroepen...');
+  console.log('Supabase Login action aangeroepen...');
+  const supabase = await createClient(); // Add await
 
   // 1. Valideer formulier data
   const validatedFields = LoginSchema.safeParse({
@@ -53,129 +48,108 @@ export async function loginUser(prevState: LoginState | undefined, formData: For
   }
 
   const { email, password } = validatedFields.data;
-  console.log(`Zoeken naar gebruiker met email: ${email}`); // Log de input email
+  console.log(`Attempting Supabase login for email: ${email}`);
 
-  // Controleer of JWT_SECRET is ingesteld
-  if (!process.env.JWT_SECRET) {
-    console.error('FATAL ERROR: JWT_SECRET is niet ingesteld in de omgevingsvariabelen!');
+  // Verwijderd: Check voor JWT_SECRET
+
+  // 2. Roep Supabase signInWithPassword aan
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  // 3. Handel errors af
+  if (error) {
+    console.error('Supabase login error:', error.message);
+    // TODO: Geef specifiekere feedback op basis van error.message indien gewenst
     return {
       success: false,
-      message: 'Server configuratiefout.',
-      errors: { general: ['Login tijdelijk niet mogelijk door een serverfout.'] },
+      message: 'Ongeldige inloggegevens of serverfout.', // Algemeen bericht
+      errors: { general: ['Ongeldige inloggegevens of er is iets misgegaan.'] },
     };
   }
 
-  try {
-    // 2. Zoek gebruiker in database (case-insensitief)
-    console.log('Uitvoeren prisma.user.findUnique...');
-    const user = await prisma.user.findUnique({
-      where: {
-         email: email, // Behoud originele case voor return, maar zoek case-insensitief
-         // Gebruik mode: insensitive voor de effectieve query
-         // Dit vereist mogelijk een aanpassing in hoe je Prisma/DB hebt opgezet
-         // Als dit een error geeft, moeten we het anders aanpakken.
-         // Alternatief: email: { equals: email, mode: 'insensitive' }
-         // We proberen eerst zonder expliciete mode, Prisma probeert vaak al slim te zijn.
-         // Correctie: findUnique ondersteunt geen `mode`. We moeten findFirst gebruiken.
-      },
-    });
+  // --- AUTHENTICATIE SUCCESVOL ---
+  console.log('Supabase authenticatie succesvol voor:', email);
+  // Supabase/@supabase/ssr handelt het zetten van de sessie cookie af.
 
-    // Correctie: Gebruik findFirst voor case-insensitieve zoekopdracht
-    const userFound = await prisma.user.findFirst({
-      where: {
-        email: {
-          equals: email,
-          mode: 'insensitive',
-        },
-      },
-    });
+  // Verwijderd: Genereer JWT
+  // Verwijderd: Zet JWT cookie
 
-    console.log('Resultaat van findFirst:', userFound); // Log het gevonden object of null
+  // 4. Redirect naar het admin dashboard
+  // Redirect MOET buiten try/catch of na een succesvolle operatie gebeuren in Server Actions
+  redirect('/admin_area/dashboard');
 
-    // Vervang 'user' door 'userFound' in de volgende checks
-    if (!userFound || !userFound.passwordHash) {
-      console.log('Gebruiker niet gevonden of geen wachtwoord hash (na case-insensitieve zoekopdracht).');
-      if (userFound) {
-        console.log('Gevonden gebruiker mist passwordHash:', userFound.passwordHash);
-      }
-      return {
-        success: false,
-        message: 'Ongeldige inloggegevens.',
-        errors: { general: ['Ongeldige inloggegevens.'] },
-      };
-    }
-
-    // 3. Vergelijk wachtwoorden
-    console.log('Vergelijken met hash:', userFound.passwordHash); // Log de hash
-    const passwordsMatch = await bcrypt.compare(password, userFound.passwordHash);
-
-    if (!passwordsMatch) {
-      console.log('Wachtwoorden komen niet overeen voor gebruiker:', userFound.email);
-      return {
-        success: false,
-        message: 'Ongeldige inloggegevens.',
-        errors: { general: ['Ongeldige inloggegevens.'] },
-      };
-    }
-
-    // --- AUTHENTICATIE SUCCESVOL --- 
-    console.log('Authenticatie succesvol voor:', userFound.email); // Gebruik userFound
-
-    // 4. Genereer JWT 
-    const payload: JwtPayload = { userId: userFound.id, role: userFound.role }; // Gebruik userFound
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: JWT_EXPIRATION });
-    console.log('JWT gegenereerd:', token);
-
-    // 5. Zet JWT in een HTTP-Only cookie (MET AWAIT)
-    console.log('Poging tot zetten van sessie cookie...');
-    const cookieStore = await cookies(); // Haal de cookie store op
-    cookieStore.set(SESSION_COOKIE_NAME, token, { // Gebruik de store om te setten
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // Alleen secure in productie (HTTPS)
-      path: '/', // Beschikbaar voor de hele site
-      maxAge: 60 * 60, // 1 uur (in seconden), gelijk aan JWT expiration
-      sameSite: 'lax', // Goede standaard tegen CSRF
-    });
-    console.log(`Sessie cookie (${SESSION_COOKIE_NAME}) zou gezet moeten zijn.`);
-
-    // 6. Redirect naar het admin dashboard (Server-side)
-    // Let op: redirect() moet buiten de try...catch staan of de error opnieuw throwen
-    // Anders wordt de error opgevangen en de redirect niet uitgevoerd.
-    // We gooien de error hier niet opnieuw, dus de redirect moet NA de catch.
-
-  } catch (error) {
-    console.error('Login actie gefaald (binnen try/catch):', error);
-    // Geef specifieke error terug ipv redirecten bij fout
-    return {
-      success: false,
-      message: 'Er is een interne fout opgetreden bij het inloggen.',
-      errors: { general: ['Login mislukt door een serverfout.'] },
-    };
-  }
-
-  // Redirect alleen als alles in de try block succesvol was EN de cookie gezet is
-  console.log('Alles succesvol, poging tot redirect naar /admin_area/dashboard...');
-  redirect('/admin_area/dashboard'); // Pad aangepast naar nieuwe mapnaam
-
+  // Verwijderd: Oude try/catch block
 }
 
-// TODO: Voeg een registerUser actie toe (voor het aanmaken van de eerste admin gebruiker)
-// Dit zou wachtwoord hashing moeten bevatten met bcrypt.hash()
 
 // Actie om de gebruiker uit te loggen
 export async function logoutUser() {
-  console.log('Logout action aangeroepen...');
-  try {
-    // Verwijder de sessie cookie
-    const cookieStore = await cookies();
-    cookieStore.delete(SESSION_COOKIE_NAME);
-    console.log('Sessie cookie verwijderd.');
-  } catch (error) {
-    // Hoewel delete waarschijnlijk geen error gooit, is het goed om af te vangen
-    console.error('Fout bij het verwijderen van de sessie cookie:', error);
-    // We proberen toch te redirecten, het belangrijkste is de cookie weg is.
+  console.log('Supabase Logout action aangeroepen...');
+  const supabase = await createClient(); // Add await
+
+  // Roep Supabase signOut aan
+  const { error } = await supabase.auth.signOut();
+
+  if (error) {
+    console.error('Supabase logout error:', error.message);
+    // Probeer toch te redirecten, zelfs als signOut een onverwachte error geeft
+  } else {
+    console.log('Supabase sign out succesvol.');
   }
-  
+
+  // Verwijderd: oude try/catch en cookie.delete
+
   // Redirect naar de homepage
   redirect('/');
+}
+
+// --- Validatie van Admin Sessie (Nieuwe versie met Supabase) ---
+// Deze functie kan nu in andere actions gebruikt worden om te checken of een
+// ingelogde gebruiker de rol 'ADMIN' heeft.
+// Noot: Dit vereist dat de 'role' informatie beschikbaar is.
+// Manier 1: Via user_metadata in Supabase Auth (aanbevolen)
+// Manier 2: Door de User tabel te queryen na het ophalen van de sessie user ID.
+
+// Voorbeeld met Manier 2 (queryen User tabel):
+export async function validateAdminSession(): Promise<{ userId: string; role: string }> {
+  const supabase = await createClient(); // Add await
+
+  // 1. Haal huidige sessie op
+  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+  if (sessionError || !session?.user) {
+    console.error('ValidateAdminSession: Sessie ophalen mislukt of geen gebruiker.', sessionError);
+    throw new Error('Unauthorized: Not logged in or session error.');
+  }
+
+  const userId = session.user.id;
+
+  // 2. Query de User tabel om de rol op te halen
+  //    BELANGRIJK: Dit vereist RLS setup of het gebruik van de service_role client
+  //    Laten we aannemen dat RLS correct is ingesteld zodat een gebruiker zijn eigen rol kan lezen,
+  //    of dat we de service role key gebruiken indien nodig (complexer in server actions).
+  //    Voor nu gebruiken we de standaard server client. Pas aan indien nodig.
+  const { data: userData, error: userError } = await supabase
+    .from('User') // Ga uit van tabelnaam 'User'
+    .select('role')
+    .eq('id', userId)
+    .single(); // Verwacht één resultaat
+
+  if (userError || !userData) {
+    console.error(`ValidateAdminSession: Rol ophalen mislukt voor user ${userId}`, userError);
+    throw new Error('Unauthorized: Could not verify user role.');
+  }
+
+  const userRole = userData.role;
+
+  // 3. Check of de rol 'ADMIN' is
+  if (userRole !== 'ADMIN') {
+    console.warn(`ValidateAdminSession: User ${userId} heeft rol '${userRole}', geen ADMIN.`);
+    throw new Error('Forbidden: Insufficient role.');
+  }
+
+  console.log(`ValidateAdminSession: User ${userId} is ADMIN.`);
+  return { userId, role: userRole }; // Geef gevalideerde data terug
 } 

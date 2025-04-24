@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { TextInput, Textarea, Switch, Button, Group, Stack, Alert, Text, FileInput, SimpleGrid, Image, CloseButton, Box, Title } from '@mantine/core';
 import { IconAlertCircle, IconUpload } from '@tabler/icons-react';
-import type { ProjectFormState, FullProjectType } from '@/lib/actions/projects'; 
+import type { ProjectFormState, FullProjectType, ProjectImage } from '@/lib/actions/projects'; 
 
 // Definieer de properties voor het formulier
 interface ProjectFormProps {
@@ -57,7 +57,8 @@ export default function ProjectForm({
   // --- State Management --- 
   // State voor bestaande afbeeldingen (incl. hun bijgewerkte alt teksten)
   const [existingImagesData, setExistingImagesData] = useState<ExistingImage[]>(() => {
-    return project?.images?.map((img: FullProjectType['images'][number]) => ({ 
+    // Gebruik ProjectImage en de ProjectImage interface
+    return project?.ProjectImage?.map((img: ProjectImage) => ({ 
       id: img.id,
       url: img.url,
       altText: img.altText,
@@ -248,16 +249,15 @@ export default function ProjectForm({
         <Box mt={existingImagesData.length > 0 ? "xl" : "md"}> {/* Extra margin als er al bestaande zijn */} 
            <Title order={4} mb="sm">Nieuwe Afbeeldingen Toevoegen</Title>
           <FileInput
-            label="Kies nieuwe afbeeldingen"
-            name="projectImages" // Naam voor de *nieuwe* bestanden 
-            placeholder="Voeg meer afbeeldingen toe..."
-            description="Selecteer één of meerdere nieuwe afbeeldingen."
+            label="Selecteer nieuwe afbeeldingen"
+            name="newImages" // Naam gewijzigd naar newImages voor consistentie
+            placeholder="Klik hier om bestanden te selecteren"
             multiple
             accept="image/png,image/jpeg,image/webp,image/gif"
+            onChange={handleFileChange}
+            error={state.errors?.images?.join(', ')} // Blijft images error key gebruiken
             leftSection={<IconUpload size={14} />}
             clearable
-            onChange={handleFileChange}
-            error={state.errors?.images?.join(', ')} // Toont nu errors voor zowel bestaande als nieuwe
           />
 
           {newImagePreviews.length > 0 && (

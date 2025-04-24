@@ -5,38 +5,41 @@
 ```
 jeffdash-portfolio/
 ├── .env                  # Lokale environment variabelen (DATABASE_URL, etc.) - NIET IN GIT!
+├── .env.development.local # Lokale dev environment variabelen (SUPABASE_URL, etc.) - NIET IN GIT!
 ├── .gitignore            # Bestanden/mappen te negeren door Git
+├── .npmrc                # Configuratie voor pnpm
+├── next-env.d.ts         # Next.js TypeScript declaraties
 ├── next.config.mjs       # Next.js configuratie
 ├── package.json          # Project dependencies en scripts (pnpm gebruikt)
 ├── pnpm-lock.yaml        # Exacte dependency versies voor pnpm
+├── .pnpm.builds.json     # pnpm build informatie (automatisch gegenereerd)
 ├── postcss.config.js     # PostCSS configuratie (voor Tailwind)
 ├── tailwind.config.ts    # Tailwind CSS configuratie
 ├── tsconfig.json         # TypeScript configuratie
 ├── README.md             # Algemene project documentatie
 ├── structuur.MD          # Dit bestand (project structuur)
 ├── SOFTWARE_DEVELOPMENT_GUIDE.md # Richtlijnen voor ontwikkeling
-└── # Andere documentatie bestanden (Frontend.MD, backend.MD)
+├── Frontend.MD           # Documentatie specifiek voor Frontend
+├── backend.MD            # Documentatie specifiek voor Backend
+└── nextjsdoc.md          # Documentatie specifiek voor Next.js
 ```
 
-## Database (Prisma)
+## Scripts
 
 ```
-├── prisma/                # Prisma ORM configuratie, schema en migraties
-│   ├── schema.prisma      # **Database schema definitie** (modellen: Project, Post, ContactSubmission, etc.)
-│   ├── migrations/        # Database migratie historie (automatisch beheerd door `prisma migrate`)
-│   └── seed.ts            # (Optioneel) Script om testdata in de database te laden
+├── scripts/               # Hulpscripts voor ontwikkeling
+│   └── CreateAccountScript/ # Script(s) voor het aanmaken van accounts
+│       └── create-admin.mjs # Script voor het aanmaken van een admin account
 ```
 
 ## Publieke Assets
 
 ```
 ├── public/                # Statische bestanden direct toegankelijk via de browser
-│   ├── images/            # Statische afbeeldingen (bv. logo, fallback images)
-│   ├── fonts/             # (Optioneel) Lokale lettertype bestanden
+│   ├── apple-icon.png     # App icon voor Apple (Next.js conventie)
 │   ├── favicon.ico        # Standaard favicon
 │   ├── icon.png           # App icon (Next.js conventie)
-│   ├── apple-icon.png     # App icon voor Apple (Next.js conventie)
-│   └── # manifest.json      # (Optioneel) Web App Manifest
+│   └── manifest.json      # Web App Manifest
 ```
 
 ## Broncode (src)
@@ -49,7 +52,7 @@ jeffdash-portfolio/
 
 ```
     ├── app/               # Implementatie van routes, layouts en pagina's
-    │   ├── admin_area/      # Route group voor admin sectie (voorheen: (admin))
+    │   ├── admin_area/      # Route group voor admin sectie
     │   │   ├── layout.tsx     # Admin layout (MET authenticatie check, sidebar/navigatie)
     │   │   │
     │   │   ├── dashboard/     # Admin dashboard
@@ -70,12 +73,9 @@ jeffdash-portfolio/
     │   │   │       └── page.tsx
     │   │   │
     │   │   ├── contacts/      # Contact Formulier Inzendingen
-    │   │   │   ├── page.tsx   #   Lijst van alle inzendingen
-    │   │   │   └── [id]/      #   Pagina om details van een inzending te bekijken (optioneel)
-    │   │   │       └── page.tsx 
+    │   │   │   └── page.tsx   #   Lijst van alle inzendingen
     │   │   │
-    │   │   └── # Logout functionaliteit wordt waarschijnlijk via een link/knop in de layout afgehandeld,
-    │   │     # die een server action aanroept (geen aparte route nodig).
+    │   │   └── # login/       # Admin Login (aparte route)
     │   │
     │   ├── login/           # Publieke login route (buiten admin layout)
     │   │   └── page.tsx
@@ -106,40 +106,47 @@ jeffdash-portfolio/
 
 ```
     ├── components/        # Map voor alle React componenten
-    │   ├── ui/              # Basis, generieke UI elementen (indien nodig naast Mantine)
-    │   │   └── ...          # (Momenteel minder relevant door direct Mantine gebruik)
+    │   ├── ui/              # Basis, generieke UI elementen
+    │   │   ├── Button.tsx   #   (Voorbeeld, kan anders zijn)
+    │   │   └── Card.tsx     #   (Voorbeeld, kan anders zijn)
     │   ├── layout/          # Componenten specifiek voor de paginalayout
     │   │   ├── Header.tsx   #   Navigatiebalk bovenaan
     │   │   └── Footer.tsx   #   Voettekst onderaan
     │   │
     │   ├── admin/           # Componenten specifiek voor de admin sectie
+    │   │   ├── AdminLayoutClient.tsx # Client-side wrapper voor admin layout
     │   │   ├── AdminNavbar.tsx # Navigatiebalk/sidebar voor admin
-    │   │   ├── ProjectsTable.tsx # Tabel voor weergave projecten in admin
-    │   │   └── ProjectForm.tsx   # Formulier voor aanmaken/bewerken projecten (NIEUW)
+    │   │   ├── ContactSubmissionsTable.tsx # Tabel voor contact inzendingen
+    │   │   ├── PostForm.tsx    # Formulier voor aanmaken/bewerken posts
+    │   │   ├── ProjectForm.tsx   # Formulier voor aanmaken/bewerken projecten
+    │   │   └── ProjectsTable.tsx # Tabel voor weergave projecten in admin
     │   │
     │   ├── features/        # Componenten specifiek voor een bepaalde feature/sectie
     │   │   ├── home/        #   Homepage specifieke componenten
     │   │   │   ├── HeroSection.tsx
-    │   │   │   ├── FeaturedProjects.tsx  # Server Component (data fetch)
-    │   │   │   ├── AnimatedProjectGrid.tsx # Client Component (animatie)
+    │   │   │   ├── FeaturedProjects.tsx
+    │   │   │   ├── AnimatedProjectGrid.tsx
     │   │   │   ├── ShortAboutBlurb.tsx
     │   │   │   └── CallToActionBlock.tsx
     │   │   ├── projects/    #   Projecten specifieke componenten
-    │   │   │   ├── ProjectCard.tsx       # Client Component (kaart + animatie)
+    │   │   │   ├── ProjectCard.tsx
     │   │   │   ├── ProjectList.tsx
     │   │   │   └── ProjectDetailView.tsx
     │   │   ├── blog/        #   Blog specifieke componenten
-    │   │   │   ├── BlogPostCard.tsx      # Client Component (kaart)
+    │   │   │   ├── BlogPostCard.tsx
     │   │   │   ├── BlogList.tsx
     │   │   │   └── BlogPostDetailView.tsx
-    │   │   └── contact/     #   Contact specifieke componenten
-    │   │       └── ContactForm.tsx       # Client Component (formulier state)
+    │   │   ├── contact/     #   Contact specifieke componenten
+    │   │   │   └── ContactForm.tsx
+    │   │   └── shared/      #   Feature-specifieke gedeelde componenten
+    │   │       ├── ImageGallery.tsx
+    │   │       └── TestimonialSlider.tsx
     │   │
-    │   ├── shared/          # Componenten die over meerdere features worden gebruikt
-    │   │   ├── MarkdownRenderer.tsx        # Client Component (rendert Markdown)
-    │   │   └── MarkdownRenderer.module.css # Styling voor Markdown
+    │   ├── shared/          # Algemeen gedeelde componenten
+    │   │   ├── MarkdownRenderer.tsx
+    │   │   └── MarkdownRenderer.module.css
     │   │
-    │   └── icons/           # (Optioneel) Bundelen van custom iconen
+    │   └── icons/           # Bundelen van custom iconen
     │       └── index.ts
 ```
 
@@ -147,14 +154,19 @@ jeffdash-portfolio/
 
 ```
     └── lib/               # Centrale plek voor niet-UI code
-        ├── prisma.ts        # **Prisma client instantie** (gedeeld over actions)
+        ├── supabase/        # **Supabase configuratie & clients**
+        │   ├── client.ts    #   Client-side Supabase client instantie
+        │   └── server.ts    #   Server-side Supabase client instantie (voor Server Actions/Components)
+        ├── actions/         # **Server Actions** (backend logica direct vanuit componenten)
+        │   ├── auth.ts      #   Acties voor login/logout, sessie validatie
+        │   ├── blog.ts      #   Acties voor blog data (CRUD)
+        │   ├── projects.ts  #   Acties voor project data (CRUD)
+        │   └── contact.ts   #   Acties voor contactformulier (CRUD)
+        ├── types/           # Globale TypeScript types/interfaces
+        │   ├── blog.ts      #   (Voorbeeld, kan anders zijn)
+        │   └── index.ts     #   Centraal export punt voor types
         ├── utils.ts         # Algemene utility functies (bv. formatDate)
         ├── config.ts        # **Site configuratie** (naam, URL) & SEO defaults
         ├── logger.ts        # Logging setup
-        │
-        └── actions/         # **Server Actions** (backend logica die direct vanuit componenten aangeroepen wordt)
-            ├── auth.ts        #   Acties voor login/logout
-            ├── blog.ts        #   Acties voor blog data (getPublishedPosts, getPostBySlug)
-            ├── projects.ts    #   Acties voor project data (getFeaturedProjects, getProjects, getProjectBySlug, deleteProjectAction, createProjectAction, updateProjectAction)
-            └── contact.ts     #   Actie voor contactformulier (submitContactForm)
+        └── cloudinary.ts    # Cloudinary configuratie/client
 ```

@@ -1,29 +1,43 @@
+'use client';
+
 import React from 'react';
-import { Title, Text, Button, Container, Group } from '@mantine/core';
 import Link from 'next/link';
+import Button from '@/components/ui/Button';
+import Card from '@/components/ui/Card';
+// import {
+//   Dialog,
+//   DialogContent,
+//   DialogDescription,
+//   DialogHeader,
+//   DialogTitle,
+//   DialogTrigger,
+//   // DialogFooter, // Niet direct nodig, ContactForm heeft eigen submit knop
+// } from "@/components/ui/dialog"; // Removed Dialog import
+// import ContactForm from '@/components/features/contact/ContactForm'; // Commented out as form is not implemented
 
 const CallToActionBlock: React.FC = () => {
+  // Removed state and handler as Dialog is not used
+
   return (
-    <Container 
-      size="md" 
-      py="xl" 
-      style={{
-         // Gebruik een donkerdere achtergrond voor dark mode
-         backgroundColor: 'var(--mantine-color-dark-6)', // Gewijzigd van gray-1 naar dark-6
-         borderRadius: 'var(--mantine-radius-md)' 
-      }}
-    >
-      <Title order={2} ta="center">Klaar om samen te werken?</Title>
-      <Text ta="center" mt="sm">Laten we bespreken hoe ik kan helpen met jouw volgende project.</Text>
-      <Group justify="center" mt="xl">
-        <Button component={Link} href="/contact" size="lg">
-          Neem Contact Op
-        </Button>
-        <Button component={Link} href="/projects" size="lg" variant="outline">
-          Bekijk Mijn Werk
-        </Button>
-      </Group>
-    </Container>
+    <div className="container mx-auto my-12 md:my-16">
+      <Card className="max-w-3xl mx-auto">
+        <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground mb-4">Klaar om samen te werken?</h2>
+        <p className="text-lg text-center text-muted-foreground mb-8">Laten we bespreken hoe ik kan helpen met jouw volgende project.</p>
+        <div className="flex justify-center items-center gap-6 flex-wrap">
+          {/* Placeholder Button for Contact */}
+          <Button size="lg" onClick={() => alert('Contact form functionality needs reimplementation without Dialog.')}>Neem Contact Op</Button>
+
+          <Link href="/projects">
+            <Button
+              variant="outline"
+              size="lg"
+            >
+              Bekijk Mijn Werk
+            </Button>
+          </Link>
+        </div>
+      </Card>
+    </div>
   );
 };
 

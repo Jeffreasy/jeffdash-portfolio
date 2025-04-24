@@ -1,86 +1,99 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import { jwtVerify } from 'jose'; // Gebruik jose voor edge runtime compatibiliteit
+import { createServerClient, type CookieOptions } from '@supabase/ssr' // Importeer ssr helper
+import { NextResponse, type NextRequest } from 'next/server'
 
-const SESSION_COOKIE_NAME = 'session'; // Zelfde naam als gebruikt bij inloggen
-
-// Definieer de JWT payload structuur (zonder 'role' voor nu, afhankelijk van wat in je token zit)
-interface JwtPayload {
-  userId: string;
-  // Voeg hier eventueel 'role' toe als die in je JWT zit en je die wilt checken
-  iat?: number; // Issued at
-  exp?: number; // Expiration time
-}
-
-async function verifyAuth(token: string): Promise<JwtPayload | null> {
-  if (!process.env.JWT_SECRET) {
-    console.error('Middleware: FATAL ERROR: JWT_SECRET is niet ingesteld!');
-    return null;
-  }
-
-  try {
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET);
-    const { payload } = await jwtVerify<JwtPayload>(token, secret);
-    // console.log('Middleware: Token geverifieerd, payload:', payload); // Debug log (optioneel)
-
-    // Hier kun je eventueel de 'role' checken als die in de payload zit
-    // if (payload.role !== 'ADMIN') {
-    //   console.log('Middleware: Gebruiker heeft geen ADMIN rol.');
-    //   return null;
-    // }
-
-    return payload;
-  } catch (err) {
-    console.error('Middleware: Sessie validatie gefaald:', err instanceof Error ? err.message : err);
-    return null;
-  }
-}
+// Noot: De Supabase client initialisatie wordt nu binnen de middleware gedaan
+// met request/response objecten, niet via de helpers uit /lib/supabase.
 
 export async function middleware(request: NextRequest) {
-  const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
-  const { pathname } = request.nextUrl;
+  let response = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
+  })
 
-  // Logica alleen toepassen op admin paden (dubbelcheck via code, matcher is primair)
+  // Create an unmodified Supabase client for middleware actions
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return request.cookies.get(name)?.value
+        },
+        set(name: string, value: string, options: CookieOptions) {
+          // If the cookie is set, update the request cookies object
+          // We need to modify the response later
+          request.cookies.set({ name, value, ...options })
+          response = NextResponse.next({ // Create new response to apply cookie changes
+            request: {
+              headers: request.headers,
+            },
+          })
+          response.cookies.set({ name, value, ...options })
+        },
+        remove(name: string, options: CookieOptions) {
+          // If the cookie is removed, update the request cookies object
+          // We need to modify the response later
+          request.cookies.set({ name, value: '', ...options })
+          response = NextResponse.next({ // Create new response to apply cookie changes
+            request: {
+              headers: request.headers,
+            },
+          })
+          response.cookies.set({ name, value: '', ...options })
+        },
+      },
+    }
+  )
+
+  // Refresh session if expired - important!
+  const { data: { user } } = await supabase.auth.getUser()
+
+  const { pathname } = request.nextUrl
+
+  // Protect admin routes
   if (pathname.startsWith('/admin_area')) {
-    if (!token) {
-      console.log('Middleware: Geen sessie token gevonden voor admin route, redirect naar /login');
-      const loginUrl = new URL('/login', request.url);
-      // Voeg eventueel een 'redirectedFrom' query param toe
-      // loginUrl.searchParams.set('redirectedFrom', pathname);
-      return NextResponse.redirect(loginUrl);
+    if (!user) {
+      // No user, redirect to login
+      console.log('Middleware: No user session found for /admin_area, redirecting to /login');
+      return NextResponse.redirect(new URL('/login', request.url))
     }
+    // TODO: Add role check if needed, similar to validateAdminSession
+    // This might involve fetching user metadata or querying the 'User' table
+    // Example: Fetch role from metadata (if you store it there)
+    // if (user?.user_metadata?.role !== 'ADMIN') {
+    //   console.log('Middleware: User does not have ADMIN role, redirecting.');
+    //   // Redirect to a 'forbidden' page or homepage
+    //   return NextResponse.redirect(new URL('/', request.url));
+    // }
 
-    const verifiedPayload = await verifyAuth(token);
-
-    if (!verifiedPayload) {
-      console.log('Middleware: Ongeldige sessie token voor admin route, redirect naar /login');
-      // Optioneel: Verwijder de ongeldige cookie
-      const response = NextResponse.redirect(new URL('/login', request.url));
-      response.cookies.delete(SESSION_COOKIE_NAME);
-      return response;
-    }
-
-    // Gebruiker is geauthenticeerd voor de admin route
-    // console.log(`Middleware: Geldige sessie voor gebruiker ${verifiedPayload.userId} op ${pathname}`);
+    console.log(`Middleware: Valid session for user ${user.id} accessing ${pathname}`);
   }
 
-  // Ga door naar de volgende middleware of de gevraagde route
-  return NextResponse.next();
+  // Redirect logged-in users away from login page
+  if (user && pathname === '/login') {
+    console.log('Middleware: User already logged in, redirecting from /login to /admin_area/dashboard');
+    return NextResponse.redirect(new URL('/admin_area/dashboard', request.url))
+  }
+
+
+  // Return the response object to apply cookie updates
+  return response
 }
 
-// Configuratie om de middleware alleen op specifieke paden uit te voeren
+// Configuratie om de middleware op de juiste paden uit te voeren
 export const config = {
   matcher: [
     /*
-     * Match alle request paden behalve die starten met:
-     * - api (API routes)
+     * Match all request paths except for the ones starting with:
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - login (de login pagina zelf)
-     * - Pas de admin route prefix hieronder aan indien nodig!
+     * Feel free to modify this pattern to include more paths.
      */
-    // '/((?!api|_next/static|_next/image|favicon.ico|login).*)', // Oude matcher (te breed)
-     '/admin_area/:path*', // Specifiek voor admin routes
+    '/((?!_next/static|_next/image|favicon.ico|api/).*)', // Apply to most paths except static assets and API routes
+    // Explicitly include paths needing protection or redirection logic
+    '/admin_area/:path*',
+    '/login',
   ],
-}; 
+} 

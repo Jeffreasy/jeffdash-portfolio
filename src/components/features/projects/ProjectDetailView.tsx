@@ -27,7 +27,7 @@ export default function ProjectDetailView({ project }: ProjectDetailViewProps) {
     );
   }
 
-  const mainImage = project.images?.[0]; // Pak de eerste afbeelding als hoofdafbeelding
+  const mainImage = project.ProjectImage?.[0]; // Change images to ProjectImage
 
   return (
     <Container size="md" py="xl">
@@ -111,6 +111,12 @@ export default function ProjectDetailView({ project }: ProjectDetailViewProps) {
         {/* {project.images && project.images.length > 1 && (
           <ImageGallery images={project.images.slice(1).map(img => ({ url: img.url, alt: img.altText }))} />
         )} */}
+        {project.ProjectImage && project.ProjectImage.length > 1 && (
+          // TODO: Implement ImageGallery or similar
+          <Text c="dimmed" mt="xl">Meer afbeeldingen komen hier...</Text>
+          // Placeholder for ImageGallery call using ProjectImage
+          // <ImageGallery images={project.ProjectImage.slice(1).map(img => ({ url: img.url, alt: img.altText }))} />
+        )}
 
       </Stack>
     </Container>

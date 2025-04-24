@@ -7,11 +7,11 @@ import Link from 'next/link';
 import { deleteProjectAction } from '@/lib/actions/projects';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
-// Import het project type zoals gedefinieerd in de actions
-import type { PrismaProject } from '@/lib/actions/projects';
+// Importeer het AdminProjectListItemType
+import type { AdminProjectListItemType } from '@/lib/actions/projects';
 
 interface ProjectsTableProps {
-  projects: PrismaProject[]; // Gebruik het geïmporteerde type
+  projects: AdminProjectListItemType[]; // Gebruik het nieuwe type
 }
 
 export default function ProjectsTable({ projects }: ProjectsTableProps) {
@@ -82,11 +82,15 @@ export default function ProjectsTable({ projects }: ProjectsTableProps) {
     });
 
   const rows = projects.map((project) => {
-    const formattedDate = new Date(project.createdAt).toLocaleDateString('nl-NL', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
+    // Controleer of createdAt een geldige datumstring is
+    const createdAtDate = project.createdAt ? new Date(project.createdAt) : null;
+    const formattedDate = createdAtDate instanceof Date && !isNaN(createdAtDate.getTime())
+      ? createdAtDate.toLocaleDateString('nl-NL', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        })
+      : 'Ongeldige datum';
 
     return (
       <Table.Tr key={project.id}>

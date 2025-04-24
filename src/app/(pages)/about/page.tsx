@@ -4,6 +4,8 @@ import { IconBrandLinkedin, IconBrandGithub } from '@tabler/icons-react';
 import Link from 'next/link';
 import { Metadata } from 'next';
 import { SITE_CONFIG } from '@/lib/config';
+import { getAboutContent } from '@/lib/actions/content';
+import Image from 'next/image';
 
 // --- SEO Metadata --- //
 export const metadata: Metadata = {
@@ -40,50 +42,59 @@ export const metadata: Metadata = {
 };
 
 // --- Pagina Component --- //
-export default function AboutPage() {
-  const linkedInUrl = "https://www.linkedin.com/in/jeffrey-lavente-026a41330/";
-  const githubUrl = "https://github.com/Jeffreasy";
+export default async function AboutPage() {
+  // Haal content en afbeelding op
+  const content = await getAboutContent();
+
+  // Gebruik de opgehaalde content, met fallbacks
+  const pageTitle = content.about_title || 'Over Mij';
+  const introText = content.about_intro || 'Introductietekst niet gevonden.';
+  const focusText = content.about_focus || '';
+  const projectsText = content.about_projects || '';
+  const contactText = content.about_contact || '';
+  const linkedInUrl = content.linkedin_url || '#';
+  const githubUrl = content.github_url || '#';
+  const profileImageUrl = content.profileImageUrl; // Kan undefined zijn
+  const profileImageAlt = content.profileImageAlt || 'Profielfoto'; // Fallback alt tekst
 
   return (
     <Container size="md" py="xl">
       <Paper withBorder shadow="md" p="xl" radius="md">
         <Stack gap="xl">
           <Title order={1} ta="center">
-            Over Mij
+            {pageTitle}
           </Title>
 
-          {/* TODO: Voeg hier je profielfoto toe zodra je die hebt */}
-          {/* Bijvoorbeeld:
-          <Group justify="center">
-            <Image
-              radius="50%" // Cirkel
-              h={150}
-              w="auto"
-              fit="cover"
-              src="/images/jouw-foto.jpg" // Pad naar je foto in /public/images
-              alt="Foto van Jeffrey Lavente"
-            />
-          </Group>
-          */}
+          {/* Dynamische Profielfoto (indien beschikbaar) */}
+          {profileImageUrl && (
+            <Group justify="center">
+              <Image
+                src={profileImageUrl}
+                alt={profileImageAlt}
+                width={150} // Specificeer breedte
+                height={150} // Specificeer hoogte
+                quality={85} // Optioneel: kwaliteit aanpassen
+                priority // Geef prioriteit aan LCP-kandidaat
+                style={{
+                  borderRadius: '50%', // Cirkel stijl
+                  objectFit: 'cover', // Zorg dat afbeelding de ruimte vult
+                }}
+              />
+            </Group>
+          )}
 
           <Stack gap="lg">
-            {/* === VERVANG DEZE TEKST MET JE EIGEN VERHAAL === */}
+            {/* Tekst blijft hetzelfde */}
             <Text size="lg">
-              Welkom op mijn portfolio! Ik ben Jeffrey Lavente, een enthousiaste en gedreven webontwikkelaar met een passie voor het creëren van moderne, gebruiksvriendelijke en performante webapplicaties.
+              {introText}
             </Text>
-            <Text>
-              Mijn focus ligt op het bouwen met cutting-edge technologieën zoals Next.js, React, TypeScript, en Prisma. Ik geniet ervan om complexe problemen om te zetten in elegante, schaalbare oplossingen. Of het nu gaat om het ontwikkelen van een interactieve frontend, het opzetten van een robuuste backend-API, of het optimaliseren van de database interactie, ik streef altijd naar de hoogste kwaliteit.
-            </Text>
-            <Text>
-              Op deze site vind je een selectie van mijn projecten die mijn vaardigheden en interesses weerspiegelen. Ik ben altijd op zoek naar nieuwe uitdagingen en mogelijkheden om te leren en te groeien als ontwikkelaar.
-            </Text>
-            <Text>
-              Bekijk gerust mijn profielen op LinkedIn en GitHub, of neem contact op als je vragen hebt of wilt samenwerken!
-            </Text>
-            {/* === EINDE TEKST === */}
+            {focusText && <Text>{focusText}</Text>}
+            {projectsText && <Text>{projectsText}</Text>}
+            {contactText && <Text>{contactText}</Text>}
           </Stack>
 
           <Group justify="center" gap="lg" mt="md">
+            {/* Knoppen blijven hetzelfde */}
             <Button
               component="a"
               href={linkedInUrl}
@@ -92,6 +103,7 @@ export default function AboutPage() {
               variant="gradient"
               gradient={{ from: 'blue', to: 'cyan' }}
               leftSection={<IconBrandLinkedin size={18} />}
+              disabled={linkedInUrl === '#'}
             >
               LinkedIn
             </Button>
@@ -102,6 +114,7 @@ export default function AboutPage() {
               rel="noopener noreferrer"
               variant="default"
               leftSection={<IconBrandGithub size={18} />}
+              disabled={githubUrl === '#'}
             >
               GitHub
             </Button>
