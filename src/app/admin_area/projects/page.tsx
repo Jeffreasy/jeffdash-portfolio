@@ -8,7 +8,10 @@ import ProjectsTable from '@/components/admin/ProjectsTable'; // Importeer de ta
 import { getProjectsForAdmin } from '@/lib/actions/projects'; // Importeer de nieuwe action
 import type { AdminProjectListItemType } from '@/lib/actions/projects'; // Importeer het bijbehorende type
 
-export default async function AdminProjectsPage() {
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic';
+
+const AdminProjectsPage = async () => {
   // let projects: PrismaProject[] = []; // Use Supabase Project type
   let projects: AdminProjectListItemType[] = []; // Gebruik het nieuwe type
   let fetchError = null;
@@ -54,4 +57,6 @@ export default async function AdminProjectsPage() {
       )}
     </div>
   );
-} 
+};
+
+export default AdminProjectsPage; 

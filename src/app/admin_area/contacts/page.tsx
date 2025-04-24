@@ -3,6 +3,9 @@ import { Container, Title, Alert } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
 import ContactSubmissionsTable from '@/components/admin/ContactSubmissionsTable'; // Importeer de client component
 
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic';
+
 export default async function ContactsAdminPage() {
   let submissions: ContactSubmissionType[] = [];
   let error: string | null = null;
