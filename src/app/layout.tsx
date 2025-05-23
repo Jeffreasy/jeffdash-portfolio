@@ -10,6 +10,9 @@ import { Notifications } from '@mantine/notifications';
 import { ModalsProvider } from '@mantine/modals';
 import { SITE_CONFIG } from '@/lib/config';
 
+// Import layout wrapper
+import LayoutWrapper from '@/components/layout/LayoutWrapper';
+
 const inter = Inter({ 
   subsets: ["latin"],
   display: 'swap', // Improved font loading
@@ -86,7 +89,11 @@ export default function RootLayout({
         <MantineProvider defaultColorScheme="dark">
           <ModalsProvider>
             <Notifications position="top-right" zIndex={1000} limit={5} />
-            {children}
+            
+            <LayoutWrapper>
+              {children}
+            </LayoutWrapper>
+            
           </ModalsProvider>
         </MantineProvider>
         {gaId && <GoogleAnalytics gaId={gaId} />}
