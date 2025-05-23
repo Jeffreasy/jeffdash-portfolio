@@ -10,12 +10,18 @@ import {
   useTransform,
   useSpring,
 } from 'framer-motion';
+import ProjectErrorBoundary from './ProjectErrorBoundary';
 
 type ProjectCardProps = {
   project: FeaturedProjectType;
 };
 
 export default function ProjectCard({ project }: ProjectCardProps) {
+  // Validate project prop
+  if (!project || typeof project !== 'object') {
+    throw new Error('Invalid project data provided to ProjectCard');
+  }
+
   const cardRef = useRef<HTMLDivElement>(null);
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -54,74 +60,81 @@ export default function ProjectCard({ project }: ProjectCardProps) {
   const buttonZSpring = useSpring(buttonTranslateZ, springConfig);
 
   return (
-    <motion.div
-      ref={cardRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      style={{
-        perspective: '1000px',
-        rotateX: rotateXSpring,
-        rotateY: rotateYSpring,
-        transformStyle: 'preserve-3d', // Belangrijk voor interne Z-translatie
-      }}
-      whileHover={{ scale: 1.02 }} // Iets subtielere schaal
-      transition={{ type: 'spring', stiffness: 350, damping: 35 }} // Overeenkomstige transitie
-    >
-      <Card
-        shadow="sm" padding="lg" radius="md" withBorder h="100%"
-        style={{ transformStyle: 'preserve-3d' }} // Ook hier preserve-3d
+    <ProjectErrorBoundary>
+      <motion.div
+        ref={cardRef}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        style={{
+          perspective: '1000px',
+          rotateX: rotateXSpring,
+          rotateY: rotateYSpring,
+          transformStyle: 'preserve-3d', // Belangrijk voor interne Z-translatie
+        }}
+        whileHover={{ scale: 1.02 }} // Iets subtielere schaal
+        transition={{ type: 'spring', stiffness: 350, damping: 35 }} // Overeenkomstige transitie
       >
-        <Card.Section>
-          <motion.div style={{ translateZ: imageZSpring }}> {/* Koppel Z aan spring */}
-            <Image
-              src={project.featuredImageUrl || 'https://via.placeholder.com/400x200/dee2e6/868e96.png?text=No+Image'}
-              height={180}
-              alt={project.featuredImageAlt || project.title}
-              style={{ transform: 'translateZ(0)' }} // Voorkom dubbele transformatie
-            />
-          </motion.div>
-        </Card.Section>
+        <Card
+          shadow="sm" padding="lg" radius="md" withBorder h="100%"
+          style={{ transformStyle: 'preserve-3d' }} // Ook hier preserve-3d
+        >
+          <Card.Section>
+            <motion.div style={{ translateZ: imageZSpring }}> {/* Koppel Z aan spring */}
+              <Image
+                src={project.featuredImageUrl || 'https://via.placeholder.com/400x200/dee2e6/868e96.png?text=No+Image'}
+                height={180}
+                alt={project.featuredImageAlt || project.title}
+                style={{ transform: 'translateZ(0)' }} // Voorkom dubbele transformatie
+                onError={(e) => {
+                  console.error('Error loading project image:', e);
+                  // Fallback to placeholder image
+                  e.currentTarget.src = 'https://via.placeholder.com/400x200/dee2e6/868e96.png?text=Image+Error';
+                }}
+              />
+            </motion.div>
+          </Card.Section>
 
-        <motion.div style={{ translateZ: contentZSpring }}> {/* Koppel Z aan spring */}
-          <Stack
-            mt="md" mb="xs" gap="xs"
-            style={{ flexGrow: 1, transform: 'translateZ(0)' }} // Voorkom dubbele transformatie
-          >
-            <Text fw={600} size="lg" lineClamp={2}>{project.title}</Text>
-            {project.shortDescription && (
-              <Text size="sm" c="dimmed" lineClamp={3}>
-                {project.shortDescription}
-              </Text>
-            )}
-            <Group gap="xs" mt="auto">
-              {project.technologies?.slice(0, 3).map((tag: string) => (
-                <Badge key={tag} size="sm" variant="light">
-                  {tag}
-                </Badge>
-              ))}
-              {project.technologies && project.technologies.length > 3 && (
-                 <Badge size="sm" variant="outline">+{project.technologies.length - 3}</Badge>
+          <motion.div style={{ translateZ: contentZSpring }}> {/* Koppel Z aan spring */}
+            <Stack
+              mt="md" mb="xs" gap="xs"
+              style={{ flexGrow: 1, transform: 'translateZ(0)' }} // Voorkom dubbele transformatie
+            >
+              <Text fw={600} size="lg" lineClamp={2}>{project.title}</Text>
+              {project.shortDescription && (
+                <Text size="sm" c="dimmed" lineClamp={3}>
+                  {project.shortDescription}
+                </Text>
               )}
-            </Group>
-          </Stack>
-        </motion.div>
+              <Group gap="xs" mt="auto">
+                {project.technologies?.slice(0, 3).map((tag: string) => (
+                  <Badge key={tag} size="sm" variant="light">
+                    {tag}
+                  </Badge>
+                ))}
+                {project.technologies && project.technologies.length > 3 && (
+                   <Badge size="sm" variant="outline">+{project.technologies.length - 3}</Badge>
+                )}
+              </Group>
+            </Stack>
+          </motion.div>
 
-        <motion.div style={{ translateZ: buttonZSpring }}> {/* Koppel Z aan spring */}
-          <Button
-            component={Link}
-            href={`/projects/${project.slug}`}
-            variant="light"
-            color="blue"
-            fullWidth
-            mt="md"
-            radius="md"
-            style={{ transform: 'translateZ(0)' }} // Voorkom dubbele transformatie
-          >
-            Bekijk Details
-          </Button>
-        </motion.div>
-      </Card>
-    </motion.div>
+          <motion.div style={{ translateZ: buttonZSpring }}> {/* Koppel Z aan spring */}
+            <Button
+              component={Link}
+              href={`/projects/${project.slug}`}
+              variant="light"
+              color="blue"
+              fullWidth
+              mt="md"
+              radius="md"
+              style={{ transform: 'translateZ(0)' }} // Voorkom dubbele transformatie
+            >
+              Bekijk Details
+            </Button>
+          </motion.div>
+        </Card>
+      </motion.div>
+    </ProjectErrorBoundary>
   );
 }
 
