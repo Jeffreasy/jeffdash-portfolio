@@ -2,6 +2,9 @@ import React from 'react';
 import { createClient } from '@/lib/supabase/server';
 import { Card, Title, Text, Stack } from '@mantine/core';
 
+// Force dynamic rendering for pages that use cookies/auth
+export const dynamic = 'force-dynamic';
+
 export default async function TestAuthPage() {
   let authInfo = 'Onbekend';
   let connectionInfo = 'Onbekend';

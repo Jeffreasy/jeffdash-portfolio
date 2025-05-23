@@ -6,6 +6,9 @@ import { getPosts } from '@/lib/actions/blog';
 import { getContactSubmissions } from '@/lib/actions/contact';
 import { createClient } from '@/lib/supabase/server';
 
+// Force dynamic rendering for admin pages that use cookies/auth
+export const dynamic = 'force-dynamic';
+
 export default async function AdminDashboardPage() {
   // Test data fetching
   let projectsCount = 0;

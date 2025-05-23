@@ -6,6 +6,9 @@ import AdminLayout from '@/components/admin/AdminLayout';
 import { redirect } from 'next/navigation';
 import { validateAdminSession } from '@/lib/actions/auth';
 
+// Force dynamic rendering for admin pages that use cookies/auth
+export const dynamic = 'force-dynamic';
+
 async function AboutAdminContent() {
   try {
     await validateAdminSession();
