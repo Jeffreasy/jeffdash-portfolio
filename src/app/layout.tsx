@@ -66,10 +66,10 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: '/favicon.ico',
-    shortcut: '/favicon-16x16.png',
-    apple: '/apple-touch-icon.png',
+    shortcut: '/favicon.ico',
+    apple: '/apple-icon.png',
   },
-  manifest: '/site.webmanifest',
+  manifest: '/manifest.json',
 };
 
 const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
