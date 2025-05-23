@@ -359,7 +359,7 @@ export default function ProjectDetailView({ project }: ProjectDetailViewProps) {
               )}
 
               {/* Project Description */}
-              {project.description && (
+              {project.detailedContent && (
                 <motion.div variants={itemVariants}>
                   <Paper
                     p="lg"
@@ -374,7 +374,7 @@ export default function ProjectDetailView({ project }: ProjectDetailViewProps) {
                       Over dit project
                     </Title>
                     <Box style={{ color: 'var(--mantine-color-gray-3)' }}>
-                      <MarkdownRenderer content={project.description} />
+                      <MarkdownRenderer>{project.detailedContent}</MarkdownRenderer>
                     </Box>
                   </Paper>
                 </motion.div>

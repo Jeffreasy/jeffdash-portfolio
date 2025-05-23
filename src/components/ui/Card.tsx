@@ -62,7 +62,6 @@ const Card = ({ children, className, variant = 'glass', ...rest }: CardProps) =>
                 borderColor: 'rgba(59, 130, 246, 0.3)',
                 background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.08) 100%)',
               } : {},
-              ...(rest.styles?.root || {}),
             }
           }}
           {...rest}
