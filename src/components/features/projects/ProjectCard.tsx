@@ -1,16 +1,11 @@
 "use client"; // Image component vereist client-side rendering
 
-import React, { useRef } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import NextImage from 'next/image';
-import { Card, Text, Stack, Badge, Group, Button } from '@mantine/core';
+import { Card, Text, Stack, Badge, Group, Button, Paper } from '@mantine/core';
 import type { FeaturedProjectType } from '@/lib/actions/projects';
-import {
-  motion,
-  useMotionValue,
-  useTransform,
-  useSpring,
-} from 'framer-motion';
+import { motion } from 'framer-motion';
 import ProjectErrorBoundary from './ProjectErrorBoundary';
 
 type ProjectCardProps = {
@@ -23,124 +18,240 @@ export default function ProjectCard({ project }: ProjectCardProps) {
     throw new Error('Invalid project data provided to ProjectCard');
   }
 
-  const cardRef = useRef<HTMLDivElement>(null);
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-
-  const handleMouseLeave = () => {
-    mouseX.set(0);
-    mouseY.set(0);
-  };
-
-  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
-    const { left, top, width, height } = cardRef.current.getBoundingClientRect();
-    mouseX.set((event.clientX - left) / width - 0.5);
-    mouseY.set((event.clientY - top) / height - 0.5);
-  };
-
-  // --- Tilt Animatie (Verfijnd) ---
-  // Iets subtielere rotatie
-  const rotateX = useTransform(mouseY, [-0.5, 0.5], [8, -8]); // Was 10
-  const rotateY = useTransform(mouseX, [-0.5, 0.5], [-8, 8]); // Was 10
-
-  // Iets strakkere spring physics
-  const springConfig = { stiffness: 350, damping: 35, mass: 1 }; // Iets stijver
-  const rotateXSpring = useSpring(rotateX, springConfig);
-  const rotateYSpring = useSpring(rotateY, springConfig);
-
-  // --- Interne Parallax (Nieuw) ---
-  // Transformeer muispositie naar Z-translatie voor interne elementen
-  // Verschillende ranges voor diepte effect
-  const imageTranslateZ = useTransform(mouseY, [-0.5, 0.5], [-15, 35]); // Afbeelding beweegt meer
-  const contentTranslateZ = useTransform(mouseY, [-0.5, 0.5], [-10, 25]);
-  const buttonTranslateZ = useTransform(mouseY, [-0.5, 0.5], [-5, 45]); // Knop komt het meest naar voren
-
-  const imageZSpring = useSpring(imageTranslateZ, springConfig);
-  const contentZSpring = useSpring(contentTranslateZ, springConfig);
-  const buttonZSpring = useSpring(buttonTranslateZ, springConfig);
-
   return (
     <ProjectErrorBoundary>
       <motion.div
-        ref={cardRef}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        style={{
-          perspective: '1000px',
-          rotateX: rotateXSpring,
-          rotateY: rotateYSpring,
-          transformStyle: 'preserve-3d', // Belangrijk voor interne Z-translatie
+        style={{ height: '100%' }}
+        whileHover={{ 
+          y: -8,
+          transition: { 
+            type: "spring", 
+            stiffness: 400, 
+            damping: 25,
+            duration: 0.3
+          }
         }}
-        whileHover={{ scale: 1.02 }} // Iets subtielere schaal
-        transition={{ type: 'spring', stiffness: 350, damping: 35 }} // Overeenkomstige transitie
+        whileTap={{ scale: 0.98 }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
       >
         <Card
-          shadow="sm" padding="lg" radius="md" withBorder h="100%"
-          style={{ transformStyle: 'preserve-3d' }} // Ook hier preserve-3d
+          shadow="md" 
+          padding={0}
+          radius="lg" 
+          withBorder 
+          h="100%"
+          style={{ 
+            background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            overflow: 'hidden',
+            position: 'relative',
+            transition: 'all 0.3s ease',
+            cursor: 'pointer',
+          }}
+          styles={{
+            root: {
+              '&:hover': {
+                boxShadow: '0 20px 40px rgba(0, 0, 0, 0.15)',
+                borderColor: 'rgba(59, 130, 246, 0.3)',
+              }
+            }
+          }}
         >
+          {/* Afbeelding sectie */}
           <Card.Section>
-            <motion.div style={{ translateZ: imageZSpring }}> {/* Koppel Z aan spring */}
-              <div style={{ position: 'relative', height: 180, overflow: 'hidden' }}>
+            <motion.div 
+              style={{ 
+                margin: 'var(--mantine-spacing-md)',
+                marginBottom: 0,
+              }}
+              whileHover={{ scale: 1.02 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Paper 
+                radius="md" 
+                style={{ 
+                  position: 'relative',
+                  width: '100%',
+                  aspectRatio: '16 / 10',
+                  overflow: 'hidden',
+                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                }}
+              >
                 <NextImage
-                  src={project.featuredImageUrl || 'https://via.placeholder.com/400x200/dee2e6/868e96.png?text=No+Image'}
+                  src={project.featuredImageUrl || 'https://via.placeholder.com/800x500/dee2e6/868e96.png?text=No+Image'}
                   alt={project.featuredImageAlt || project.title}
                   fill
-                  loading="lazy" // Lazy loading voor betere performance
+                  loading="lazy"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  quality={80} // Optimized quality
+                  quality={85}
                   style={{ 
                     objectFit: 'cover',
-                    transform: 'translateZ(0)' // Voorkom dubbele transformatie
+                    objectPosition: 'center',
+                    transition: 'transform 0.3s ease',
                   }}
                   onError={(e) => {
                     console.error('Error loading project image:', e);
-                    // Fallback to placeholder image
-                    e.currentTarget.src = 'https://via.placeholder.com/400x200/dee2e6/868e96.png?text=Image+Error';
+                    e.currentTarget.src = 'https://via.placeholder.com/800x500/dee2e6/868e96.png?text=Image+Error';
                   }}
                 />
-              </div>
+                
+                {/* Subtiele gradient overlay */}
+                <div style={{
+                  position: 'absolute',
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  height: '30%',
+                  background: 'linear-gradient(transparent, rgba(0, 0, 0, 0.08))',
+                  pointerEvents: 'none',
+                }} />
+
+                {/* Hover effect overlay */}
+                <motion.div 
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(16, 185, 129, 0.1))',
+                    opacity: 0,
+                    pointerEvents: 'none',
+                  }}
+                  whileHover={{ opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                />
+              </Paper>
             </motion.div>
           </Card.Section>
 
-          <motion.div style={{ translateZ: contentZSpring }}> {/* Koppel Z aan spring */}
-            <Stack
-              mt="md" mb="xs" gap="xs"
-              style={{ flexGrow: 1, transform: 'translateZ(0)' }} // Voorkom dubbele transformatie
-            >
-              <Text fw={600} size="lg" lineClamp={2}>{project.title}</Text>
+          {/* Content sectie - GEEN 3D transforms voor scherpe tekst */}
+          <div style={{ 
+            padding: 'var(--mantine-spacing-md) var(--mantine-spacing-lg) var(--mantine-spacing-md)',
+          }}>
+            <Stack gap="sm" style={{ flexGrow: 1, minHeight: 140 }}>
+              <Text 
+                fw={600} 
+                size="lg" 
+                lineClamp={2}
+                style={{
+                  lineHeight: 1.3,
+                  background: 'linear-gradient(135deg, var(--mantine-color-dark-9), var(--mantine-color-dark-6))',
+                  backgroundClip: 'text',
+                  WebkitBackgroundClip: 'text',
+                  color: 'transparent',
+                  minHeight: '2.6em',
+                  // Optimale text rendering
+                  WebkitFontSmoothing: 'antialiased',
+                  MozOsxFontSmoothing: 'grayscale',
+                  textRendering: 'optimizeLegibility',
+                }}
+              >
+                {project.title}
+              </Text>
+              
               {project.shortDescription && (
-                <Text size="sm" c="dimmed" lineClamp={3}>
+                <Text 
+                  size="sm" 
+                  c="dimmed" 
+                  lineClamp={3}
+                  style={{ 
+                    lineHeight: 1.4,
+                    minHeight: '3.6em',
+                    // Optimale text rendering
+                    WebkitFontSmoothing: 'antialiased',
+                    MozOsxFontSmoothing: 'grayscale',
+                    textRendering: 'optimizeLegibility',
+                  }}
+                >
                   {project.shortDescription}
                 </Text>
               )}
-              <Group gap="xs" mt="auto">
+              
+              {/* Technology badges */}
+              <Group gap="xs" mt="auto" style={{ flexWrap: 'wrap', minHeight: '2rem' }}>
                 {project.technologies?.slice(0, 3).map((tag: string) => (
-                  <Badge key={tag} size="sm" variant="light">
+                  <Badge 
+                    key={tag} 
+                    size="sm" 
+                    variant="light"
+                    style={{
+                      background: 'linear-gradient(135deg, var(--mantine-color-blue-1), var(--mantine-color-cyan-1))',
+                      border: '1px solid var(--mantine-color-blue-3)',
+                      color: 'var(--mantine-color-blue-7)',
+                      fontWeight: 500,
+                    }}
+                  >
                     {tag}
                   </Badge>
                 ))}
                 {project.technologies && project.technologies.length > 3 && (
-                   <Badge size="sm" variant="outline">+{project.technologies.length - 3}</Badge>
+                  <Badge 
+                    size="sm" 
+                    variant="outline"
+                    style={{
+                      borderColor: 'var(--mantine-color-gray-4)',
+                      color: 'var(--mantine-color-gray-6)',
+                      fontWeight: 500,
+                    }}
+                  >
+                    +{project.technologies.length - 3}
+                  </Badge>
                 )}
               </Group>
             </Stack>
-          </motion.div>
+          </div>
 
-          <motion.div style={{ translateZ: buttonZSpring }}> {/* Koppel Z aan spring */}
-            <Button
-              component={Link}
-              href={`/projects/${project.slug}`}
-              variant="light"
-              color="blue"
-              fullWidth
-              mt="md"
-              radius="md"
-              style={{ transform: 'translateZ(0)' }} // Voorkom dubbele transformatie
+          {/* CTA Button - GEEN 3D transforms */}
+          <div style={{ 
+            padding: '0 var(--mantine-spacing-lg) var(--mantine-spacing-lg)',
+          }}>
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ duration: 0.2 }}
             >
-              Bekijk Details
-            </Button>
-          </motion.div>
+              <Button
+                component={Link}
+                href={`/projects/${project.slug}`}
+                variant="gradient"
+                gradient={{ from: 'blue', to: 'cyan' }}
+                fullWidth
+                radius="md"
+                size="md"
+                style={{ 
+                  boxShadow: '0 4px 16px rgba(59, 130, 246, 0.3)',
+                  border: 'none',
+                  fontWeight: 600,
+                }}
+                styles={{
+                  root: {
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      boxShadow: '0 6px 24px rgba(59, 130, 246, 0.4)',
+                    }
+                  }
+                }}
+              >
+                Bekijk Details
+              </Button>
+            </motion.div>
+          </div>
+
+          {/* Decorative element */}
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            width: '80px',
+            height: '80px',
+            background: 'radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%)',
+            pointerEvents: 'none',
+          }} />
         </Card>
       </motion.div>
     </ProjectErrorBoundary>

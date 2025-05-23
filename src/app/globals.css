@@ -2,4 +2,72 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Globale optimalisaties voor text rendering en prestaties */
+* {
+  /* Optimale text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  
+  /* Voorkomen van layout shifts */
+  box-sizing: border-box;
+}
+
+html {
+  /* Betere font rendering */
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* Hardware acceleration voor betere prestaties */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+body {
+  /* Zorgen voor consistente rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* Voorkomen van scroll issues */
+  overflow-x: hidden;
+}
+
+/* Optimalisaties voor animatie prestaties */
+[data-framer-motion] {
+  /* Forceer GPU acceleration maar behoud text quality */
+  will-change: transform, opacity;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-perspective: 1000px;
+  perspective: 1000px;
+}
+
+/* Extra optimalisatie voor text in geanimeerde elementen */
+.mantine-Text-root,
+.mantine-Title-root,
+.mantine-Button-root {
+  /* Behoud scherpe text tijdens animaties */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  
+  /* Voorkomen van text blur tijdens transforms */
+  -webkit-transform-style: flat;
+  transform-style: flat;
+}
+
+/* Specificieke optimalisaties voor Mantine components */
+.mantine-Card-root {
+  /* Optimale rendering voor cards */
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  
+  /* Zorgen dat borders scherp blijven */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+/* Voeg hier eventuele andere custom styles toe */
+
 /* Voeg hier eventuele globale custom styles toe */ 
