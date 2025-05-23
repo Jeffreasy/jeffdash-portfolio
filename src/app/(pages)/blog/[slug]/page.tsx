@@ -13,6 +13,44 @@ type BlogPageProps = {
 
 export const revalidate = 3600;
 
+// JSON-LD Structured Data Component
+function BlogPostJsonLd({ post }: { post: any }) {
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": post.title,
+    "description": post.excerpt || post.metaDescription,
+    "image": post.featuredImageUrl ? [post.featuredImageUrl] : [],
+    "datePublished": post.publishedAt ? new Date(post.publishedAt).toISOString() : undefined,
+    "dateModified": post.updatedAt ? new Date(post.updatedAt).toISOString() : undefined,
+    "author": {
+      "@type": "Person",
+      "name": "Jeffrey Lavente",
+      "url": SITE_CONFIG.url,
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": SITE_CONFIG.name,
+      "url": SITE_CONFIG.url,
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": `${SITE_CONFIG.url}/blog/${post.slug}`,
+    },
+    "keywords": post.tags ? post.tags.join(", ") : undefined,
+    "wordCount": post.content ? post.content.length : undefined,
+    "articleSection": "Technology",
+    "inLanguage": "nl-NL",
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+    />
+  );
+}
+
 // Use the specific BlogPageProps type for generateMetadata
 export async function generateMetadata(
   props: BlogPageProps,
@@ -83,5 +121,10 @@ export default async function BlogPostPage(props: BlogPageProps) {
     notFound();
   }
 
-  return <BlogPostDetailView post={post} />;
+  return (
+    <>
+      <BlogPostJsonLd post={post} />
+      <BlogPostDetailView post={post} />
+    </>
+  );
 }

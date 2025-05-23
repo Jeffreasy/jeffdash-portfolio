@@ -36,7 +36,8 @@ const ShortAboutBlurb: React.FC<ShortAboutBlurbProps> = ({
                 width={120} // Aangepaste, kleinere maat voor de blurb
                 height={120}
                 quality={80}
-                priority // Belangrijk voor LCP als het above the fold is
+                loading="lazy" // Change from priority to lazy since it's below the fold
+                sizes="(max-width: 480px) 80px, (max-width: 768px) 100px, 120px" // Responsive sizing
                 style={{
                   borderRadius: '50%',
                   objectFit: 'cover',

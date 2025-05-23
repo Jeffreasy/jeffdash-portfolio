@@ -2,7 +2,8 @@
 
 import React, { useRef } from 'react';
 import Link from 'next/link';
-import { Card, Image, Text, Stack, Badge, Group, Button } from '@mantine/core';
+import NextImage from 'next/image';
+import { Card, Text, Stack, Badge, Group, Button } from '@mantine/core';
 import type { FeaturedProjectType } from '@/lib/actions/projects';
 import {
   motion,
@@ -80,17 +81,25 @@ export default function ProjectCard({ project }: ProjectCardProps) {
         >
           <Card.Section>
             <motion.div style={{ translateZ: imageZSpring }}> {/* Koppel Z aan spring */}
-              <Image
-                src={project.featuredImageUrl || 'https://via.placeholder.com/400x200/dee2e6/868e96.png?text=No+Image'}
-                height={180}
-                alt={project.featuredImageAlt || project.title}
-                style={{ transform: 'translateZ(0)' }} // Voorkom dubbele transformatie
-                onError={(e) => {
-                  console.error('Error loading project image:', e);
-                  // Fallback to placeholder image
-                  e.currentTarget.src = 'https://via.placeholder.com/400x200/dee2e6/868e96.png?text=Image+Error';
-                }}
-              />
+              <div style={{ position: 'relative', height: 180, overflow: 'hidden' }}>
+                <NextImage
+                  src={project.featuredImageUrl || 'https://via.placeholder.com/400x200/dee2e6/868e96.png?text=No+Image'}
+                  alt={project.featuredImageAlt || project.title}
+                  fill
+                  loading="lazy" // Lazy loading voor betere performance
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  quality={80} // Optimized quality
+                  style={{ 
+                    objectFit: 'cover',
+                    transform: 'translateZ(0)' // Voorkom dubbele transformatie
+                  }}
+                  onError={(e) => {
+                    console.error('Error loading project image:', e);
+                    // Fallback to placeholder image
+                    e.currentTarget.src = 'https://via.placeholder.com/400x200/dee2e6/868e96.png?text=Image+Error';
+                  }}
+                />
+              </div>
             </motion.div>
           </Card.Section>
 

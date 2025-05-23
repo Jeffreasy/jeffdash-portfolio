@@ -1,21 +1,27 @@
-import React from 'react';
-// import Header from '@/components/layout/Header'; // Verwijder import
-// import Footer from '@/components/layout/Footer'; // Verwijder import
+import '@/app/globals.css';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
+import { ReactNode } from 'react';
+import PageErrorBoundary from '@/components/features/shared/PageErrorBoundary';
 
-interface PagesLayoutProps {
-  children: React.ReactNode;
+interface LayoutProps {
+  children: ReactNode;
 }
 
-export default function PagesLayout({ children }: PagesLayoutProps) {
-  // Header en Footer zitten al in de root layout (src/app/layout.tsx)
-  // Deze layout is nu alleen voor de children van de (pages) group
-  return <>{children}</>;
-  // Vorige versie:
-  // return (
-  //   <>
-  //     <Header />
-  //     {children}
-  //     <Footer />
-  //   </>
-  // );
+export default function PagesLayout({ children }: LayoutProps) {
+  return (
+    <>
+      <Header />
+      <PageErrorBoundary>
+        <main style={{ 
+          minHeight: 'calc(100vh - 200px)', // Adjust based on header/footer height
+          paddingTop: '2rem',
+          paddingBottom: '2rem' 
+        }}>
+          {children}
+        </main>
+      </PageErrorBoundary>
+      <Footer />
+    </>
+  );
 } 

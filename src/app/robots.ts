@@ -1,17 +1,25 @@
 import { MetadataRoute } from 'next'
+import { SITE_CONFIG } from '@/lib/config'
 
 // Zie: https://nextjs.org/docs/app/api-reference/file-conventions/robots
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  const baseUrl = SITE_CONFIG.url;
 
   return {
-    rules: {
-      userAgent: '*',
-      allow: '/',
-      // Disallow admin sectie indien van toepassing
-      // disallow: '/admin/',
-    },
+    rules: [
+      {
+        userAgent: '*',
+        allow: ['/', '/about', '/projects', '/blog', '/contact'],
+        disallow: ['/admin_area/', '/login/', '/api/', '/_next/', '/admin'],
+      },
+      {
+        userAgent: 'Googlebot',
+        allow: ['/', '/about', '/projects', '/blog', '/contact'],
+        disallow: ['/admin_area/', '/login/', '/api/'],
+      },
+    ],
     sitemap: `${baseUrl}/sitemap.xml`,
+    host: baseUrl,
   }
 } 

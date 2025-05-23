@@ -6,16 +6,67 @@ import '@mantine/notifications/styles.css';
 import "./globals.css";
 import { MantineProvider, ColorSchemeScript, mantineHtmlProps } from '@mantine/core';
 import { GoogleAnalytics } from '@next/third-parties/google';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
 import { Notifications } from '@mantine/notifications';
 import { ModalsProvider } from '@mantine/modals';
+import { SITE_CONFIG } from '@/lib/config';
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ 
+  subsets: ["latin"],
+  display: 'swap', // Improved font loading
+  variable: '--font-inter',
+});
 
 export const metadata: Metadata = {
-  title: "Jeffdash Portfolio", // Pas dit aan indien gewenst
-  description: "Portfolio van Jeffrey", // Pas dit aan indien gewenst
+  title: {
+    default: SITE_CONFIG.name,
+    template: `%s | ${SITE_CONFIG.name}`,
+  },
+  description: SITE_CONFIG.description,
+  keywords: [
+    'Jeffrey Lavente',
+    'Web Developer',
+    'Full Stack Developer',
+    'React',
+    'Next.js',
+    'TypeScript',
+    'Portfolio',
+  ],
+  authors: [{ name: 'Jeffrey Lavente' }],
+  creator: 'Jeffrey Lavente',
+  metadataBase: new URL(SITE_CONFIG.url),
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'nl_NL',
+    url: SITE_CONFIG.url,
+    siteName: SITE_CONFIG.name,
+    title: SITE_CONFIG.name,
+    description: SITE_CONFIG.description,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: SITE_CONFIG.name,
+    description: SITE_CONFIG.description,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon-16x16.png',
+    apple: '/apple-touch-icon.png',
+  },
+  manifest: '/site.webmanifest',
 };
 
 const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
@@ -26,17 +77,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" {...mantineHtmlProps}>
+    <html lang="nl" {...mantineHtmlProps} className={inter.variable}>
       <head>
         <ColorSchemeScript />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body className={inter.className}>
         <MantineProvider defaultColorScheme="dark">
           <ModalsProvider>
-            <Notifications position="top-right" zIndex={1000} />
-            <Header />
-            <main>{children}</main>
-            <Footer />
+            <Notifications position="top-right" zIndex={1000} limit={5} />
+            {children}
           </ModalsProvider>
         </MantineProvider>
         {gaId && <GoogleAnalytics gaId={gaId} />}

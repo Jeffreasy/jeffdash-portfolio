@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { Container, Title, Text, Paper, Group, Badge, Button, Stack, AspectRatio, Image as MantineImage } from '@mantine/core';
 import Link from 'next/link';
@@ -5,6 +7,7 @@ import { IconExternalLink, IconBrandGithub } from '@tabler/icons-react';
 import type { FullProjectType } from '@/lib/actions/projects';
 import MarkdownRenderer from '@/components/shared/MarkdownRenderer';
 import ProjectErrorBoundary from './ProjectErrorBoundary';
+import ProgressiveLoader from '../shared/ProgressiveLoader';
 
 interface ProjectDetailViewProps {
   project: FullProjectType | null;
@@ -43,19 +46,21 @@ export default function ProjectDetailView({ project }: ProjectDetailViewProps) {
         <Stack gap="xl">
           {/* Optional main image at the top */}
           {mainImage && (
-            <Paper shadow="md" radius="md">
-              <AspectRatio ratio={16 / 9} style={{ overflow: 'hidden', borderRadius: 'var(--mantine-radius-md)' }}>
-                <MantineImage
-                  src={mainImage.url}
-                  alt={mainImage.altText || project.title}
-                  fallbackSrc="https://via.placeholder.com/800x450/dee2e6/868e96.png?text=Geen+Afbeelding"
-                  onError={(e) => {
-                    console.error('Error loading project image:', e);
-                    e.currentTarget.src = 'https://via.placeholder.com/800x450/dee2e6/868e96.png?text=Image+Error';
-                  }}
-                />
-              </AspectRatio>
-            </Paper>
+            <ProgressiveLoader minHeight={300} threshold={0.3}>
+              <Paper shadow="md" radius="md">
+                <AspectRatio ratio={16 / 9} style={{ overflow: 'hidden', borderRadius: 'var(--mantine-radius-md)' }}>
+                  <MantineImage
+                    src={mainImage.url}
+                    alt={mainImage.altText || project.title}
+                    fallbackSrc="https://via.placeholder.com/800x450/dee2e6/868e96.png?text=Geen+Afbeelding"
+                    onError={(e) => {
+                      console.error('Error loading project image:', e);
+                      e.currentTarget.src = 'https://via.placeholder.com/800x450/dee2e6/868e96.png?text=Image+Error';
+                    }}
+                  />
+                </AspectRatio>
+              </Paper>
+            </ProgressiveLoader>
           )}
 
           {/* Title */}
@@ -125,15 +130,19 @@ export default function ProjectDetailView({ project }: ProjectDetailViewProps) {
 
           {/* Detailed Content */}
           {project.detailedContent && (
-            <Paper withBorder p="xl" radius="md">
-              <Title order={3} mb="md">Over dit project</Title>
-              <MarkdownRenderer>{project.detailedContent}</MarkdownRenderer>
-            </Paper>
+            <ProgressiveLoader minHeight={200} threshold={0.2} rootMargin="100px">
+              <Paper withBorder p="xl" radius="md">
+                <Title order={3} mb="md">Over dit project</Title>
+                <MarkdownRenderer>{project.detailedContent}</MarkdownRenderer>
+              </Paper>
+            </ProgressiveLoader>
           )}
 
           {/* Image Gallery Placeholder */}
           {project.ProjectImage && project.ProjectImage.length > 1 && (
-            <Text c="dimmed" mt="xl">Meer afbeeldingen komen hier...</Text>
+            <ProgressiveLoader minHeight={150} showLoader>
+              <Text c="dimmed" mt="xl">Meer afbeeldingen komen hier...</Text>
+            </ProgressiveLoader>
           )}
         </Stack>
       </Container>

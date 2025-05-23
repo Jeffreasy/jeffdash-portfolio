@@ -10,6 +10,46 @@ interface ProjectDetailPageProps {
   params: Promise<{ slug: string }>;
 }
 
+// JSON-LD Structured Data Component voor projecten
+function ProjectJsonLd({ project }: { project: any }) {
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "CreativeWork",
+    "name": project.title,
+    "description": project.shortDescription || project.metaDescription,
+    "image": project.ProjectImage?.[0]?.url ? [project.ProjectImage[0].url] : [],
+    "dateCreated": project.createdAt ? new Date(project.createdAt).toISOString() : undefined,
+    "dateModified": project.updatedAt ? new Date(project.updatedAt).toISOString() : undefined,
+    "creator": {
+      "@type": "Person",
+      "name": "Jeffrey Lavente",
+      "url": SITE_CONFIG.url,
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": SITE_CONFIG.name,
+      "url": SITE_CONFIG.url,
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": `${SITE_CONFIG.url}/projects/${project.slug}`,
+    },
+    "keywords": project.technologies || project.techStack || [],
+    "genre": "Web Development",
+    "inLanguage": "nl-NL",
+    "url": project.liveUrl || `${SITE_CONFIG.url}/projects/${project.slug}`,
+    "codeRepository": project.githubUrl,
+    "applicationCategory": "WebApplication",
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+    />
+  );
+}
+
 // Genereer dynamische metadata voor SEO
 export async function generateMetadata(props: ProjectDetailPageProps, parent: ResolvingMetadata): Promise<Metadata> {
   const slug = (await props.params).slug;
@@ -74,5 +114,10 @@ export default async function ProjectDetailPage(props: ProjectDetailPageProps) {
   }
 
   // Geef het opgehaalde project door aan de view component
-  return <ProjectDetailView project={project} />;
+  return (
+    <>
+      <ProjectJsonLd project={project} />
+      <ProjectDetailView project={project} />
+    </>
+  );
 } 

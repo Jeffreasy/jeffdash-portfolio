@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import ProjectCard from '../projects/ProjectCard'; // Importeren van de kaart
 import type { FeaturedProjectType } from '@/lib/actions/projects'; // Importeren van het type
 import ErrorBoundary from './ErrorBoundary';
+import ProgressiveLoader from '../shared/ProgressiveLoader';
 
 // Definieer de animatie varianten hier (zelfde als voorheen)
 const containerVariants = {
@@ -42,7 +43,7 @@ export default function AnimatedProjectGrid({ projects }: AnimatedProjectGridPro
     throw new Error('Projects must be an array');
   }
 
-  return (
+  const ProjectGridContent = () => (
     <ErrorBoundary>
       <motion.div
         variants={containerVariants}
@@ -69,5 +70,15 @@ export default function AnimatedProjectGrid({ projects }: AnimatedProjectGridPro
         </SimpleGrid>
       </motion.div>
     </ErrorBoundary>
+  );
+
+  return (
+    <ProgressiveLoader 
+      minHeight={400}
+      threshold={0.2}
+      rootMargin="50px"
+    >
+      <ProjectGridContent />
+    </ProgressiveLoader>
   );
 } 
