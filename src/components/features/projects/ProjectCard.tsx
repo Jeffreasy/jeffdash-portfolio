@@ -1,25 +1,31 @@
-"use client"; // Image component vereist client-side rendering
+"use client"; // Image component requires client-side rendering
 
 import React from 'react';
 import Link from 'next/link';
 import NextImage from 'next/image';
 import { Card, Text, Stack, Badge, Group, Button, Paper } from '@mantine/core';
-import type { FeaturedProjectType } from '@/lib/actions/projects';
+import type { FeaturedProjectType, ProjectPreviewType } from '@/lib/actions/projects';
 import { motion } from 'framer-motion';
-import ProjectErrorBoundary from './ProjectErrorBoundary';
+import PageErrorBoundary from '../shared/PageErrorBoundary';
 
-type ProjectCardProps = {
-  project: FeaturedProjectType;
-};
+interface ProjectCardProps {
+  project: FeaturedProjectType | ProjectPreviewType;
+}
 
-export default function ProjectCard({ project }: ProjectCardProps) {
+/**
+ * ProjectCard Component
+ * Displays a project card with image, details, and CTA button
+ * Optimized animations without 3D transforms to prevent text blur
+ * Accepts both FeaturedProjectType and ProjectPreviewType
+ */
+function ProjectCard({ project }: ProjectCardProps) {
   // Validate project prop
   if (!project || typeof project !== 'object') {
     throw new Error('Invalid project data provided to ProjectCard');
   }
 
   return (
-    <ProjectErrorBoundary>
+    <PageErrorBoundary>
       <motion.div
         style={{ height: '100%' }}
         whileHover={{ 
@@ -60,7 +66,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
             }
           }}
         >
-          {/* Afbeelding sectie */}
+          {/* Image section */}
           <Card.Section>
             <motion.div 
               style={{ 
@@ -99,7 +105,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
                   }}
                 />
                 
-                {/* Subtiele gradient overlay */}
+                {/* Subtle gradient overlay */}
                 <div style={{
                   position: 'absolute',
                   bottom: 0,
@@ -129,7 +135,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
             </motion.div>
           </Card.Section>
 
-          {/* Content sectie - GEEN 3D transforms voor scherpe tekst */}
+          {/* Content section - NO 3D transforms for sharp text */}
           <div style={{ 
             padding: 'var(--mantine-spacing-md) var(--mantine-spacing-lg) var(--mantine-spacing-md)',
           }}>
@@ -145,7 +151,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
                   WebkitBackgroundClip: 'text',
                   color: 'transparent',
                   minHeight: '2.6em',
-                  // Optimale text rendering
+                  // Optimal text rendering
                   WebkitFontSmoothing: 'antialiased',
                   MozOsxFontSmoothing: 'grayscale',
                   textRendering: 'optimizeLegibility',
@@ -162,7 +168,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
                   style={{ 
                     lineHeight: 1.4,
                     minHeight: '3.6em',
-                    // Optimale text rendering
+                    // Optimal text rendering
                     WebkitFontSmoothing: 'antialiased',
                     MozOsxFontSmoothing: 'grayscale',
                     textRendering: 'optimizeLegibility',
@@ -206,7 +212,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
             </Stack>
           </div>
 
-          {/* CTA Button - GEEN 3D transforms */}
+          {/* CTA Button - NO 3D transforms */}
           <div style={{ 
             padding: '0 var(--mantine-spacing-lg) var(--mantine-spacing-lg)',
           }}>
@@ -254,9 +260,11 @@ export default function ProjectCard({ project }: ProjectCardProps) {
           }} />
         </Card>
       </motion.div>
-    </ProjectErrorBoundary>
+    </PageErrorBoundary>
   );
 }
+
+export default ProjectCard;
 
 /*
 // --- OORSPRONKELIJKE CODE HIERONDER (UITGECOMMENTEERD) ---

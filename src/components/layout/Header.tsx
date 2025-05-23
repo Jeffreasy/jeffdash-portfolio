@@ -28,8 +28,8 @@ const mainLinks = [
 ];
 
 const socialLinks = [
-  { href: 'https://linkedin.com/in/jouwprofiel', label: 'LinkedIn', Icon: IconBrandLinkedin },
-  { href: 'https://github.com/jouwprofiel', label: 'GitHub', Icon: IconBrandGithub },
+  { href: 'https://linkedin.com/in/jeffrey-lavente-026a41330', label: 'LinkedIn', Icon: IconBrandLinkedin },
+  { href: 'https://github.com/Jeffreasy', label: 'GitHub', Icon: IconBrandGithub },
 ];
 
 export default function Header() {

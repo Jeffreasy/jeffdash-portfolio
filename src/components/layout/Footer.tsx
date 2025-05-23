@@ -1,19 +1,24 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container, Text, Group, Anchor } from '@mantine/core';
 import { IconBrandLinkedin, IconBrandGithub } from '@/components/icons';
 import LayoutErrorBoundary from './LayoutErrorBoundary';
 
 const socialLinks = [
-  { href: 'https://linkedin.com/in/jouwprofiel', label: 'LinkedIn', Icon: IconBrandLinkedin },
-  { href: 'https://github.com/jouwprofiel', label: 'GitHub', Icon: IconBrandGithub },
+  { href: 'https://linkedin.com/in/jeffrey-lavente-026a41330', label: 'LinkedIn', Icon: IconBrandLinkedin },
+  { href: 'https://github.com/Jeffreasy', label: 'GitHub', Icon: IconBrandGithub },
 ];
 
 export default function Footer() {
-  try {
-    const currentYear = new Date().getFullYear();
+  const [currentYear, setCurrentYear] = useState(2025); // Static fallback for SSR
+  
+  // Update year on client mount to avoid hydration mismatch
+  useEffect(() => {
+    setCurrentYear(new Date().getFullYear());
+  }, []);
 
+  try {
     const socialItems = socialLinks.map((social) => {
       try {
         return (
