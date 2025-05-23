@@ -281,10 +281,10 @@ export default function ProjectDetailView({ project }: ProjectDetailViewProps) {
               {/* Action Buttons */}
               <motion.div variants={itemVariants}>
                 <Group gap="md" wrap="wrap">
-                  {project.projectUrl && (
+                  {project.liveUrl && (
                     <Button
                       component="a"
-                      href={project.projectUrl}
+                      href={project.liveUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       variant="gradient"
