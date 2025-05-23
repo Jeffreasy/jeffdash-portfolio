@@ -2,8 +2,8 @@ import React from 'react';
 import { getProjects } from '@/lib/actions/projects';
 import ProjectList from '@/components/features/projects/ProjectList';
 
-// Add ISR revalidation (1 hour)
-export const revalidate = 3600;
+// Mark the page as dynamic
+export const dynamic = 'force-dynamic';
 
 // Deze pagina is een Server Component
 export default async function ProjectsPage() {

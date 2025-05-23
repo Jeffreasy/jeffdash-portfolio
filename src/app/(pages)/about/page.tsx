@@ -10,36 +10,27 @@ import Image from 'next/image';
 // --- SEO Metadata --- //
 export const metadata: Metadata = {
   title: `Over Mij | ${SITE_CONFIG.name}`,
-  description: `Leer meer over Jeffrey Lavente, een gepassioneerde webontwikkelaar gespecialiseerd in moderne technologieën zoals Next.js, React en TypeScript. Bekijk projecten en neem contact op.`, // Pas deze beschrijving aan!
+  description: `Leer meer over Jeffrey Lavente, een gepassioneerde webontwikkelaar gespecialiseerd in moderne technologieën zoals Next.js, React en TypeScript. Bekijk projecten en neem contact op.`,
   alternates: {
     canonical: `${SITE_CONFIG.url}/about`,
   },
   openGraph: {
     title: `Over Mij | ${SITE_CONFIG.name}`,
-    description: `Leer meer over Jeffrey Lavente, een gepassioneerde webontwikkelaar gespecialiseerd in moderne technologieën zoals Next.js, React en TypeScript. Bekijk projecten en neem contact op.`, // Pas aan!
+    description: `Leer meer over Jeffrey Lavente, een gepassioneerde webontwikkelaar gespecialiseerd in moderne technologieën zoals Next.js, React en TypeScript. Bekijk projecten en neem contact op.`,
     url: `${SITE_CONFIG.url}/about`,
     siteName: SITE_CONFIG.name,
     type: 'profile',
     locale: 'nl_NL',
-    // Voeg hier eventueel een standaard OG afbeelding toe als je die hebt
-    // images: [
-    //   {
-    //     url: `${SITE_CONFIG.url}/images/og-about.png`,
-    //     width: 1200,
-    //     height: 630,
-    //     alt: `Over Jeffrey Lavente`,
-    //   },
-    // ],
   },
-   twitter: {
-      card: 'summary',
-      title: `Over Mij | ${SITE_CONFIG.name}`,
-      description: `Leer meer over Jeffrey Lavente, een gepassioneerde webontwikkelaar...`, // Pas aan!
-      // site: '@jouwTwitterHandle',
-      // creator: '@jouwTwitterHandle',
-      // images: [`${SITE_CONFIG.url}/images/twitter-about.png`], // Optionele Twitter afbeelding
-    },
+  twitter: {
+    card: 'summary',
+    title: `Over Mij | ${SITE_CONFIG.name}`,
+    description: `Leer meer over Jeffrey Lavente, een gepassioneerde webontwikkelaar...`,
+  },
 };
+
+// Mark the page as dynamic
+export const dynamic = 'force-dynamic';
 
 // --- Pagina Component --- //
 export default async function AboutPage() {
@@ -54,8 +45,8 @@ export default async function AboutPage() {
   const contactText = content.about_contact || '';
   const linkedInUrl = content.linkedin_url || '#';
   const githubUrl = content.github_url || '#';
-  const profileImageUrl = content.profileImageUrl; // Kan undefined zijn
-  const profileImageAlt = content.profileImageAlt || 'Profielfoto'; // Fallback alt tekst
+  const profileImageUrl = content.profileImageUrl;
+  const profileImageAlt = content.profileImageAlt || 'Profielfoto';
 
   return (
     <Container size="md" py="xl">
@@ -65,26 +56,24 @@ export default async function AboutPage() {
             {pageTitle}
           </Title>
 
-          {/* Dynamische Profielfoto (indien beschikbaar) */}
           {profileImageUrl && (
             <Group justify="center">
               <Image
                 src={profileImageUrl}
                 alt={profileImageAlt}
-                width={150} // Specificeer breedte
-                height={150} // Specificeer hoogte
-                quality={85} // Optioneel: kwaliteit aanpassen
-                priority // Geef prioriteit aan LCP-kandidaat
+                width={150}
+                height={150}
+                quality={85}
+                priority
                 style={{
-                  borderRadius: '50%', // Cirkel stijl
-                  objectFit: 'cover', // Zorg dat afbeelding de ruimte vult
+                  borderRadius: '50%',
+                  objectFit: 'cover',
                 }}
               />
             </Group>
           )}
 
           <Stack gap="lg">
-            {/* Tekst blijft hetzelfde */}
             <Text size="lg">
               {introText}
             </Text>
@@ -94,7 +83,6 @@ export default async function AboutPage() {
           </Stack>
 
           <Group justify="center" gap="lg" mt="md">
-            {/* Knoppen blijven hetzelfde */}
             <Button
               component="a"
               href={linkedInUrl}
@@ -119,14 +107,13 @@ export default async function AboutPage() {
               GitHub
             </Button>
             <Button
-                component={Link}
-                href="/contact"
-                variant="outline"
+              component={Link}
+              href="/contact"
+              variant="outline"
             >
-                Neem Contact Op
+              Neem Contact Op
             </Button>
           </Group>
-
         </Stack>
       </Paper>
     </Container>

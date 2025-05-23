@@ -43,7 +43,7 @@ export async function createClient() {
   
   for (let attempt = 0; attempt < RETRY_CONFIG.maxRetries; attempt++) {
     try {
-      const cookieStore = await cookies()
+      const cookieStore = cookies()
       
       const client = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -54,6 +54,10 @@ export async function createClient() {
               try {
                 return cookieStore.get(name)?.value
               } catch (error) {
+                // During static generation, cookies might not be available
+                if (process.env.NODE_ENV === 'production') {
+                  return undefined
+                }
                 logger.error('Error getting cookie', { name, error })
                 return undefined
               }
@@ -62,9 +66,10 @@ export async function createClient() {
               try {
                 cookieStore.set({ name, value, ...options })
               } catch (error) {
-                // The `set` method was called from a Server Component.
-                // This can be ignored if you have middleware refreshing
-                // user sessions.
+                // During static generation, setting cookies might not be possible
+                if (process.env.NODE_ENV === 'production') {
+                  return
+                }
                 logger.warn('Error setting cookie in Server Component', { name, error })
               }
             },
@@ -72,9 +77,10 @@ export async function createClient() {
               try {
                 cookieStore.set({ name, value: '', ...options })
               } catch (error) {
-                // The `delete` method was called from a Server Component.
-                // This can be ignored if you have middleware refreshing
-                // user sessions.
+                // During static generation, removing cookies might not be possible
+                if (process.env.NODE_ENV === 'production') {
+                  return
+                }
                 logger.warn('Error removing cookie in Server Component', { name, error })
               }
             },

@@ -18,6 +18,11 @@ const nextConfig = {
       },
     ],
   },
+  // Voeg deze configuratie toe voor dynamische routes
+  output: 'standalone',
+  experimental: {
+    serverActions: true,
+  },
 };
 
 export default nextConfig; 
