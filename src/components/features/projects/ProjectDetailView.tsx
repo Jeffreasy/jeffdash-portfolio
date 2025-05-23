@@ -255,11 +255,11 @@ export default function ProjectDetailView({ project }: ProjectDetailViewProps) {
 
                   {/* Project Meta */}
                   <Group gap="md" wrap="wrap">
-                    {project.startDate && (
+                    {project.createdAt && (
                       <Group gap="xs">
                         <IconCalendar size={16} style={{ color: 'var(--mantine-color-gray-4)' }} />
                         <Text size="sm" c="gray.4">
-                          {new Date(project.startDate).toLocaleDateString('nl-NL', {
+                          {new Date(project.createdAt).toLocaleDateString('nl-NL', {
                             year: 'numeric',
                             month: 'long'
                           })}
