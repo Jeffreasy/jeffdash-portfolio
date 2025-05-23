@@ -16,8 +16,8 @@ import BlogPostCard from '@/components/features/blog/BlogPostCard';
 // Importeer profielfoto action
 import { getProfilePicture } from '@/lib/actions/content';
 
-// Add ISR revalidation (1 hour)
-export const revalidate = 3600;
+// Mark the page as dynamic
+export const dynamic = 'force-dynamic';
 
 // Pagina wordt async vanwege data fetching
 export default async function HomePage() {
