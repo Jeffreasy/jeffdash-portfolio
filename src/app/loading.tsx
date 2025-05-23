@@ -38,7 +38,7 @@ const pulseVariants = {
       ease: "easeInOut",
     },
   },
-} as const;
+};
 
 export default function Loading() {
   return (
