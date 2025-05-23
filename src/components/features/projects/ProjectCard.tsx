@@ -49,7 +49,7 @@ function ProjectCard({ project }: ProjectCardProps) {
           withBorder 
           h="100%"
           style={{ 
-            background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)',
+            background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
             backdropFilter: 'blur(10px)',
             border: '1px solid rgba(255, 255, 255, 0.1)',
             overflow: 'hidden',
@@ -60,8 +60,9 @@ function ProjectCard({ project }: ProjectCardProps) {
           styles={{
             root: {
               '&:hover': {
-                boxShadow: '0 20px 40px rgba(0, 0, 0, 0.15)',
-                borderColor: 'rgba(59, 130, 246, 0.3)',
+                boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)',
+                borderColor: 'rgba(59, 130, 246, 0.4)',
+                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.08) 100%)',
               }
             }
           }}
@@ -83,12 +84,13 @@ function ProjectCard({ project }: ProjectCardProps) {
                   width: '100%',
                   aspectRatio: '16 / 10',
                   overflow: 'hidden',
-                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.25)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
                 }}
               >
                 <NextImage
-                  src={project.featuredImageUrl || 'https://via.placeholder.com/800x500/dee2e6/868e96.png?text=No+Image'}
+                  src={project.featuredImageUrl || 'https://via.placeholder.com/800x500/1f2937/9ca3af.png?text=No+Image'}
                   alt={project.featuredImageAlt || project.title}
                   fill
                   loading="lazy"
@@ -101,7 +103,7 @@ function ProjectCard({ project }: ProjectCardProps) {
                   }}
                   onError={(e) => {
                     console.error('Error loading project image:', e);
-                    e.currentTarget.src = 'https://via.placeholder.com/800x500/dee2e6/868e96.png?text=Image+Error';
+                    e.currentTarget.src = 'https://via.placeholder.com/800x500/1f2937/9ca3af.png?text=Image+Error';
                   }}
                 />
                 
@@ -112,7 +114,7 @@ function ProjectCard({ project }: ProjectCardProps) {
                   left: 0,
                   right: 0,
                   height: '30%',
-                  background: 'linear-gradient(transparent, rgba(0, 0, 0, 0.08))',
+                  background: 'linear-gradient(transparent, rgba(0, 0, 0, 0.2))',
                   pointerEvents: 'none',
                 }} />
 
@@ -124,7 +126,7 @@ function ProjectCard({ project }: ProjectCardProps) {
                     left: 0,
                     right: 0,
                     bottom: 0,
-                    background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(16, 185, 129, 0.1))',
+                    background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(6, 182, 212, 0.15))',
                     opacity: 0,
                     pointerEvents: 'none',
                   }}
@@ -146,10 +148,7 @@ function ProjectCard({ project }: ProjectCardProps) {
                 lineClamp={2}
                 style={{
                   lineHeight: 1.3,
-                  background: 'linear-gradient(135deg, var(--mantine-color-dark-9), var(--mantine-color-dark-6))',
-                  backgroundClip: 'text',
-                  WebkitBackgroundClip: 'text',
-                  color: 'transparent',
+                  color: 'var(--mantine-color-gray-1)',
                   minHeight: '2.6em',
                   // Optimal text rendering
                   WebkitFontSmoothing: 'antialiased',
@@ -163,7 +162,7 @@ function ProjectCard({ project }: ProjectCardProps) {
               {project.shortDescription && (
                 <Text 
                   size="sm" 
-                  c="dimmed" 
+                  c="gray.4" 
                   lineClamp={3}
                   style={{ 
                     lineHeight: 1.4,
@@ -186,9 +185,9 @@ function ProjectCard({ project }: ProjectCardProps) {
                     size="sm" 
                     variant="light"
                     style={{
-                      background: 'linear-gradient(135deg, var(--mantine-color-blue-1), var(--mantine-color-cyan-1))',
-                      border: '1px solid var(--mantine-color-blue-3)',
-                      color: 'var(--mantine-color-blue-7)',
+                      background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(6, 182, 212, 0.15))',
+                      border: '1px solid rgba(59, 130, 246, 0.3)',
+                      color: 'var(--mantine-color-blue-3)',
                       fontWeight: 500,
                     }}
                   >
@@ -200,9 +199,8 @@ function ProjectCard({ project }: ProjectCardProps) {
                     size="sm" 
                     variant="outline"
                     style={{
-                      borderColor: 'var(--mantine-color-gray-4)',
-                      color: 'var(--mantine-color-gray-6)',
-                      fontWeight: 500,
+                      borderColor: 'rgba(255, 255, 255, 0.3)',
+                      color: 'var(--mantine-color-gray-4)',
                     }}
                   >
                     +{project.technologies.length - 3}
@@ -212,50 +210,38 @@ function ProjectCard({ project }: ProjectCardProps) {
             </Stack>
           </div>
 
-          {/* CTA Button - NO 3D transforms */}
+          {/* CTA Section */}
           <div style={{ 
             padding: '0 var(--mantine-spacing-lg) var(--mantine-spacing-lg)',
           }}>
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              transition={{ duration: 0.2 }}
+            <Button
+              component={Link}
+              href={`/projects/${project.slug}`}
+              variant="gradient"
+              gradient={{ from: 'blue.6', to: 'cyan.5' }}
+              fullWidth
+              size="sm"
+              radius="md"
+              style={{
+                boxShadow: '0 4px 16px rgba(59, 130, 246, 0.25)',
+                border: '1px solid rgba(59, 130, 246, 0.2)',
+                fontWeight: 500,
+              }}
             >
-              <Button
-                component={Link}
-                href={`/projects/${project.slug}`}
-                variant="gradient"
-                gradient={{ from: 'blue', to: 'cyan' }}
-                fullWidth
-                radius="md"
-                size="md"
-                style={{ 
-                  boxShadow: '0 4px 16px rgba(59, 130, 246, 0.3)',
-                  border: 'none',
-                  fontWeight: 600,
-                }}
-                styles={{
-                  root: {
-                    transition: 'all 0.2s ease',
-                    '&:hover': {
-                      boxShadow: '0 6px 24px rgba(59, 130, 246, 0.4)',
-                    }
-                  }
-                }}
-              >
-                Bekijk Details
-              </Button>
-            </motion.div>
+              Bekijk Project
+            </Button>
           </div>
 
-          {/* Decorative element */}
+          {/* Subtle decorative element */}
           <div style={{
             position: 'absolute',
-            top: 0,
-            right: 0,
-            width: '80px',
-            height: '80px',
-            background: 'radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%)',
+            top: '1rem',
+            right: '1rem',
+            width: '40px',
+            height: '40px',
+            background: 'radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%)',
+            borderRadius: '50%',
+            filter: 'blur(10px)',
             pointerEvents: 'none',
           }} />
         </Card>

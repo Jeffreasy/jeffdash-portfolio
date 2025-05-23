@@ -80,7 +80,7 @@ const ShortAboutContent = memo<{
           order={2} 
           size="h1"
           style={{
-            background: 'linear-gradient(135deg, var(--mantine-color-blue-6), var(--mantine-color-cyan-5))',
+            background: 'linear-gradient(135deg, var(--mantine-color-blue-4), var(--mantine-color-cyan-4))',
             backgroundClip: 'text',
             WebkitBackgroundClip: 'text',
             color: 'transparent',
@@ -90,7 +90,7 @@ const ShortAboutContent = memo<{
         >
           Over Mij
         </Title>
-        <Text size="lg" c="dimmed" maw={600} mx="auto">
+        <Text size="lg" c="gray.4" maw={600} mx="auto">
           Een korte kennismaking met mijn passie voor development
         </Text>
       </motion.div>
@@ -138,7 +138,7 @@ const ShortAboutContent = memo<{
                     zIndex: 1,
                     borderRadius: '50%',
                     overflow: 'hidden',
-                    border: '4px solid var(--mantine-color-dark-4)',
+                    border: '4px solid rgba(255, 255, 255, 0.1)',
                     background: 'var(--mantine-color-dark-6)',
                     cursor: 'pointer',
                   }}
@@ -201,48 +201,41 @@ const ShortAboutContent = memo<{
                         whileHover={{ scale: 1.05 }}
                         transition={{ duration: 0.2 }}
                       >
-                        <Paper
-                          px="md"
-                          py="xs"
-                          radius="xl"
+                        <Box
                           style={{
-                            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(6, 182, 212, 0.2))',
-                            border: '1px solid rgba(59, 130, 246, 0.3)',
+                            padding: 'var(--mantine-spacing-xs) var(--mantine-spacing-sm)',
+                            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(6, 182, 212, 0.1))',
+                            border: '1px solid rgba(59, 130, 246, 0.2)',
+                            borderRadius: 'var(--mantine-radius-md)',
                           }}
                         >
                           <Text size="sm" fw={500} c="blue.3">
                             {skill}
                           </Text>
-                        </Paper>
+                        </Box>
                       </motion.div>
                     ))}
                   </Group>
                 </motion.div>
 
-                {/* CTA Button */}
+                {/* CTA */}
                 <motion.div variants={itemVariants}>
-                  <Group mt="lg">
-                    <motion.div
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <Button
-                        component={Link}
-                        href="/about"
-                        size="lg"
-                        radius="md"
-                        rightSection={<IconArrowRight size={18} />}
-                        variant="gradient"
-                        gradient={{ from: 'blue.6', to: 'cyan.5' }}
-                        style={{
-                          boxShadow: '0 4px 20px rgba(59, 130, 246, 0.3)',
-                        }}
-                      >
-                        Lees Meer Over Mij
-                      </Button>
-                    </motion.div>
-                  </Group>
+                  <Button
+                    component={Link}
+                    href="/about"
+                    variant="gradient"
+                    gradient={{ from: 'blue.6', to: 'cyan.5' }}
+                    size="lg"
+                    radius="md"
+                    rightSection={<IconArrowRight size={18} />}
+                    style={{
+                      boxShadow: '0 8px 32px rgba(59, 130, 246, 0.3)',
+                      border: '1px solid rgba(59, 130, 246, 0.2)',
+                      marginTop: 'var(--mantine-spacing-md)',
+                    }}
+                  >
+                    Meer Over Mij
+                  </Button>
                 </motion.div>
               </Stack>
             </Paper>
@@ -255,39 +248,77 @@ const ShortAboutContent = memo<{
 
 ShortAboutContent.displayName = 'ShortAboutContent';
 
+/**
+ * ShortAboutBlurb Component
+ * Toont een beknopte introductie over Jeffrey
+ * Met optionele profielfoto en call-to-action
+ */
 const ShortAboutBlurb: React.FC<ShortAboutBlurbProps> = ({ 
   profileImageUrl, 
   profileImageAlt 
 }) => {
   return (
     <PageErrorBoundary>
-      <section 
-        style={{ 
-          position: 'relative',
-          overflow: 'hidden',
-          background: 'linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.02) 100%)',
-        }}
-      >
-        {/* Subtiele decoratieve achtergrond */}
-        <div 
+      <section style={{
+        position: 'relative',
+        overflow: 'hidden',
+        background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%)',
+      }}>
+        {/* Animated background elements */}
+        <motion.div
           style={{
             position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'radial-gradient(circle at 30% 70%, rgba(59, 130, 246, 0.05) 0%, transparent 60%)',
-            pointerEvents: 'none',
+            top: '25%',
+            left: '8%',
+            width: '220px',
+            height: '220px',
+            background: 'radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%)',
+            borderRadius: '50%',
+            filter: 'blur(40px)',
+          }}
+          animate={{
+            x: [0, 25, 0],
+            y: [0, -25, 0],
+          }}
+          transition={{
+            duration: 12,
+            repeat: Infinity,
+            ease: "easeInOut",
           }}
         />
         
-        <ShortAboutContent 
-          profileImageUrl={profileImageUrl}
-          profileImageAlt={profileImageAlt}
+        <motion.div
+          style={{
+            position: 'absolute',
+            top: '65%',
+            right: '12%',
+            width: '160px',
+            height: '160px',
+            background: 'radial-gradient(circle, rgba(6, 182, 212, 0.08) 0%, transparent 70%)',
+            borderRadius: '50%',
+            filter: 'blur(40px)',
+          }}
+          animate={{
+            x: [0, -20, 0],
+            y: [0, 20, 0],
+          }}
+          transition={{
+            duration: 9,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 2,
+          }}
         />
+
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <ShortAboutContent 
+            profileImageUrl={profileImageUrl}
+            profileImageAlt={profileImageAlt}
+          />
+        </div>
       </section>
     </PageErrorBoundary>
   );
 };
 
-export default memo(ShortAboutBlurb); 
+export default ShortAboutBlurb; 

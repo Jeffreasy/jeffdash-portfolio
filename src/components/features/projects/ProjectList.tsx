@@ -66,16 +66,17 @@ const ProjectList = memo<ProjectListProps>(({
     return (
       <PageErrorBoundary>
         <section style={{ 
-          background: 'linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.01) 100%)',
           position: 'relative',
           overflow: 'hidden',
+          background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%)',
+          minHeight: '100vh',
         }}>
           <Container size="lg" py={{ base: 'xl', md: '3xl' }}>
             <Box style={{ textAlign: 'center' }}>
-              <Title order={2} c="dimmed" mb="md">
+              <Title order={2} c="gray.2" mb="md">
                 Geen projecten gevonden
               </Title>
-              <Text c="dimmed" size="lg">
+              <Text c="gray.4" size="lg">
                 Momenteel geen projecten om weer te geven.
               </Text>
             </Box>
@@ -88,36 +89,58 @@ const ProjectList = memo<ProjectListProps>(({
   return (
     <PageErrorBoundary>
       <section style={{ 
-        background: 'linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.01) 100%)',
         position: 'relative',
         overflow: 'hidden',
+        background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%)',
+        minHeight: '100vh',
       }}>
-        {/* Decorative background elements */}
-        <div style={{
-          position: 'absolute',
-          top: '10%',
-          left: '5%',
-          width: '200px',
-          height: '200px',
-          background: 'radial-gradient(circle, rgba(59, 130, 246, 0.03) 0%, transparent 70%)',
-          borderRadius: '50%',
-          filter: 'blur(40px)',
-          pointerEvents: 'none',
-        }} />
+        {/* Animated background elements */}
+        <motion.div
+          style={{
+            position: 'absolute',
+            top: '10%',
+            left: '5%',
+            width: '250px',
+            height: '250px',
+            background: 'radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%)',
+            borderRadius: '50%',
+            filter: 'blur(40px)',
+          }}
+          animate={{
+            x: [0, 30, 0],
+            y: [0, -30, 0],
+          }}
+          transition={{
+            duration: 15,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
         
-        <div style={{
-          position: 'absolute',
-          top: '60%',
-          right: '10%',
-          width: '150px',
-          height: '150px',
-          background: 'radial-gradient(circle, rgba(6, 182, 212, 0.03) 0%, transparent 70%)',
-          borderRadius: '50%',
-          filter: 'blur(30px)',
-          pointerEvents: 'none',
-        }} />
+        <motion.div
+          style={{
+            position: 'absolute',
+            top: '60%',
+            right: '10%',
+            width: '180px',
+            height: '180px',
+            background: 'radial-gradient(circle, rgba(6, 182, 212, 0.08) 0%, transparent 70%)',
+            borderRadius: '50%',
+            filter: 'blur(40px)',
+          }}
+          animate={{
+            x: [0, -25, 0],
+            y: [0, 25, 0],
+          }}
+          transition={{
+            duration: 12,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 3,
+          }}
+        />
 
-        <Container size="lg" py={{ base: 'xl', md: '3xl' }}>
+        <Container size="lg" py={{ base: 'xl', md: '3xl' }} style={{ position: 'relative', zIndex: 1 }}>
           <motion.div
             variants={containerVariants}
             initial="hidden"
@@ -138,7 +161,7 @@ const ProjectList = memo<ProjectListProps>(({
                   size="h1" 
                   mb="md"
                   style={{
-                    background: 'linear-gradient(135deg, var(--mantine-color-blue-6), var(--mantine-color-cyan-5))',
+                    background: 'linear-gradient(135deg, var(--mantine-color-blue-4), var(--mantine-color-cyan-4))',
                     backgroundClip: 'text',
                     WebkitBackgroundClip: 'text',
                     color: 'transparent',
@@ -151,12 +174,12 @@ const ProjectList = memo<ProjectListProps>(({
                 </Title>
                 
                 {description && (
-                  <Text size="lg" c="dimmed" maw={600} mx="auto">
+                  <Text size="lg" c="gray.4" maw={600} mx="auto">
                     {description}
                   </Text>
                 )}
                 
-                <Text size="sm" c="gray.6" mt="sm">
+                <Text size="sm" c="gray.5" mt="sm">
                   {projects.length} project{projects.length !== 1 ? 'en' : ''} gevonden
                 </Text>
               </motion.div>

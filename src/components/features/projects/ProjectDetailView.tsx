@@ -61,39 +61,51 @@ export default function ProjectDetailView({ project }: ProjectDetailViewProps) {
   if (!project) {
     return (
       <PageErrorBoundary>
-        <Container size="md" py="xl">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <Paper 
-              p="xl" 
-              radius="lg" 
-              style={{
-                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.05))',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                textAlign: 'center',
-              }}
+        <section style={{
+          position: 'relative',
+          overflow: 'hidden',
+          background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%)',
+          minHeight: '100vh',
+        }}>
+          <Container size="md" py="xl">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
             >
-              <Title order={2} mb="md" c="gray.2">
-                Project niet gevonden
-              </Title>
-              <Text c="dimmed" mb="xl" size="lg">
-                Het project dat je zoekt kon niet worden geladen.
-              </Text>
-              <Button 
-                component={Link} 
-                href="/projects"
-                variant="gradient"
-                gradient={{ from: 'blue.6', to: 'cyan.5' }}
-                leftSection={<IconArrowLeft size={18} />}
+              <Paper 
+                p="xl" 
+                radius="lg" 
+                style={{
+                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.05))',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  backdropFilter: 'blur(10px)',
+                  textAlign: 'center',
+                }}
               >
-                Terug naar projecten
-              </Button>
-            </Paper>
-          </motion.div>
-        </Container>
+                <Title order={2} mb="md" c="gray.2">
+                  Project niet gevonden
+                </Title>
+                <Text c="gray.4" mb="xl" size="lg">
+                  Het project dat je zoekt kon niet worden geladen.
+                </Text>
+                <Button 
+                  component={Link} 
+                  href="/projects"
+                  variant="gradient"
+                  gradient={{ from: 'blue.6', to: 'cyan.5' }}
+                  leftSection={<IconArrowLeft size={18} />}
+                  style={{
+                    boxShadow: '0 8px 32px rgba(59, 130, 246, 0.3)',
+                    border: '1px solid rgba(59, 130, 246, 0.2)',
+                  }}
+                >
+                  Terug naar projecten
+                </Button>
+              </Paper>
+            </motion.div>
+          </Container>
+        </section>
       </PageErrorBoundary>
     );
   }
@@ -104,24 +116,58 @@ export default function ProjectDetailView({ project }: ProjectDetailViewProps) {
   return (
     <PageErrorBoundary>
       <section style={{ 
-        background: 'linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.01) 100%)',
         position: 'relative',
         overflow: 'hidden',
+        background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%)',
+        minHeight: '100vh',
       }}>
-        {/* Decorative background elements */}
-        <div style={{
-          position: 'absolute',
-          top: '10%',
-          right: '5%',
-          width: '300px',
-          height: '300px',
-          background: 'radial-gradient(circle, rgba(59, 130, 246, 0.03) 0%, transparent 70%)',
-          borderRadius: '50%',
-          filter: 'blur(40px)',
-          pointerEvents: 'none',
-        }} />
+        {/* Animated background elements */}
+        <motion.div
+          style={{
+            position: 'absolute',
+            top: '10%',
+            right: '5%',
+            width: '300px',
+            height: '300px',
+            background: 'radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%)',
+            borderRadius: '50%',
+            filter: 'blur(40px)',
+          }}
+          animate={{
+            x: [0, 30, 0],
+            y: [0, -30, 0],
+          }}
+          transition={{
+            duration: 12,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+        
+        <motion.div
+          style={{
+            position: 'absolute',
+            top: '60%',
+            left: '8%',
+            width: '200px',
+            height: '200px',
+            background: 'radial-gradient(circle, rgba(6, 182, 212, 0.08) 0%, transparent 70%)',
+            borderRadius: '50%',
+            filter: 'blur(40px)',
+          }}
+          animate={{
+            x: [0, -20, 0],
+            y: [0, 20, 0],
+          }}
+          transition={{
+            duration: 9,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 2,
+          }}
+        />
 
-        <Container size="lg" py="xl">
+        <Container size="lg" py="xl" style={{ position: 'relative', zIndex: 1 }}>
           <motion.div
             variants={containerVariants}
             initial="hidden"
@@ -132,11 +178,13 @@ export default function ProjectDetailView({ project }: ProjectDetailViewProps) {
               <Button
                 component={Link}
                 href="/projects"
-                variant="subtle"
+                variant="outline"
+                color="gray"
                 leftSection={<IconArrowLeft size={16} />}
                 mb="xl"
                 style={{
-                  color: 'var(--mantine-color-gray-6)',
+                  borderColor: 'rgba(255, 255, 255, 0.2)',
+                  color: 'var(--mantine-color-gray-2)',
                 }}
               >
                 Terug naar projecten
@@ -154,6 +202,7 @@ export default function ProjectDetailView({ project }: ProjectDetailViewProps) {
                         overflow: 'hidden',
                         background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.05))',
                         border: '1px solid rgba(255, 255, 255, 0.1)',
+                        backdropFilter: 'blur(10px)',
                       }}
                     >
                       <AspectRatio ratio={16 / 9}>
@@ -179,7 +228,7 @@ export default function ProjectDetailView({ project }: ProjectDetailViewProps) {
                     order={1} 
                     size="h1"
                     style={{
-                      background: 'linear-gradient(135deg, var(--mantine-color-blue-6), var(--mantine-color-cyan-5))',
+                      background: 'linear-gradient(135deg, var(--mantine-color-blue-4), var(--mantine-color-cyan-4))',
                       backgroundClip: 'text',
                       WebkitBackgroundClip: 'text',
                       color: 'transparent',
@@ -203,194 +252,172 @@ export default function ProjectDetailView({ project }: ProjectDetailViewProps) {
                       {project.shortDescription}
                     </Text>
                   )}
+
+                  {/* Project Meta */}
+                  <Group gap="md" wrap="wrap">
+                    {project.startDate && (
+                      <Group gap="xs">
+                        <IconCalendar size={16} style={{ color: 'var(--mantine-color-gray-4)' }} />
+                        <Text size="sm" c="gray.4">
+                          {new Date(project.startDate).toLocaleDateString('nl-NL', {
+                            year: 'numeric',
+                            month: 'long'
+                          })}
+                        </Text>
+                      </Group>
+                    )}
+                    {project.technologies && project.technologies.length > 0 && (
+                      <Group gap="xs">
+                        <IconTag size={16} style={{ color: 'var(--mantine-color-gray-4)' }} />
+                        <Text size="sm" c="gray.4">
+                          {project.technologies.length} technologie{project.technologies.length !== 1 ? 'ën' : ''}
+                        </Text>
+                      </Group>
+                    )}
+                  </Group>
                 </Stack>
               </motion.div>
 
-              {/* Project Meta Info */}
+              {/* Action Buttons */}
               <motion.div variants={itemVariants}>
-                <Paper
-                  p="lg"
-                  radius="lg"
-                  style={{
-                    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.05))',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                  }}
-                >
-                  <Stack gap="md">
-                    {/* Category & Date */}
-                    <Group>
-                      {project.category && (
-                        <Group gap="xs">
-                          <IconTag size={16} style={{ color: 'var(--mantine-color-teal-4)' }} />
-                          <Badge 
-                            size="lg" 
-                            variant="light" 
-                            color="teal"
-                            style={{
-                              background: 'linear-gradient(135deg, var(--mantine-color-teal-1), var(--mantine-color-cyan-1))',
-                              border: '1px solid var(--mantine-color-teal-3)',
-                            }}
-                          >
-                            {project.category}
-                          </Badge>
-                        </Group>
-                      )}
-                      
-                      {project.createdAt && (
-                        <Group gap="xs">
-                          <IconCalendar size={16} style={{ color: 'var(--mantine-color-gray-5)' }} />
-                          <Text size="sm" c="dimmed">
-                            {new Date(project.createdAt).toLocaleDateString('nl-NL', {
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric'
-                            })}
-                          </Text>
-                        </Group>
-                      )}
-                    </Group>
-
-                    {/* Technologies */}
-                    {project.technologies && project.technologies.length > 0 && (
-                      <Stack gap="xs">
-                        <Text fw={600} c="gray.2">Technologieën</Text>
-                        <Group gap="xs">
-                          {project.technologies.map((tech: string) => (
-                            <Badge 
-                              key={tech} 
-                              variant="light" 
-                              radius="sm"
-                              style={{
-                                background: 'linear-gradient(135deg, var(--mantine-color-blue-1), var(--mantine-color-cyan-1))',
-                                border: '1px solid var(--mantine-color-blue-3)',
-                                color: 'var(--mantine-color-blue-7)',
-                              }}
-                            >
-                              {tech}
-                            </Badge>
-                          ))}
-                        </Group>
-                      </Stack>
-                    )}
-
-                    {/* External Links */}
-                    <Group>
-                      {project.liveUrl && (
-                        <motion.div
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          <Button
-                            component="a"
-                            href={project.liveUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            variant="gradient"
-                            gradient={{ from: 'blue.6', to: 'cyan.5' }}
-                            leftSection={<IconExternalLink size={18} />}
-                            style={{
-                              boxShadow: '0 4px 20px rgba(59, 130, 246, 0.3)',
-                            }}
-                          >
-                            Live Demo
-                          </Button>
-                        </motion.div>
-                      )}
-                      
-                      {project.githubUrl && (
-                        <motion.div
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          <Button
-                            component="a"
-                            href={project.githubUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            variant="outline"
-                            color="gray"
-                            leftSection={<IconBrandGithub size={18} />}
-                            style={{
-                              borderColor: 'rgba(255, 255, 255, 0.2)',
-                              color: 'var(--mantine-color-gray-2)',
-                            }}
-                          >
-                            GitHub Repository
-                          </Button>
-                        </motion.div>
-                      )}
-                    </Group>
-                  </Stack>
-                </Paper>
-              </motion.div>
-
-              {/* Detailed Content */}
-              {project.detailedContent && (
-                <motion.div variants={itemVariants}>
-                  <ProgressiveLoader minHeight={200} threshold={0.2} rootMargin="100px">
-                    <Paper 
-                      p="xl" 
-                      radius="lg"
+                <Group gap="md" wrap="wrap">
+                  {project.projectUrl && (
+                    <Button
+                      component="a"
+                      href={project.projectUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      variant="gradient"
+                      gradient={{ from: 'blue.6', to: 'cyan.5' }}
+                      size="lg"
+                      radius="md"
+                      leftSection={<IconExternalLink size={18} />}
                       style={{
-                        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.05))',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        boxShadow: '0 8px 32px rgba(59, 130, 246, 0.3)',
+                        border: '1px solid rgba(59, 130, 246, 0.2)',
                       }}
                     >
-                      <Title order={2} mb="lg" c="gray.2">
-                        Over dit project
-                      </Title>
-                      <MarkdownRenderer>{project.detailedContent}</MarkdownRenderer>
-                    </Paper>
-                  </ProgressiveLoader>
-                </motion.div>
-              )}
+                      Live Demo
+                    </Button>
+                  )}
+                  
+                  {project.githubUrl && (
+                    <Button
+                      component="a"
+                      href={project.githubUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      variant="outline"
+                      color="gray"
+                      size="lg"
+                      radius="md"
+                      leftSection={<IconBrandGithub size={18} />}
+                      style={{
+                        borderColor: 'rgba(255, 255, 255, 0.2)',
+                        color: 'var(--mantine-color-gray-2)',
+                      }}
+                    >
+                      GitHub
+                    </Button>
+                  )}
+                </Group>
+              </motion.div>
 
-              {/* Additional Images Preview */}
-              {additionalImages.length > 0 && (
+              {/* Technologies */}
+              {project.technologies && project.technologies.length > 0 && (
                 <motion.div variants={itemVariants}>
-                  <Paper 
-                    p="lg" 
+                  <Paper
+                    p="lg"
                     radius="lg"
                     style={{
                       background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.05))',
                       border: '1px solid rgba(255, 255, 255, 0.1)',
+                      backdropFilter: 'blur(10px)',
                     }}
                   >
-                    <Title order={3} mb="md" c="gray.2">
-                      Meer afbeeldingen
+                    <Title order={3} size="h3" mb="md" c="gray.2">
+                      Gebruikte Technologieën
                     </Title>
-                    <Text c="dimmed" mb="lg">
-                      {additionalImages.length} extra afbeelding{additionalImages.length !== 1 ? 'en' : ''} beschikbaar
-                    </Text>
                     <Group gap="sm">
-                      {additionalImages.slice(0, 3).map((image, index) => (
-                        <Box
-                          key={index}
+                      {project.technologies.map((tech) => (
+                        <Badge 
+                          key={tech} 
+                          variant="light"
+                          size="md"
                           style={{
-                            width: '80px',
-                            height: '60px',
-                            borderRadius: 'var(--mantine-radius-sm)',
-                            overflow: 'hidden',
-                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(6, 182, 212, 0.15))',
+                            border: '1px solid rgba(59, 130, 246, 0.3)',
+                            color: 'var(--mantine-color-blue-3)',
                           }}
                         >
-                          <NextImage
-                            src={image.url}
-                            alt={image.altText || `Project image ${index + 2}`}
-                            width={80}
-                            height={60}
-                            style={{ objectFit: 'cover' }}
-                            quality={60}
-                          />
-                        </Box>
+                          {tech}
+                        </Badge>
                       ))}
-                      {additionalImages.length > 3 && (
-                        <Text size="sm" c="dimmed">
-                          +{additionalImages.length - 3} meer
-                        </Text>
-                      )}
                     </Group>
                   </Paper>
+                </motion.div>
+              )}
+
+              {/* Project Description */}
+              {project.description && (
+                <motion.div variants={itemVariants}>
+                  <Paper
+                    p="lg"
+                    radius="lg"
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.05))',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      backdropFilter: 'blur(10px)',
+                    }}
+                  >
+                    <Title order={3} size="h3" mb="md" c="gray.2">
+                      Over dit project
+                    </Title>
+                    <Box style={{ color: 'var(--mantine-color-gray-3)' }}>
+                      <MarkdownRenderer content={project.description} />
+                    </Box>
+                  </Paper>
+                </motion.div>
+              )}
+
+              {/* Additional Images */}
+              {additionalImages.length > 0 && (
+                <motion.div variants={itemVariants}>
+                  <Stack gap="md">
+                    <Title order={3} size="h3" c="gray.2">
+                      Project Galerij
+                    </Title>
+                    <Group gap="md" wrap="wrap">
+                      {additionalImages.map((image, index) => (
+                        <motion.div 
+                          key={image.id || index}
+                          whileHover={{ scale: 1.05 }}
+                          transition={{ duration: 0.3 }}
+                          style={{ flex: '1 1 300px', maxWidth: '400px' }}
+                        >
+                          <Paper
+                            radius="md"
+                            style={{
+                              overflow: 'hidden',
+                              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.05))',
+                              border: '1px solid rgba(255, 255, 255, 0.1)',
+                            }}
+                          >
+                            <AspectRatio ratio={16 / 9}>
+                              <NextImage
+                                src={image.url}
+                                alt={image.altText || `${project.title} - Afbeelding ${index + 2}`}
+                                fill
+                                style={{ objectFit: 'cover' }}
+                                quality={85}
+                                sizes="400px"
+                              />
+                            </AspectRatio>
+                          </Paper>
+                        </motion.div>
+                      ))}
+                    </Group>
+                  </Stack>
                 </motion.div>
               )}
             </Stack>

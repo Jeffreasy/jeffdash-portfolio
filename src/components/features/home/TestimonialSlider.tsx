@@ -82,22 +82,29 @@ export default function TestimonialSlider({
   if (!testimonials || testimonials.length === 0) {
     return (
       <PageErrorBoundary>
-        <Container size="md" py="xl">
-          <Paper
-            p="xl"
-            radius="lg"
-            style={{
-              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.05))',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              textAlign: 'center',
-            }}
-          >
-            <IconQuote size={48} style={{ color: 'var(--mantine-color-gray-6)', marginBottom: '1rem' }} />
-            <Text c="dimmed" size="lg">
-              Momenteel geen testimonials beschikbaar.
-            </Text>
-          </Paper>
-        </Container>
+        <section style={{
+          position: 'relative',
+          overflow: 'hidden',
+          background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%)',
+        }}>
+          <Container size="md" py="xl">
+            <Paper
+              p="xl"
+              radius="lg"
+              style={{
+                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.05))',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                backdropFilter: 'blur(10px)',
+                textAlign: 'center',
+              }}
+            >
+              <IconQuote size={48} style={{ color: 'var(--mantine-color-gray-6)', marginBottom: '1rem' }} />
+              <Text c="gray.4" size="lg">
+                Momenteel geen testimonials beschikbaar.
+              </Text>
+            </Paper>
+          </Container>
+        </section>
       </PageErrorBoundary>
     );
   }
@@ -150,189 +157,232 @@ export default function TestimonialSlider({
 
   return (
     <PageErrorBoundary>
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.2 }}
-      >
-        <Container size="md" py="xl">
-          <Stack gap="xl">
-            {/* Title */}
-            <Text size="xl" fw={600} ta="center" c="gray.2">
-              {title}
-            </Text>
+      <section style={{
+        position: 'relative',
+        overflow: 'hidden',
+        background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%)',
+      }}>
+        {/* Animated background elements */}
+        <motion.div
+          style={{
+            position: 'absolute',
+            top: '20%',
+            left: '10%',
+            width: '200px',
+            height: '200px',
+            background: 'radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%)',
+            borderRadius: '50%',
+            filter: 'blur(40px)',
+          }}
+          animate={{
+            x: [0, 20, 0],
+            y: [0, -20, 0],
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+        
+        <motion.div
+          style={{
+            position: 'absolute',
+            top: '70%',
+            right: '15%',
+            width: '150px',
+            height: '150px',
+            background: 'radial-gradient(circle, rgba(6, 182, 212, 0.08) 0%, transparent 70%)',
+            borderRadius: '50%',
+            filter: 'blur(40px)',
+          }}
+          animate={{
+            x: [0, -15, 0],
+            y: [0, 15, 0],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 1.5,
+          }}
+        />
 
-            {/* Main Testimonial Container */}
-            <Box style={{ position: 'relative', minHeight: '300px' }}>
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={currentIndex}
-                  variants={testimonialVariants}
-                  initial="enter"
-                  animate="center"
-                  exit="exit"
-                  transition={{
-                    x: { type: "spring", stiffness: 300, damping: 30 },
-                    opacity: { duration: 0.4 },
-                    scale: { duration: 0.4 }
-                  }}
-                >
-                  <Paper
-                    p="xl"
-                    radius="lg"
-                    style={{
-                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.05))',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      backdropFilter: 'blur(10px)',
-                      position: 'relative',
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          style={{ position: 'relative', zIndex: 1 }}
+        >
+          <Container size="md" py="xl">
+            <Stack gap="xl">
+              {/* Title */}
+              <Text 
+                size="xl" 
+                fw={600} 
+                ta="center" 
+                style={{
+                  background: 'linear-gradient(135deg, var(--mantine-color-blue-4), var(--mantine-color-cyan-4))',
+                  backgroundClip: 'text',
+                  WebkitBackgroundClip: 'text',
+                  color: 'transparent',
+                }}
+              >
+                {title}
+              </Text>
+
+              {/* Main Testimonial Container */}
+              <Box style={{ position: 'relative', minHeight: '300px' }}>
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentIndex}
+                    variants={testimonialVariants}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    transition={{
+                      x: { type: "spring", stiffness: 300, damping: 30 },
+                      opacity: { duration: 0.4 },
+                      scale: { duration: 0.4 }
                     }}
                   >
-                    {/* Quote Icon */}
-                    <IconQuote 
-                      size={40} 
-                      style={{ 
-                        color: 'var(--mantine-color-blue-4)', 
-                        opacity: 0.3,
-                        position: 'absolute',
-                        top: '1rem',
-                        left: '1rem',
-                      }} 
-                    />
-
-                    <Stack gap="lg" style={{ paddingTop: '1rem' }}>
-                      {/* Rating */}
-                      {currentTestimonial.rating && (
-                        <Group justify="center" gap="xs">
-                          {renderStars(currentTestimonial.rating)}
-                        </Group>
-                      )}
-
-                      {/* Testimonial Content */}
-                      <Text 
-                        size="lg" 
-                        ta="center"
+                    <Paper
+                      p="xl"
+                      radius="lg"
+                      style={{
+                        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.05))',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        backdropFilter: 'blur(10px)',
+                        position: 'relative',
+                      }}
+                    >
+                      {/* Quote Icon */}
+                      <IconQuote 
+                        size={40} 
                         style={{ 
-                          fontStyle: 'italic',
-                          lineHeight: 1.6,
-                          fontSize: 'clamp(1.1rem, 2.5vw, 1.25rem)',
-                          color: 'var(--mantine-color-gray-2)',
-                        }}
-                      >
-                        "{currentTestimonial.content}"
-                      </Text>
+                          color: 'var(--mantine-color-blue-4)', 
+                          opacity: 0.3,
+                          position: 'absolute',
+                          top: '1rem',
+                          left: '1rem',
+                        }} 
+                      />
 
-                      {/* Author Info */}
-                      <Group justify="center" gap="md">
-                        <Avatar
-                          src={currentTestimonial.author.avatar}
-                          alt={currentTestimonial.author.name}
-                          size="lg"
-                          radius="xl"
-                          style={{
-                            border: '2px solid var(--mantine-color-blue-4)',
+                      <Stack gap="lg" style={{ paddingTop: '2rem' }}>
+                        {/* Testimonial Content */}
+                        <Text 
+                          size="lg" 
+                          c="gray.2" 
+                          ta="center"
+                          style={{ 
+                            fontStyle: 'italic',
+                            lineHeight: 1.6,
+                            fontSize: 'clamp(1rem, 2vw, 1.125rem)',
                           }}
-                        />
-                        <Stack gap={2} align="center">
-                          <Text fw={600} c="gray.1">
-                            {currentTestimonial.author.name}
-                          </Text>
-                          {currentTestimonial.author.role && (
-                            <Text size="sm" c="dimmed">
-                              {currentTestimonial.author.role}
-                              {currentTestimonial.author.company && 
-                                ` @ ${currentTestimonial.author.company}`
-                              }
-                            </Text>
+                        >
+                          "{currentTestimonial.content}"
+                        </Text>
+
+                        {/* Rating */}
+                        {currentTestimonial.rating && (
+                          <Group justify="center" gap="xs">
+                            {renderStars(currentTestimonial.rating)}
+                          </Group>
+                        )}
+
+                        {/* Author Info */}
+                        <Group justify="center" gap="md">
+                          {currentTestimonial.author.avatar && (
+                            <Avatar 
+                              src={currentTestimonial.author.avatar} 
+                              alt={currentTestimonial.author.name}
+                              size="md"
+                              radius="xl"
+                              style={{
+                                border: '2px solid rgba(255, 255, 255, 0.1)',
+                              }}
+                            />
                           )}
-                          {currentTestimonial.date && (
-                            <Text size="xs" c="gray.6">
-                              {currentTestimonial.date}
+                          <Stack gap={0} align="center">
+                            <Text fw={600} c="gray.2">
+                              {currentTestimonial.author.name}
                             </Text>
-                          )}
-                        </Stack>
-                      </Group>
-                    </Stack>
-                  </Paper>
-                </motion.div>
-              </AnimatePresence>
+                            {(currentTestimonial.author.role || currentTestimonial.author.company) && (
+                              <Text size="sm" c="gray.4">
+                                {currentTestimonial.author.role}
+                                {currentTestimonial.author.role && currentTestimonial.author.company && ' bij '}
+                                {currentTestimonial.author.company}
+                              </Text>
+                            )}
+                          </Stack>
+                        </Group>
+                      </Stack>
+                    </Paper>
+                  </motion.div>
+                </AnimatePresence>
+              </Box>
 
               {/* Navigation Controls */}
               {testimonials.length > 1 && (
-                <>
+                <Group justify="center" gap="md">
                   <Button
-                    variant="filled"
-                    color="dark"
-                    size="lg"
-                    style={{
-                      position: 'absolute',
-                      left: '-1rem',
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      zIndex: 2,
-                      backgroundColor: 'rgba(0, 0, 0, 0.6)',
-                      backdropFilter: 'blur(10px)',
-                    }}
+                    variant="outline"
+                    color="gray"
+                    size="md"
                     onClick={handlePrevious}
+                    leftSection={<IconChevronLeft size={18} />}
+                    style={{
+                      borderColor: 'rgba(255, 255, 255, 0.2)',
+                      color: 'var(--mantine-color-gray-2)',
+                    }}
                   >
-                    <IconChevronLeft size={20} />
+                    Vorige
                   </Button>
+
+                  {/* Indicators */}
+                  <Group gap="xs">
+                    {testimonials.map((_, index) => (
+                      <motion.div
+                        key={index}
+                        variants={indicatorVariants}
+                        initial="hidden"
+                        animate={currentIndex === index ? "visible" : "hidden"}
+                        whileHover="hover"
+                        onClick={() => goToSlide(index)}
+                        style={{
+                          width: '12px',
+                          height: '12px',
+                          borderRadius: '50%',
+                          background: currentIndex === index 
+                            ? 'var(--mantine-color-blue-4)' 
+                            : 'rgba(255, 255, 255, 0.3)',
+                          cursor: 'pointer',
+                          transition: 'all 0.3s ease',
+                        }}
+                      />
+                    ))}
+                  </Group>
 
                   <Button
-                    variant="filled"
-                    color="dark"
-                    size="lg"
-                    style={{
-                      position: 'absolute',
-                      right: '-1rem',
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      zIndex: 2,
-                      backgroundColor: 'rgba(0, 0, 0, 0.6)',
-                      backdropFilter: 'blur(10px)',
-                    }}
+                    variant="outline"
+                    color="gray"
+                    size="md"
                     onClick={handleNext}
-                  >
-                    <IconChevronRight size={20} />
-                  </Button>
-                </>
-              )}
-            </Box>
-
-            {/* Indicators */}
-            {testimonials.length > 1 && (
-              <Group justify="center" gap="sm">
-                {testimonials.map((_, index) => (
-                  <motion.button
-                    key={`indicator-${index}`}
-                    variants={indicatorVariants}
-                    whileHover="hover"
-                    onClick={() => goToSlide(index)}
+                    rightSection={<IconChevronRight size={18} />}
                     style={{
-                      width: '12px',
-                      height: '12px',
-                      borderRadius: '50%',
-                      border: 'none',
-                      cursor: 'pointer',
-                      background: index === currentIndex 
-                        ? 'var(--mantine-color-blue-5)' 
-                        : 'rgba(255, 255, 255, 0.3)',
-                      transition: 'all 0.3s ease',
+                      borderColor: 'rgba(255, 255, 255, 0.2)',
+                      color: 'var(--mantine-color-gray-2)',
                     }}
-                  />
-                ))}
-              </Group>
-            )}
-
-            {/* Counter */}
-            {testimonials.length > 1 && (
-              <Text size="sm" c="dimmed" ta="center">
-                {currentIndex + 1} van {testimonials.length}
-              </Text>
-            )}
-          </Stack>
-        </Container>
-      </motion.div>
+                  >
+                    Volgende
+                  </Button>
+                </Group>
+              )}
+            </Stack>
+          </Container>
+        </motion.div>
+      </section>
     </PageErrorBoundary>
   );
 } 

@@ -1,7 +1,4 @@
 import React from 'react';
-import { Title, SimpleGrid, Container, Button, Group } from '@mantine/core';
-import Link from 'next/link';
-import { IconArrowRight } from '@tabler/icons-react';
 import { Metadata } from 'next';
 import { SITE_CONFIG } from '@/lib/config';
 
@@ -10,10 +7,10 @@ import HeroSection from '@/components/features/home/HeroSection';
 import FeaturedProjects from '@/components/features/home/FeaturedProjects';
 import ShortAboutBlurb from '@/components/features/home/ShortAboutBlurb';
 import CallToActionBlock from '@/components/features/home/CallToActionBlock';
+import RecentBlogSection from '@/components/features/home/RecentBlogSection';
 
 // Importeer blog-gerelateerde zaken
 import { getPublishedPosts } from '@/lib/actions/blog';
-import BlogPostCard from '@/components/features/blog/BlogPostCard';
 
 // Importeer profielfoto action
 import { getProfilePicture } from '@/lib/actions/content';
@@ -70,38 +67,15 @@ export default async function HomePage() {
       </section>
 
       {/* 2. Featured Projects */}
-      <section aria-labelledby="featured-projects-title" className="mt-16">
+      <section aria-labelledby="featured-projects-title">
         <FeaturedProjects />
       </section>
 
-      {/* 3. Recent Blog Posts (NIEUW) */}
-      {recentPosts.length > 0 && (
-        <section aria-labelledby="recent-blog-title" className="mt-16">
-           <Container size="lg">
-             <Group justify="space-between" mb="xl">
-               <Title order={2} id="recent-blog-title">
-                 Recente Blog Posts
-               </Title>
-               <Button
-                  component={Link}
-                  href="/blog"
-                  variant="outline"
-                  rightSection={<IconArrowRight size={16} />}
-                >
-                  Alle posts
-               </Button>
-             </Group>
-             <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="xl">
-                {recentPosts.map((post) => (
-                  <BlogPostCard key={post.id} post={post} />
-                ))}
-             </SimpleGrid>
-           </Container>
-        </section>
-      )}
+      {/* 3. Recent Blog Posts (NIEUW) - Nu als client component */}
+      <RecentBlogSection posts={recentPosts} />
 
       {/* 4. Short About Blurb - Nu met image props */}
-      <section aria-labelledby="about-blurb-title" className="mt-16">
+      <section aria-labelledby="about-blurb-title">
         <ShortAboutBlurb 
           profileImageUrl={profilePicture.url} 
           profileImageAlt={profilePicture.alt}
@@ -109,7 +83,7 @@ export default async function HomePage() {
       </section>
 
       {/* 5. Call to Action */}
-      <section aria-labelledby="cta-title" className="mt-8">
+      <section aria-labelledby="cta-title">
         <h2 id="cta-title" className="sr-only">Call to Action</h2>
         <CallToActionBlock />
       </section>

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
+import { Box } from '@mantine/core';
 import Header from './Header';
 import Footer from './Footer';
 import PageErrorBoundary from '@/components/features/shared/PageErrorBoundary';
@@ -23,19 +24,29 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
   // This prevents hydration mismatches from pathname checks
   if (!isClient) {
     return (
-      <>
+      <Box
+        style={{
+          minHeight: '100vh',
+          background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%)',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
         <Header />
         <PageErrorBoundary>
-          <main style={{ 
-            minHeight: 'calc(100vh - 200px)',
-            paddingTop: '2rem',
-            paddingBottom: '2rem' 
-          }}>
+          <Box
+            component="main"
+            style={{ 
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
             {children}
-          </main>
+          </Box>
         </PageErrorBoundary>
         <Footer />
-      </>
+      </Box>
     );
   }
   
@@ -44,23 +55,42 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
   
   if (isAdminRoute) {
     // Admin routes handle their own layout
-    return <>{children}</>;
+    return (
+      <Box
+        style={{
+          minHeight: '100vh',
+          background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%)',
+        }}
+      >
+        {children}
+      </Box>
+    );
   }
   
   // Regular pages get Header/Footer
   return (
-    <>
+    <Box
+      style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%)',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       <Header />
       <PageErrorBoundary>
-        <main style={{ 
-          minHeight: 'calc(100vh - 200px)', // Adjust based on header/footer height
-          paddingTop: '2rem',
-          paddingBottom: '2rem' 
-        }}>
+        <Box
+          component="main"
+          style={{ 
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
           {children}
-        </main>
+        </Box>
       </PageErrorBoundary>
       <Footer />
-    </>
+    </Box>
   );
 } 

@@ -71,7 +71,7 @@ const ProjectGridContent = memo<{
         }}
       >
         <Title order={2} size="h1" mb="md" style={{ 
-          background: 'linear-gradient(135deg, var(--mantine-color-blue-6), var(--mantine-color-cyan-5))',
+          background: 'linear-gradient(135deg, var(--mantine-color-blue-4), var(--mantine-color-cyan-4))',
           backgroundClip: 'text',
           WebkitBackgroundClip: 'text',
           color: 'transparent',
@@ -176,29 +176,64 @@ const AnimatedProjectGrid = memo<AnimatedProjectGridProps>(({
   return (
     <PageErrorBoundary>
       <section className={className} style={{ 
-        background: 'linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.01) 100%)',
         position: 'relative',
         overflow: 'hidden',
+        background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%)',
       }}>
-        {/* Subtle background decoration */}
-        <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.03) 0%, transparent 70%)',
-          pointerEvents: 'none',
-        }} />
+        {/* Animated background elements */}
+        <motion.div
+          style={{
+            position: 'absolute',
+            top: '10%',
+            left: '5%',
+            width: '250px',
+            height: '250px',
+            background: 'radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%)',
+            borderRadius: '50%',
+            filter: 'blur(40px)',
+          }}
+          animate={{
+            x: [0, 25, 0],
+            y: [0, -25, 0],
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
         
-        <Container size="lg" py={{ base: "xl", md: "2xl" }} style={{ position: 'relative' }}>
+        <motion.div
+          style={{
+            position: 'absolute',
+            top: '70%',
+            right: '10%',
+            width: '180px',
+            height: '180px',
+            background: 'radial-gradient(circle, rgba(6, 182, 212, 0.08) 0%, transparent 70%)',
+            borderRadius: '50%',
+            filter: 'blur(40px)',
+          }}
+          animate={{
+            x: [0, -15, 0],
+            y: [0, 15, 0],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 2,
+          }}
+        />
+        
+        <Container size="lg" py={{ base: "xl", md: "2xl" }} style={{ position: 'relative', zIndex: 1 }}>
           <ProgressiveLoader 
             minHeight={400}
             threshold={0.1}
             rootMargin="100px"
           >
             <ProjectGridContent 
-              projects={projects} 
+              projects={projects}
               title={title}
               description={description}
               showTitle={showTitle}
