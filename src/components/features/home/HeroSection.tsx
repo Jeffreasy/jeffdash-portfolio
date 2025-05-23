@@ -1,86 +1,303 @@
 "use client"; // Behoud dit als je de Next.js App Router gebruikt
 
-import React from 'react';
-import { Title, Text, Button, Container, Box, Group } from '@mantine/core'; // Box en Group toegevoegd
-import { IconArrowRight } from '@tabler/icons-react'; // Voorbeeld icoon (installeer @tabler/icons-react)
+import React, { useState, useEffect } from 'react';
+import { Title, Text, Button, Container, Box, Group, Stack } from '@mantine/core';
+import { IconArrowRight, IconCode, IconSparkles } from '@tabler/icons-react';
 import Link from 'next/link';
-import ErrorBoundary from './ErrorBoundary';
+import { motion } from 'framer-motion';
+import PageErrorBoundary from '../shared/PageErrorBoundary';
 // Optioneel: importeer een CSS-module voor meer geavanceerde stijlen of animaties
 // import classes from './HeroSection.module.css';
 
-const HeroSection: React.FC = () => {
-  const titleId = "hero-title"; // ID voor aria-labelledby
+// Animatie varianten voor de container
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.3,
+      delayChildren: 0.2,
+    },
+  },
+} as const;
 
+// Animatie varianten voor text elementen
+const textVariants = {
+  hidden: { opacity: 0, y: 50 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.8,
+      ease: [0.25, 0.46, 0.45, 0.94],
+    },
+  },
+} as const;
+
+// Animatie varianten voor buttons
+const buttonVariants = {
+  hidden: { opacity: 0, scale: 0.8 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: {
+      duration: 0.6,
+      ease: [0.25, 0.46, 0.45, 0.94],
+    },
+  },
+  hover: {
+    scale: 1.05,
+    transition: {
+      duration: 0.2,
+      ease: "easeOut",
+    },
+  },
+  tap: {
+    scale: 0.95,
+  },
+} as const;
+
+// Typing effect hook
+const useTypingEffect = (text: string, speed: number = 100) => {
+  const [displayText, setDisplayText] = useState('');
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    if (currentIndex < text.length) {
+      const timeout = setTimeout(() => {
+        setDisplayText(prev => prev + text[currentIndex]);
+        setCurrentIndex(prev => prev + 1);
+      }, speed);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [currentIndex, text, speed]);
+
+  return displayText;
+};
+
+const HeroSection: React.FC = () => {
+  const titleId = "hero-title";
+  
+  // Typing effect voor de naam
+  const typedName = useTypingEffect("Jeffrey", 150);
+  
   return (
-    <ErrorBoundary>
+    <PageErrorBoundary>
       <Box
         component="section"
         aria-labelledby={titleId}
-        // Voorbeeld: een subtiele gradient achtergrond. Pas kleuren aan naar je thema.
-        // Je kunt ook een afbeelding of effen kleur gebruiken.
-        // bg={`linear-gradient(135deg, var(--mantine-color-gray-0) 0%, var(--mantine-color-blue-0) 100%)`}
-        // className={classes.heroContainer} // Alternatief via CSS module
-        // Meer verticale padding, responsief gemaakt
-        py={{ base: 'xl', sm: 'calc(var(--mantine-spacing-xl) * 3)' }}
+        style={{
+          position: 'relative',
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          overflow: 'hidden',
+          background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%)',
+        }}
       >
-        <Container size="md">
-          {/* Titel: Groter, vetter en met een persoonlijke touch */}
-          <Title
-            id={titleId}
-            order={1}
-            ta="center"
-            fz={{ base: '2.5rem', sm: '3.5rem' }}
-            fw={800}
-            // Gebruik white-space: pre-line om regelafbrekingen uit de code te respecteren
-            style={{ whiteSpace: 'pre-line' }}
-          >
-            {/* Tekst nu met daadwerkelijke regelafbrekingen in de string */}
-            {`Jeffrey
-            Full-Stack Developer
-            &
-            AI Coding Explorer`}
-          </Title>
+        {/* Animated background elements */}
+        <motion.div
+          style={{
+            position: 'absolute',
+            top: '20%',
+            left: '10%',
+            width: '300px',
+            height: '300px',
+            background: 'radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%)',
+            borderRadius: '50%',
+            filter: 'blur(40px)',
+          }}
+          animate={{
+            x: [0, 30, 0],
+            y: [0, -30, 0],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+        
+        <motion.div
+          style={{
+            position: 'absolute',
+            top: '60%',
+            right: '15%',
+            width: '200px',
+            height: '200px',
+            background: 'radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, transparent 70%)',
+            borderRadius: '50%',
+            filter: 'blur(40px)',
+          }}
+          animate={{
+            x: [0, -20, 0],
+            y: [0, 20, 0],
+          }}
+          transition={{
+            duration: 6,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 1,
+          }}
+        />
 
-          {/* Subtitel: Duidelijk, bondig en iets subtieler van kleur */}
-          <Text
-            ta="center"
-            mt="md"
-            mb="xl" // Extra ruimte voor de knop
-            c="dimmed" // Maakt de tekst iets minder prominent dan de titel
-            fz="lg" // Iets groter dan standaard tekst
+        <Container size="lg" style={{ position: 'relative', zIndex: 1 }}>
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
           >
-            {/* Aangepaste Subtitel */}
-            Gepassioneerd door moderne webtechnologieën. Ik verken het volledige spectrum van full-stack development, ondersteund door AI (Vibecoding), om innovatieve en complete webapplicaties te realiseren.
-          </Text>
+            <Stack align="center" gap="xl">
+              {/* Greeting */}
+              <motion.div variants={textVariants}>
+                <Group gap="xs" justify="center">
+                  <IconSparkles size={20} style={{ color: 'var(--mantine-color-yellow-4)' }} />
+                  <Text size="sm" c="dimmed" tt="uppercase" fw={600} lts={1}>
+                    Welkom bij mijn portfolio
+                  </Text>
+                </Group>
+              </motion.div>
 
-          {/* Call-to-Action Knop: Gecentreerd, opvallend en met een icoon */}
-          <Group justify="center" mt="xl">
-            <Button
-              component={Link}
-              href="/projects" // Zorg dat dit de juiste link is!
-              size="lg" // Grote, duidelijke knop
-              variant="gradient" // Moderne gradient stijl
-              gradient={{ from: 'blue', to: 'cyan', deg: 90 }} // Pas gradient kleuren aan
-              leftSection={<IconArrowRight size={18} />} // Icoon voor visuele hint
-              // className={classes.ctaButton} // Optioneel via CSS module
-            >
-              Bekijk mijn werk
-            </Button>
-            {/* Optioneel: Voeg een secundaire CTA toe */}
-            {/*
-            <Button
-              component={Link}
-              href="/contact"
-              size="lg"
-              variant="default" // Subtielere stijl
-            >
-              Neem contact op
-            </Button>
-            */}
-          </Group>
+              {/* Main Title with typing effect */}
+              <motion.div variants={textVariants}>
+                <Title
+                  id={titleId}
+                  order={1}
+                  ta="center"
+                  style={{
+                    fontSize: 'clamp(3rem, 8vw, 6rem)',
+                    fontWeight: 900,
+                    lineHeight: 1.1,
+                    marginBottom: 'var(--mantine-spacing-md)',
+                  }}
+                >
+                  <Text
+                    component="span"
+                    style={{
+                      background: 'linear-gradient(135deg, var(--mantine-color-blue-4), var(--mantine-color-cyan-4))',
+                      backgroundClip: 'text',
+                      WebkitBackgroundClip: 'text',
+                      color: 'transparent',
+                      display: 'inline-block',
+                    }}
+                  >
+                    {typedName}
+                    <motion.span
+                      animate={{ opacity: [1, 0, 1] }}
+                      transition={{ duration: 1, repeat: Infinity }}
+                      style={{ color: 'var(--mantine-color-blue-4)' }}
+                    >
+                      |
+                    </motion.span>
+                  </Text>
+                </Title>
+              </motion.div>
+
+              {/* Subtitle */}
+              <motion.div variants={textVariants}>
+                <Stack align="center" gap="sm">
+                  <Group gap="xs" justify="center">
+                    <IconCode size={24} style={{ color: 'var(--mantine-color-blue-4)' }} />
+                    <Title order={2} size="h1" c="gray.2" ta="center">
+                      Full-Stack Developer & AI Explorer
+                    </Title>
+                  </Group>
+                  
+                  <Text
+                    ta="center"
+                    c="gray.4"
+                    size="xl"
+                    maw={600}
+                    style={{
+                      fontSize: 'clamp(1.1rem, 2.5vw, 1.25rem)',
+                      lineHeight: 1.6,
+                    }}
+                  >
+                    Gepassioneerd door moderne webtechnologieën. Ik verken het volledige spectrum van 
+                    <Text component="span" fw={600} c="cyan.4"> full-stack development</Text>, 
+                    ondersteund door <Text component="span" fw={600} c="blue.4">AI (Vibecoding)</Text>, 
+                    om innovatieve en complete webapplicaties te realiseren.
+                  </Text>
+                </Stack>
+              </motion.div>
+
+              {/* CTA Buttons */}
+              <motion.div variants={textVariants}>
+                <Group gap="lg" justify="center" mt="xl">
+                  <motion.div
+                    variants={buttonVariants}
+                    whileHover="hover"
+                    whileTap="tap"
+                  >
+                    <Button
+                      component={Link}
+                      href="/projects"
+                      size="xl"
+                      radius="md"
+                      variant="gradient"
+                      gradient={{ from: 'blue.6', to: 'cyan.5' }}
+                      rightSection={<IconArrowRight size={20} />}
+                      style={{
+                        boxShadow: '0 8px 32px rgba(59, 130, 246, 0.3)',
+                        border: '1px solid rgba(59, 130, 246, 0.2)',
+                      }}
+                    >
+                      Bekijk Mijn Werk
+                    </Button>
+                  </motion.div>
+                  
+                  <motion.div
+                    variants={buttonVariants}
+                    whileHover="hover"
+                    whileTap="tap"
+                  >
+                    <Button
+                      component={Link}
+                      href="/contact"
+                      size="xl"
+                      radius="md"
+                      variant="outline"
+                      color="gray"
+                      style={{
+                        borderColor: 'rgba(255, 255, 255, 0.2)',
+                        color: 'var(--mantine-color-gray-2)',
+                      }}
+                    >
+                      Neem Contact Op
+                    </Button>
+                  </motion.div>
+                </Group>
+              </motion.div>
+
+              {/* Scroll indicator */}
+              <motion.div
+                variants={textVariants}
+                style={{ marginTop: 'var(--mantine-spacing-3xl)' }}
+              >
+                <motion.div
+                  animate={{ y: [0, 10, 0] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  <Text size="sm" c="dimmed" ta="center">
+                    Scroll naar beneden om meer te ontdekken
+                  </Text>
+                  <Box
+                    style={{
+                      width: '1px',
+                      height: '40px',
+                      background: 'linear-gradient(to bottom, var(--mantine-color-gray-6), transparent)',
+                      margin: '0 auto',
+                      marginTop: 'var(--mantine-spacing-xs)',
+                    }}
+                  />
+                </motion.div>
+              </motion.div>
+            </Stack>
+          </motion.div>
         </Container>
       </Box>
-    </ErrorBoundary>
+    </PageErrorBoundary>
   );
 };
 

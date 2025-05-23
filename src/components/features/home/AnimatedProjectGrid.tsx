@@ -8,7 +8,7 @@ import type { FeaturedProjectType } from '@/lib/actions/projects';
 import PageErrorBoundary from '../shared/PageErrorBoundary';
 import ProgressiveLoader from '../shared/ProgressiveLoader';
 
-// Vereenvoudigde animatie varianten voor optimale prestaties
+// Optimized animation variants for performance
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -47,13 +47,15 @@ interface AnimatedProjectGridProps {
   showTitle?: boolean;
 }
 
-// Geoptimaliseerde ProjectGridContent zonder 3D transforms
+/**
+ * Optimized ProjectGridContent without 3D transforms to prevent text blur
+ */
 const ProjectGridContent = memo<{ 
   projects: FeaturedProjectType[];
   title?: string;
   description?: string;
   showTitle?: boolean;
-}>(({ projects, title = "Uitgelichte Projecten", description, showTitle = true }) => (
+}>(({ projects, title = "Featured Projects", description, showTitle = true }) => (
   <motion.div
     variants={containerVariants}
     initial="hidden"
@@ -102,9 +104,9 @@ const ProjectGridContent = memo<{
           variants={itemVariants}
           style={{
             height: '100%',
-            // Hardware acceleration zonder 3D transforms
+            // Hardware acceleration without 3D transforms
             willChange: 'transform, opacity',
-            transform: 'translateZ(0)', // Voor GPU acceleration
+            transform: 'translateZ(0)', // For GPU acceleration
           }}
         >
           <ProjectCard project={project} />
@@ -116,6 +118,11 @@ const ProjectGridContent = memo<{
 
 ProjectGridContent.displayName = 'ProjectGridContent';
 
+/**
+ * AnimatedProjectGrid Component
+ * Displays a grid of projects with staggered animations
+ * Optimized for performance and text clarity
+ */
 const AnimatedProjectGrid = memo<AnimatedProjectGridProps>(({ 
   projects, 
   className,
@@ -123,7 +130,7 @@ const AnimatedProjectGrid = memo<AnimatedProjectGridProps>(({
   description,
   showTitle = true,
 }) => {
-  // Input validatie met duidelijke error messaging
+  // Input validation with clear error messaging
   const validateProjects = useCallback((projects: unknown): projects is FeaturedProjectType[] => {
     if (!Array.isArray(projects)) {
       console.error('AnimatedProjectGrid: Expected projects to be an array, received:', typeof projects);
@@ -150,17 +157,17 @@ const AnimatedProjectGrid = memo<AnimatedProjectGridProps>(({
     return isValid;
   }, []);
 
-  // Vroege return voor invalid data
+  // Early return for invalid data
   if (!validateProjects(projects)) {
     throw new Error('AnimatedProjectGrid: Invalid projects data provided');
   }
 
-  // Early return voor lege projecten lijst met mooie fallback
+  // Early return for empty projects with graceful fallback
   if (projects.length === 0) {
     return (
       <Container size="lg" py="xl">
         <Text ta="center" size="lg" c="dimmed">
-          Geen projecten beschikbaar om weer te geven.
+          No projects available to display.
         </Text>
       </Container>
     );
@@ -173,7 +180,7 @@ const AnimatedProjectGrid = memo<AnimatedProjectGridProps>(({
         position: 'relative',
         overflow: 'hidden',
       }}>
-        {/* Subtiele background decoratie */}
+        {/* Subtle background decoration */}
         <div style={{
           position: 'absolute',
           top: 0,

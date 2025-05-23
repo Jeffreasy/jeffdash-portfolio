@@ -1,57 +1,133 @@
 // Dit is nu een Server Component
 import React from 'react';
 // Verwijder ProjectCard import hier, wordt nu gebruikt in AnimatedProjectGrid
-import { Container, Title, Button, Group, Text } from '@mantine/core';
+import { Container, Title, Button, Group, Text, Box } from '@mantine/core';
 import Link from 'next/link';
-import { IconArrowRight } from '@tabler/icons-react';
+import { IconArrowRight, IconBrandGithub } from '@tabler/icons-react';
 import { getFeaturedProjects, FeaturedProjectType } from '@/lib/actions/projects';
 // Verwijder motion import
 // Importeer de nieuwe client component voor de animatie
 import AnimatedProjectGrid from './AnimatedProjectGrid';
-import ErrorBoundary from './ErrorBoundary';
+import PageErrorBoundary from '../shared/PageErrorBoundary';
 
-// Verwijder animatie varianten hier
-
-// Component is async om data te kunnen awaiten
+/**
+ * FeaturedProjects Component
+ * Server Component that fetches and displays featured projects
+ * Uses AnimatedProjectGrid for client-side animations
+ */
 export default async function FeaturedProjects() {
-  // --- Data Ophalen --- (Gebeurt op de server)
+  // Fetch featured projects data on the server
   const { featuredProjects, totalProjectCount } = await getFeaturedProjects();
 
-  // --- Render Logic --- (Geen data? Toon bericht)
+  // Handle empty state
   if (!featuredProjects || featuredProjects.length === 0) {
     return (
-      <Container size="lg" py={{ base: 'xl', sm: 'calc(var(--mantine-spacing-xl) * 2)' }}>
-        <Text ta="center" c="dimmed">Momenteel geen uitgelichte projecten om weer te geven.</Text>
-      </Container>
+      <PageErrorBoundary>
+        <section style={{ 
+          background: 'linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.01) 100%)',
+          position: 'relative',
+          overflow: 'hidden',
+        }}>
+          <Container size="lg" py={{ base: 'xl', md: '3xl' }}>
+            <Box style={{ textAlign: 'center' }}>
+              <Title order={2} c="dimmed" mb="md">
+                Projecten worden geladen...
+              </Title>
+              <Text c="dimmed">
+                Momenteel geen uitgelichte projecten om weer te geven.
+              </Text>
+            </Box>
+          </Container>
+        </section>
+      </PageErrorBoundary>
     );
   }
 
-  // --- Render Logic --- (Wel data? Toon titel, grid en knop)
+  // Render featured projects with CTA section
   return (
-    <ErrorBoundary>
-      <Container size="lg" py={{ base: 'xl', sm: 'calc(var(--mantine-spacing-xl) * 2)' }}>
-        <Title order={2} ta="center" mb="xl">
-          Uitgelichte Projecten
-        </Title>
+    <PageErrorBoundary>
+      <section style={{ 
+        background: 'linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.01) 100%)',
+        position: 'relative',
+        overflow: 'hidden',
+      }}>
+        {/* Decorative background element */}
+        <div style={{
+          position: 'absolute',
+          top: '20%',
+          right: '10%',
+          width: '300px',
+          height: '300px',
+          background: 'radial-gradient(circle, rgba(59, 130, 246, 0.03) 0%, transparent 70%)',
+          borderRadius: '50%',
+          filter: 'blur(60px)',
+          pointerEvents: 'none',
+        }} />
 
-        {/* Render de Client Component met de project data */}
-        <AnimatedProjectGrid projects={featuredProjects} />
+        <Container size="lg" py={{ base: 'xl', md: '3xl' }}>
+          {/* Animated project grid */}
+          <AnimatedProjectGrid 
+            projects={featuredProjects}
+            title="Uitgelichte Projecten"
+            description="Een selectie van mijn meest recente en interessante werk"
+            showTitle={true}
+          />
 
-        {/* Knop blijft hetzelfde */}
-        {totalProjectCount > featuredProjects.length && (
-          <Group justify="center" mt="xl">
-            <Button
-              component={Link}
-              href="/projects"
-              variant="outline"
-              size="md"
-              rightSection={<IconArrowRight size={16} />}
-            >
-              Bekijk alle projecten
-            </Button>
-          </Group>
-        )}
-      </Container>
-    </ErrorBoundary>
+          {/* Call-to-action section */}
+          {totalProjectCount > featuredProjects.length && (
+            <Box style={{ 
+              textAlign: 'center',
+              marginTop: 'var(--mantine-spacing-3xl)',
+              padding: 'var(--mantine-spacing-xl)',
+              borderRadius: 'var(--mantine-radius-lg)',
+              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.05))',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+            }}>
+              <Title order={3} size="h2" mb="md" c="gray.2">
+                Meer projecten bekijken?
+              </Title>
+              <Text c="dimmed" mb="xl" maw={400} mx="auto">
+                Ontdek alle {totalProjectCount} projecten in mijn portfolio en zie de volledige scope van mijn werk.
+              </Text>
+              
+              <Group justify="center" gap="md">
+                <Button
+                  component={Link}
+                  href="/projects"
+                  variant="gradient"
+                  gradient={{ from: 'blue.6', to: 'cyan.5' }}
+                  size="lg"
+                  radius="md"
+                  rightSection={<IconArrowRight size={18} />}
+                  style={{
+                    boxShadow: '0 4px 20px rgba(59, 130, 246, 0.2)',
+                  }}
+                >
+                  Alle Projecten
+                </Button>
+                
+                <Button
+                  component="a"
+                  href="https://github.com/Jeffreasy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  variant="outline"
+                  color="gray"
+                  size="lg"
+                  radius="md"
+                  leftSection={<IconBrandGithub size={18} />}
+                  style={{
+                    borderColor: 'rgba(255, 255, 255, 0.2)',
+                    color: 'var(--mantine-color-gray-2)',
+                  }}
+                >
+                  GitHub
+                </Button>
+              </Group>
+            </Box>
+          )}
+        </Container>
+      </section>
+    </PageErrorBoundary>
   );
 }
