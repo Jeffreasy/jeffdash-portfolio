@@ -7,11 +7,21 @@ import { redirect } from 'next/navigation';
 // import bcrypt from 'bcrypt'; // Verwijderd
 // import jwt from 'jsonwebtoken'; // Verwijderd
 import { createClient } from '@/lib/supabase/server'; // Importeer Supabase server client
+import { logger } from '@/lib/logger';
+
+// Rate limiting configuration
+const RATE_LIMIT = {
+  maxAttempts: 5,
+  windowMs: 15 * 60 * 1000, // 15 minutes
+};
+
+// In-memory store for rate limiting (in production, use Redis or similar)
+const loginAttempts = new Map<string, { count: number; resetTime: number }>();
 
 // Zod schema voor login formulier validatie
 const LoginSchema = z.object({
   email: z.string().email({ message: 'Ongeldig e-mailadres.' }),
-  password: z.string().min(1, { message: 'Wachtwoord is vereist.' }), // Min 1 is voldoende, Supabase valideert verder
+  password: z.string().min(1, { message: 'Wachtwoord is vereist.' }),
 });
 
 // Verwijderd: Interface JwtPayload
@@ -28,18 +38,67 @@ export type LoginState = {
   };
 };
 
-export async function loginUser(prevState: LoginState | undefined, formData: FormData): Promise<LoginState> {
-  console.log('Supabase Login action aangeroepen...');
-  const supabase = await createClient(); // Add await
+/**
+ * Check rate limit for an IP address
+ */
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const attempt = loginAttempts.get(ip);
 
-  // 1. Valideer formulier data
+  if (!attempt) {
+    loginAttempts.set(ip, { count: 1, resetTime: now + RATE_LIMIT.windowMs });
+    return true;
+  }
+
+  if (now > attempt.resetTime) {
+    loginAttempts.set(ip, { count: 1, resetTime: now + RATE_LIMIT.windowMs });
+    return true;
+  }
+
+  if (attempt.count >= RATE_LIMIT.maxAttempts) {
+    return false;
+  }
+
+  attempt.count++;
+  return true;
+}
+
+/**
+ * Get remaining attempts for an IP address
+ */
+function getRemainingAttempts(ip: string): number {
+  const attempt = loginAttempts.get(ip);
+  if (!attempt) return RATE_LIMIT.maxAttempts;
+  if (Date.now() > attempt.resetTime) return RATE_LIMIT.maxAttempts;
+  return Math.max(0, RATE_LIMIT.maxAttempts - attempt.count);
+}
+
+export async function loginUser(prevState: LoginState | undefined, formData: FormData): Promise<LoginState> {
+  logger.info('Login attempt initiated');
+  const supabase = await createClient();
+
+  // Get client IP (in production, use proper IP detection)
+  const ip = '127.0.0.1'; // Placeholder, replace with actual IP detection
+
+  // Check rate limit
+  if (!checkRateLimit(ip)) {
+    const remainingTime = Math.ceil((loginAttempts.get(ip)?.resetTime || 0 - Date.now()) / 1000 / 60);
+    logger.warn('Rate limit exceeded', { ip, remainingTime });
+    return {
+      success: false,
+      message: `Te veel inlogpogingen. Probeer het over ${remainingTime} minuten opnieuw.`,
+      errors: { general: ['Rate limit exceeded'] },
+    };
+  }
+
+  // Validate form data
   const validatedFields = LoginSchema.safeParse({
     email: formData.get('email'),
     password: formData.get('password'),
   });
 
   if (!validatedFields.success) {
-    console.log('Validatie gefaald:', validatedFields.error.flatten().fieldErrors);
+    logger.warn('Login validation failed', { errors: validatedFields.error.flatten().fieldErrors });
     return {
       success: false,
       message: 'Validatiefout',
@@ -48,55 +107,52 @@ export async function loginUser(prevState: LoginState | undefined, formData: For
   }
 
   const { email, password } = validatedFields.data;
-  console.log(`Attempting Supabase login for email: ${email}`);
+  logger.info('Attempting login', { email });
 
-  // Verwijderd: Check voor JWT_SECRET
+  try {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-  // 2. Roep Supabase signInWithPassword aan
-  const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
+    if (error) {
+      logger.error('Login failed', { error: error.message });
+      const remainingAttempts = getRemainingAttempts(ip);
+      return {
+        success: false,
+        message: `Ongeldige inloggegevens. Nog ${remainingAttempts} pogingen over.`,
+        errors: { general: ['Ongeldige inloggegevens'] },
+      };
+    }
 
-  // 3. Handel errors af
-  if (error) {
-    console.error('Supabase login error:', error.message);
-    // TODO: Geef specifiekere feedback op basis van error.message indien gewenst
+    logger.info('Login successful', { email });
+    redirect('/admin_area/dashboard');
+  } catch (error) {
+    logger.error('Unexpected error during login', { error });
     return {
       success: false,
-      message: 'Ongeldige inloggegevens of serverfout.', // Algemeen bericht
-      errors: { general: ['Ongeldige inloggegevens of er is iets misgegaan.'] },
+      message: 'Er is een onverwachte fout opgetreden.',
+      errors: { general: ['Server error'] },
     };
   }
-
-  // --- AUTHENTICATIE SUCCESVOL ---
-  console.log('Supabase authenticatie succesvol voor:', email);
-  // Supabase/@supabase/ssr handelt het zetten van de sessie cookie af.
-
-  // Verwijderd: Genereer JWT
-  // Verwijderd: Zet JWT cookie
-
-  // 4. Redirect naar het admin dashboard
-  // Redirect MOET buiten try/catch of na een succesvolle operatie gebeuren in Server Actions
-  redirect('/admin_area/dashboard');
-
-  // Verwijderd: Oude try/catch block
 }
-
 
 // Actie om de gebruiker uit te loggen
 export async function logoutUser() {
-  console.log('Supabase Logout action aangeroepen...');
-  const supabase = await createClient(); // Add await
+  logger.info('Logout initiated');
+  const supabase = await createClient();
 
-  // Roep Supabase signOut aan
-  const { error } = await supabase.auth.signOut();
-
-  if (error) {
-    console.error('Supabase logout error:', error.message);
-    // Probeer toch te redirecten, zelfs als signOut een onverwachte error geeft
-  } else {
-    console.log('Supabase sign out succesvol.');
+  try {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      logger.error('Logout error', { error: error.message });
+      // Continue with redirect even if there's an error
+    } else {
+      logger.info('Logout successful');
+    }
+  } catch (error) {
+    logger.error('Unexpected error during logout', { error });
+    // Continue with redirect even if there's an error
   }
 
   // Verwijderd: oude try/catch en cookie.delete
@@ -114,42 +170,42 @@ export async function logoutUser() {
 
 // Voorbeeld met Manier 2 (queryen User tabel):
 export async function validateAdminSession(): Promise<{ userId: string; role: string }> {
-  const supabase = await createClient(); // Add await
+  logger.info('Validating admin session');
+  const supabase = await createClient();
 
-  // 1. Haal huidige sessie op
-  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+  try {
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
-  if (sessionError || !session?.user) {
-    console.error('ValidateAdminSession: Sessie ophalen mislukt of geen gebruiker.', sessionError);
-    throw new Error('Unauthorized: Not logged in or session error.');
+    if (sessionError || !session?.user) {
+      logger.error('Session validation failed', { error: sessionError });
+      throw new Error('Unauthorized: Not logged in or session error.');
+    }
+
+    const userId = session.user.id;
+    logger.info('Session found', { userId });
+
+    const { data: userData, error: userError } = await supabase
+      .from('User')
+      .select('role')
+      .eq('id', userId)
+      .single();
+
+    if (userError || !userData) {
+      logger.error('User role fetch failed', { userId, error: userError });
+      throw new Error('Unauthorized: Could not verify user role.');
+    }
+
+    const userRole = userData.role;
+
+    if (userRole !== 'ADMIN') {
+      logger.warn('Insufficient role', { userId, role: userRole });
+      throw new Error('Forbidden: Insufficient role.');
+    }
+
+    logger.info('Admin session validated', { userId, role: userRole });
+    return { userId, role: userRole };
+  } catch (error) {
+    logger.error('Session validation error', { error });
+    throw error;
   }
-
-  const userId = session.user.id;
-
-  // 2. Query de User tabel om de rol op te halen
-  //    BELANGRIJK: Dit vereist RLS setup of het gebruik van de service_role client
-  //    Laten we aannemen dat RLS correct is ingesteld zodat een gebruiker zijn eigen rol kan lezen,
-  //    of dat we de service role key gebruiken indien nodig (complexer in server actions).
-  //    Voor nu gebruiken we de standaard server client. Pas aan indien nodig.
-  const { data: userData, error: userError } = await supabase
-    .from('User') // Ga uit van tabelnaam 'User'
-    .select('role')
-    .eq('id', userId)
-    .single(); // Verwacht één resultaat
-
-  if (userError || !userData) {
-    console.error(`ValidateAdminSession: Rol ophalen mislukt voor user ${userId}`, userError);
-    throw new Error('Unauthorized: Could not verify user role.');
-  }
-
-  const userRole = userData.role;
-
-  // 3. Check of de rol 'ADMIN' is
-  if (userRole !== 'ADMIN') {
-    console.warn(`ValidateAdminSession: User ${userId} heeft rol '${userRole}', geen ADMIN.`);
-    throw new Error('Forbidden: Insufficient role.');
-  }
-
-  console.log(`ValidateAdminSession: User ${userId} is ADMIN.`);
-  return { userId, role: userRole }; // Geef gevalideerde data terug
 } 

@@ -14,6 +14,29 @@ import streamifier from 'streamifier';
 import { validateAdminSession } from './auth'; // Importeer de Supabase-versie
 import { logger } from '@/lib/logger'; // <-- VOEG DEZE IMPORT TOE
 
+// Cache configuration
+const CACHE_CONFIG = {
+  ttl: 5 * 60 * 1000, // 5 minutes
+};
+
+// In-memory cache (in production, use Redis or similar)
+const cache = new Map<string, { data: any; timestamp: number }>();
+
+// Cache helper functions
+function getCached<T>(key: string): T | null {
+  const cached = cache.get(key);
+  if (!cached) return null;
+  if (Date.now() - cached.timestamp > CACHE_CONFIG.ttl) {
+    cache.delete(key);
+    return null;
+  }
+  return cached.data as T;
+}
+
+function setCached<T>(key: string, data: T): void {
+  cache.set(key, { data, timestamp: Date.now() });
+}
+
 // --- Type Definities (Vereenvoudigd - TODO: Verbeteren met Supabase types/interfaces) ---
 
 // Ga ervan uit dat tabelnamen overeenkomen met Prisma model namen: Project, ProjectImage

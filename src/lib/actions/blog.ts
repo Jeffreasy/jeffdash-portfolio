@@ -7,6 +7,29 @@ import { z } from 'zod';
 import { redirect } from 'next/navigation';
 import { validateAdminSession } from './auth';
 
+// Cache configuration
+const CACHE_CONFIG = {
+  ttl: 5 * 60 * 1000, // 5 minutes
+};
+
+// In-memory cache (in production, use Redis or similar)
+const cache = new Map<string, { data: any; timestamp: number }>();
+
+// Cache helper functions
+function getCached<T>(key: string): T | null {
+  const cached = cache.get(key);
+  if (!cached) return null;
+  if (Date.now() - cached.timestamp > CACHE_CONFIG.ttl) {
+    cache.delete(key);
+    return null;
+  }
+  return cached.data as T;
+}
+
+function setCached<T>(key: string, data: T): void {
+  cache.set(key, { data, timestamp: Date.now() });
+}
+
 // --- Types (Vereenvoudigd - TODO: Verbeteren) --- //
 
 // Basis interface voor een Post (pas aan op basis van tabel)
@@ -78,21 +101,34 @@ export type PostFormState = {
  * Haalt ALLE blog posts op voor de admin lijst.
  */
 export async function getPosts(): Promise<AdminPostListItemType[]> {
-  logger.info('Fetching all posts for admin list with Supabase');
+  const cacheKey = 'admin_posts_list';
+  const cached = getCached<AdminPostListItemType[]>(cacheKey);
+  if (cached) {
+    logger.info('Returning cached admin posts list');
+    return cached;
+  }
+
+  logger.info('Fetching all posts for admin list');
   const supabase = await createClient();
+  
   try {
-    // TODO: Autorisatie check? - Aangenomen dat de pagina beveiligd is.
+    await validateAdminSession();
+    logger.info('Admin session validated for getPosts');
+
     const { data, error } = await supabase
-      .from('Post') // Tabelnaam 'Post'
-      .select('id, slug, title, category, published, publishedAt, createdAt') // Selecteer benodigde velden
+      .from('Post')
+      .select('id, slug, title, category, published, publishedAt, createdAt')
       .order('createdAt', { ascending: false });
 
     if (error) throw error;
 
+    setCached(cacheKey, data || []);
     return data || [];
   } catch (error: any) {
     logger.error('Failed to fetch posts for admin', { error: error.message || error });
-    return [];
+    throw new Error(error.message?.includes('Unauthorized') || error.message?.includes('Forbidden') 
+      ? error.message 
+      : 'Kon posts niet ophalen.');
   }
 }
 
@@ -100,29 +136,43 @@ export async function getPosts(): Promise<AdminPostListItemType[]> {
  * Haalt een enkele post op basis van de slug voor de admin bewerkpagina.
  */
 export async function getPostBySlugForAdmin(slug: string): Promise<FullAdminPostType | null> {
-  logger.info('Fetching post for admin edit with Supabase', { slug });
+  const cacheKey = `admin_post_${slug}`;
+  const cached = getCached<FullAdminPostType>(cacheKey);
+  if (cached) {
+    logger.info('Returning cached admin post', { slug });
+    return cached;
+  }
+
+  logger.info('Fetching post for admin edit', { slug });
   if (!slug) return null;
+  
   const supabase = await createClient();
 
   try {
-    // TODO: Autorisatie check?
+    await validateAdminSession();
+    logger.info('Admin session validated for getPostBySlugForAdmin', { slug });
+
     const { data, error } = await supabase
       .from('Post')
-      .select('*') // Haal alle velden op voor bewerken
+      .select('*')
       .eq('slug', slug)
       .single();
 
     if (error) {
-      if (error.code === 'PGRST116') { // Not found
-         logger.warn('Post not found for admin edit', { slug });
-         return null;
+      if (error.code === 'PGRST116') {
+        logger.warn('Post not found for admin edit', { slug });
+        return null;
       }
       throw error;
     }
+
+    setCached(cacheKey, data);
     return data;
   } catch (error: any) {
     logger.error('Failed to fetch post by slug for admin', { slug, error: error.message || error });
-    return null;
+    throw new Error(error.message?.includes('Unauthorized') || error.message?.includes('Forbidden')
+      ? error.message
+      : 'Kon post niet ophalen.');
   }
 }
 
@@ -130,13 +180,13 @@ export async function getPostBySlugForAdmin(slug: string): Promise<FullAdminPost
  * Verwijdert een blog post.
  */
 export async function deletePostAction(postId: string): Promise<{ success: boolean; message?: string }> {
-  logger.info('Attempting to delete post with Supabase', { postId });
+  logger.info('Attempting to delete post', { postId });
   const supabase = await createClient();
+  
   try {
     const session = await validateAdminSession();
     logger.info('Admin session validated for delete post action', { userId: session.userId });
 
-    // Verwijder de post
     const { error } = await supabase
       .from('Post')
       .delete()
@@ -144,21 +194,21 @@ export async function deletePostAction(postId: string): Promise<{ success: boole
 
     if (error) throw error;
 
+    // Clear relevant caches
+    cache.delete('admin_posts_list');
+    cache.delete(`admin_post_${postId}`);
+
     logger.info('Post successfully deleted', { postId, userId: session.userId });
     revalidatePath('/admin_area/posts');
     revalidatePath('/blog');
-    // TODO: Revalidate specifieke post pagina
-    // const postSlug = ??? // Slug is niet bekend hier, mogelijk apart ophalen of niet revalideren.
-    // if (postSlug) revalidatePath(`/blog/${postSlug}`);
     return { success: true, message: 'Blog post succesvol verwijderd.' };
-
   } catch (error: any) {
     logger.error('Failed to delete post', { postId, error: error.message || error });
     let errorMessage = 'Kon blog post niet verwijderen door een serverfout.';
-     if (error.message?.includes('Unauthorized') || error.message?.includes('Forbidden')) {
-         errorMessage = error.message;
+    if (error.message?.includes('Unauthorized') || error.message?.includes('Forbidden')) {
+      errorMessage = error.message;
     } else if (error.code === 'PGRST116') {
-         errorMessage = 'Blog post niet gevonden om te verwijderen.';
+      errorMessage = 'Blog post niet gevonden om te verwijderen.';
     }
     return { success: false, message: errorMessage };
   }
@@ -168,27 +218,23 @@ export async function deletePostAction(postId: string): Promise<{ success: boole
  * Maakt een nieuwe blog post aan.
  */
 export async function createPostAction(prevState: PostFormState | undefined, formData: FormData): Promise<PostFormState> {
-  logger.info('Create post action started with Supabase');
+  logger.info('Create post action started');
   const supabase = await createClient();
 
   try {
-    // Autorisatie
     const session = await validateAdminSession();
     logger.info('Admin session validated for create post action', { userId: session.userId });
 
-    // Validatie
     const validatedFields = PostSchema.safeParse(Object.fromEntries(formData));
     if (!validatedFields.success) {
       logger.warn('Post validation failed (create)', { errors: validatedFields.error.flatten().fieldErrors });
       return {
         success: false,
         message: 'Validatiefouten gevonden.',
-        // Gebruik Zod's error object direct (met spread)
-        errors: { ...validatedFields.error.flatten().fieldErrors }, // Herstel spread, verwijder assertie
+        errors: validatedFields.error.flatten().fieldErrors,
       };
     }
 
-    // Prepare data for Supabase (handle nulls)
     const { published, ...restData } = validatedFields.data;
     const postDataToInsert = {
       ...restData,
@@ -199,44 +245,39 @@ export async function createPostAction(prevState: PostFormState | undefined, for
       category: restData.category || null,
       metaTitle: restData.metaTitle || null,
       metaDescription: restData.metaDescription || null,
-      published: published,
-      // Zet publishedAt alleen als de post gepubliceerd wordt
+      published,
       publishedAt: published ? new Date().toISOString() : null,
-      // createdAt en updatedAt worden beheerd door de database (als DEFAULT is ingesteld)
-      // Anders moeten we ze hier toevoegen:
-      // createdAt: new Date().toISOString(),
-      // updatedAt: new Date().toISOString(),
     };
 
-
-    // Database Insert
-    logger.info('Attempting to insert post into Supabase', { slug: postDataToInsert.slug });
+    logger.info('Attempting to insert post', { slug: postDataToInsert.slug });
     const { data: newPost, error: insertError } = await supabase
       .from('Post')
       .insert(postDataToInsert)
-      .select('id, slug') // Vraag id en slug terug
+      .select('id, slug')
       .single();
 
     if (insertError || !newPost) {
-      logger.error('Supabase insert error Post:', { error: insertError });
+      logger.error('Post insert error', { error: insertError });
       if (insertError?.code === '23505' && insertError?.message.includes('Post_slug_key')) {
-         return {
-           success: false,
-           message: 'De opgegeven slug bestaat al.',
-           errors: { slug: ['Deze slug is al in gebruik.'] }
-         };
+        return {
+          success: false,
+          message: 'De opgegeven slug bestaat al.',
+          errors: { slug: ['Deze slug is al in gebruik.'] }
+        };
       }
       throw insertError || new Error('Kon post niet aanmaken in database.');
     }
 
+    // Clear relevant caches
+    cache.delete('admin_posts_list');
+
     logger.info('Post successfully created', { postId: newPost.id, slug: newPost.slug, userId: session.userId });
     const newPostSlug = newPost.slug;
 
-    // Revalidate paths
     revalidatePath('/admin_area/posts');
     if (published) {
-        revalidatePath('/blog');
-        revalidatePath(`/blog/${newPostSlug}`);
+      revalidatePath('/blog');
+      revalidatePath(`/blog/${newPostSlug}`);
     }
 
     return {
@@ -244,13 +285,12 @@ export async function createPostAction(prevState: PostFormState | undefined, for
       message: 'Blog post succesvol aangemaakt!',
       postSlug: newPostSlug,
     };
-
   } catch (error: any) {
     logger.error('Failed to create post', { error: error.message || error });
     return {
       success: false,
-      message: error.message || 'Kon post niet aanmaken door een serverfout.',
-      errors: { general: [error.message || 'Serverfout.'] },
+      message: 'Er is een fout opgetreden bij het aanmaken van de post.',
+      errors: { general: ['Server error'] }
     };
   }
 }

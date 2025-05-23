@@ -20,79 +20,187 @@ interface ContactSubmission {
 // --- EXPORT type ---
 export type ContactSubmissionType = ContactSubmission; // Gebruik de nieuwe interface
 
-// Zod schema voor het valideren van het formulier (Frontend)
+// Rate limiting configuration
+const RATE_LIMIT_CONFIG = {
+  maxAttempts: 5,
+  windowMs: 60 * 60 * 1000, // 1 hour
+};
+
+// In-memory store for rate limiting
+const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
+
+// Rate limit helper functions
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const record = rateLimitStore.get(ip);
+
+  if (!record) {
+    rateLimitStore.set(ip, { count: 1, resetTime: now + RATE_LIMIT_CONFIG.windowMs });
+    return true;
+  }
+
+  if (now > record.resetTime) {
+    rateLimitStore.set(ip, { count: 1, resetTime: now + RATE_LIMIT_CONFIG.windowMs });
+    return true;
+  }
+
+  if (record.count >= RATE_LIMIT_CONFIG.maxAttempts) {
+    return false;
+  }
+
+  record.count++;
+  return true;
+}
+
+function getRemainingAttempts(ip: string): number {
+  const record = rateLimitStore.get(ip);
+  if (!record) return RATE_LIMIT_CONFIG.maxAttempts;
+  if (Date.now() > record.resetTime) return RATE_LIMIT_CONFIG.maxAttempts;
+  return Math.max(0, RATE_LIMIT_CONFIG.maxAttempts - record.count);
+}
+
+// Zod schema for contact form validation
 const ContactFormSchema = z.object({
   name: z.string().min(2, { message: 'Naam moet minimaal 2 tekens bevatten.' }),
-  email: z.string().email({ message: 'Voer een geldig e-mailadres in.' }),
+  email: z.string().email({ message: 'Ongeldig e-mailadres.' }),
+  subject: z.string().min(3, { message: 'Onderwerp moet minimaal 3 tekens bevatten.' }),
   message: z.string().min(10, { message: 'Bericht moet minimaal 10 tekens bevatten.' }),
 });
 
-// Type voor de state van de submit actie
+// Type for the state of the contact form
 export type ContactFormState = {
   success: boolean;
   message?: string;
-  // Correct type for errors
   errors?: Partial<Record<keyof z.infer<typeof ContactFormSchema>, string[]>> & { general?: string[] };
 };
 
-// Server Action voor het verwerken van het contactformulier
+/**
+ * Handles the submission of a contact form.
+ */
 export async function submitContactForm(prevState: ContactFormState | undefined, formData: FormData): Promise<ContactFormState> {
-  logger.info('Contact form submission initiated with Supabase');
+  logger.info('Contact form submission started');
   const supabase = await createClient();
 
-  const validatedFields = ContactFormSchema.safeParse({
-    name: formData.get('name'),
-    email: formData.get('email'),
-    message: formData.get('message'),
-  });
-
-  if (!validatedFields.success) {
-    logger.warn('Contact form validation failed', { errors: validatedFields.error.flatten().fieldErrors });
-    return {
-      success: false,
-      message: 'Validatiefouten gevonden.',
-      // Gebruik Zod's error object direct
-      errors: { ...validatedFields.error.flatten().fieldErrors },
-    };
-  }
-
   try {
-    logger.info('Saving contact submission to Supabase database', { email: validatedFields.data.email });
-    
-    // Genereer een unieke ID voor de inzending
-    const submissionId = crypto.randomUUID();
+    // Get client IP (in production, replace with actual IP detection)
+    const clientIp = '127.0.0.1'; // TODO: Replace with actual IP detection
 
-    // Insert data into Supabase, inclusief de gegenereerde ID
-    const { error } = await supabase
-      .from('ContactSubmission')
-      .insert([
-        {
-          id: submissionId,
-          name: validatedFields.data.name,
-          email: validatedFields.data.email,
-          message: validatedFields.data.message,
-          // isRead en createdAt worden door DB defaults afgehandeld
-        }
-      ]);
-
-    if (error) {
-        logger.error('Supabase insert error ContactSubmission', { error });
-        throw error; // Gooi error door naar catch block
+    // Check rate limit
+    if (!checkRateLimit(clientIp)) {
+      const remainingTime = Math.ceil((rateLimitStore.get(clientIp)?.resetTime || 0 - Date.now()) / 1000 / 60);
+      logger.warn('Rate limit exceeded for contact form', { clientIp, remainingTime });
+      return {
+        success: false,
+        message: `Te veel pogingen. Probeer het over ${remainingTime} minuten opnieuw.`,
+        errors: { general: ['Rate limit exceeded'] }
+      };
     }
 
-    logger.info('Contact submission successfully saved', { submissionId });
+    // Validate form data
+    const validatedFields = ContactFormSchema.safeParse(Object.fromEntries(formData));
+    if (!validatedFields.success) {
+      logger.warn('Contact form validation failed', { errors: validatedFields.error.flatten().fieldErrors });
+      return {
+        success: false,
+        message: 'Validatiefouten gevonden.',
+        errors: validatedFields.error.flatten().fieldErrors,
+      };
+    }
 
-    // TODO: Stuur eventueel een e-mail notificatie
+    // Insert into database
+    const { error } = await supabase
+      .from('Contact')
+      .insert({
+        ...validatedFields.data,
+        status: 'new',
+        createdAt: new Date().toISOString(),
+      });
 
-    return { success: true, message: 'Bedankt voor je bericht! Ik neem zo snel mogelijk contact op.' };
+    if (error) throw error;
 
+    logger.info('Contact form successfully submitted', { clientIp });
+    revalidatePath('/contact');
+    return {
+      success: true,
+      message: 'Bericht succesvol verzonden! We nemen zo snel mogelijk contact met je op.',
+    };
   } catch (error: any) {
-    logger.error('Failed to save contact submission', { error: error.message || error });
+    logger.error('Failed to submit contact form', { error: error.message || error });
     return {
       success: false,
-      message: 'Er is een serverfout opgetreden bij het versturen van het formulier. Probeer het later opnieuw.',
-      errors: { general: ['Serverfout.'] } // Voeg general error toe
+      message: 'Er is een fout opgetreden bij het verzenden van het bericht.',
+      errors: { general: ['Server error'] }
     };
+  }
+}
+
+/**
+ * Gets all contact messages for the admin area.
+ */
+export async function getContactMessages() {
+  logger.info('Fetching contact messages for admin');
+  const supabase = await createClient();
+
+  try {
+    const { data, error } = await supabase
+      .from('Contact')
+      .select('*')
+      .order('createdAt', { ascending: false });
+
+    if (error) throw error;
+
+    return data || [];
+  } catch (error: any) {
+    logger.error('Failed to fetch contact messages', { error: error.message || error });
+    throw new Error('Kon contactberichten niet ophalen.');
+  }
+}
+
+/**
+ * Updates the status of a contact message.
+ */
+export async function updateContactStatus(messageId: string, newStatus: 'new' | 'read' | 'replied' | 'archived') {
+  logger.info('Updating contact message status', { messageId, newStatus });
+  const supabase = await createClient();
+
+  try {
+    const { error } = await supabase
+      .from('Contact')
+      .update({ status: newStatus, updatedAt: new Date().toISOString() })
+      .eq('id', messageId);
+
+    if (error) throw error;
+
+    logger.info('Contact message status updated', { messageId, newStatus });
+    revalidatePath('/admin_area/contact');
+    return { success: true, message: 'Status succesvol bijgewerkt.' };
+  } catch (error: any) {
+    logger.error('Failed to update contact message status', { messageId, newStatus, error: error.message || error });
+    return { success: false, message: 'Kon status niet bijwerken.' };
+  }
+}
+
+/**
+ * Deletes a contact message.
+ */
+export async function deleteContactMessage(messageId: string) {
+  logger.info('Deleting contact message', { messageId });
+  const supabase = await createClient();
+
+  try {
+    const { error } = await supabase
+      .from('Contact')
+      .delete()
+      .eq('id', messageId);
+
+    if (error) throw error;
+
+    logger.info('Contact message deleted', { messageId });
+    revalidatePath('/admin_area/contact');
+    return { success: true, message: 'Bericht succesvol verwijderd.' };
+  } catch (error: any) {
+    logger.error('Failed to delete contact message', { messageId, error: error.message || error });
+    return { success: false, message: 'Kon bericht niet verwijderen.' };
   }
 }
 
