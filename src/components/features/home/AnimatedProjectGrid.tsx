@@ -5,6 +5,7 @@ import { SimpleGrid } from '@mantine/core';
 import { motion } from 'framer-motion';
 import ProjectCard from '../projects/ProjectCard'; // Importeren van de kaart
 import type { FeaturedProjectType } from '@/lib/actions/projects'; // Importeren van het type
+import ErrorBoundary from './ErrorBoundary';
 
 // Definieer de animatie varianten hier (zelfde als voorheen)
 const containerVariants = {
@@ -36,24 +37,37 @@ interface AnimatedProjectGridProps {
 }
 
 export default function AnimatedProjectGrid({ projects }: AnimatedProjectGridProps) {
+  // Valideer projects array
+  if (!Array.isArray(projects)) {
+    throw new Error('Projects must be an array');
+  }
+
   return (
-    <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, amount: 0.2 }}
-    >
-      <SimpleGrid
-        cols={{ base: 1, sm: 2, md: 3 }}
-        spacing="xl"
+    <ErrorBoundary>
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.2 }}
       >
-        {projects.map((project) => (
-          <motion.div key={project.id} variants={itemVariants}>
-            {/* ProjectCard bevat nu zelf de hover/interactie animaties */}
-            <ProjectCard project={project} />
-          </motion.div>
-        ))}
-      </SimpleGrid>
-    </motion.div>
+        <SimpleGrid
+          cols={{ base: 1, sm: 2, md: 3 }}
+          spacing="xl"
+        >
+          {projects.map((project) => (
+            <motion.div 
+              key={project.id} 
+              variants={itemVariants}
+              // Voeg error handling toe voor individuele project cards
+              onError={(e) => {
+                console.error(`Error rendering project card ${project.id}:`, e);
+              }}
+            >
+              <ProjectCard project={project} />
+            </motion.div>
+          ))}
+        </SimpleGrid>
+      </motion.div>
+    </ErrorBoundary>
   );
 } 

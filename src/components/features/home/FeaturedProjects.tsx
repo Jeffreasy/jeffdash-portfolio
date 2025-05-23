@@ -8,6 +8,7 @@ import { getFeaturedProjects, FeaturedProjectType } from '@/lib/actions/projects
 // Verwijder motion import
 // Importeer de nieuwe client component voor de animatie
 import AnimatedProjectGrid from './AnimatedProjectGrid';
+import ErrorBoundary from './ErrorBoundary';
 
 // Verwijder animatie varianten hier
 
@@ -27,28 +28,30 @@ export default async function FeaturedProjects() {
 
   // --- Render Logic --- (Wel data? Toon titel, grid en knop)
   return (
-    <Container size="lg" py={{ base: 'xl', sm: 'calc(var(--mantine-spacing-xl) * 2)' }}>
-      <Title order={2} ta="center" mb="xl">
-        Uitgelichte Projecten
-      </Title>
+    <ErrorBoundary>
+      <Container size="lg" py={{ base: 'xl', sm: 'calc(var(--mantine-spacing-xl) * 2)' }}>
+        <Title order={2} ta="center" mb="xl">
+          Uitgelichte Projecten
+        </Title>
 
-      {/* Render de Client Component met de project data */}
-      <AnimatedProjectGrid projects={featuredProjects} />
+        {/* Render de Client Component met de project data */}
+        <AnimatedProjectGrid projects={featuredProjects} />
 
-      {/* Knop blijft hetzelfde */}
-      {totalProjectCount > featuredProjects.length && (
-        <Group justify="center" mt="xl">
-          <Button
-            component={Link}
-            href="/projects"
-            variant="outline"
-            size="md"
-            rightSection={<IconArrowRight size={16} />}
-          >
-            Bekijk alle projecten
-          </Button>
-        </Group>
-      )}
-    </Container>
+        {/* Knop blijft hetzelfde */}
+        {totalProjectCount > featuredProjects.length && (
+          <Group justify="center" mt="xl">
+            <Button
+              component={Link}
+              href="/projects"
+              variant="outline"
+              size="md"
+              rightSection={<IconArrowRight size={16} />}
+            >
+              Bekijk alle projecten
+            </Button>
+          </Group>
+        )}
+      </Container>
+    </ErrorBoundary>
   );
 }
