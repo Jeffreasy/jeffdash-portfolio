@@ -12,4 +12,4 @@ export { default as ImageGallery } from './ImageGallery';
 export { default as TestimonialSlider } from './TestimonialSlider';
 
 // Type exports
-export type { default as FeaturedProjectType } from '@/lib/actions/projects'; 
+export type { FeaturedProjectType } from '@/lib/actions/projects'; 
