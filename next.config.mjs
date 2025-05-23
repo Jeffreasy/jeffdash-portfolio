@@ -21,7 +21,9 @@ const nextConfig = {
   // Voeg deze configuratie toe voor dynamische routes
   output: 'standalone',
   experimental: {
-    serverActions: true,
+    serverActions: {
+      allowedOrigins: ['localhost:3000', 'jeffdash-portfolio.vercel.app'],
+    },
   },
 };
 

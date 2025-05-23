@@ -43,7 +43,7 @@ export async function createClient() {
   
   for (let attempt = 0; attempt < RETRY_CONFIG.maxRetries; attempt++) {
     try {
-      const cookieStore = cookies()
+      const cookieStore = await cookies()
       
       const client = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
