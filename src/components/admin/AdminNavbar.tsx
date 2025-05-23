@@ -9,6 +9,7 @@ import {
   IconClipboardList,
   IconFileText,
   IconMessages,
+  IconUser,
   IconLogout,
 } from '@tabler/icons-react';
 import { logoutUser } from '@/lib/actions/auth';
@@ -19,6 +20,7 @@ const navLinks = [
   { icon: IconClipboardList, label: 'Projecten', href: '/admin_area/projects' },
   { icon: IconFileText, label: 'Posts', href: '/admin_area/posts' },
   { icon: IconMessages, label: 'Contact Berichten', href: '/admin_area/contacts' },
+  { icon: IconUser, label: 'About Content', href: '/admin_area/about' },
 ];
 
 export default function AdminNavbar() {

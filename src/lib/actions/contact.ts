@@ -13,7 +13,7 @@ interface ContactSubmission {
     name: string;
     email: string;
     message: string;
-    isRead: boolean;
+    isRead: boolean; // Supabase kan dit als string of boolean geven
     createdAt: string; // Timestamp als string
 }
 
@@ -73,6 +73,14 @@ export type ContactFormState = {
   message?: string;
   errors?: Partial<Record<keyof z.infer<typeof ContactFormSchema>, string[]>> & { general?: string[] };
 };
+
+// Helper functie om isRead correct te converteren
+function normalizeContactSubmission(submission: any): ContactSubmissionType {
+  return {
+    ...submission,
+    isRead: submission.isRead === true || submission.isRead === 'true' || submission.isRead === 't'
+  };
+}
 
 /**
  * Handles the submission of a contact form.
@@ -213,7 +221,7 @@ export async function getContactSubmissions(): Promise<ContactSubmissionType[]> 
   logger.info('Fetching all contact submissions for admin with Supabase');
   const supabase = await createClient();
   try {
-    await validateAdminSession(); // Check admin rights
+    await validateAdminSession(); // Check admin rights - Re-enabled after RLS fix
     logger.info('Admin session validated for getContactSubmissions');
 
     const { data, error } = await supabase
@@ -224,7 +232,9 @@ export async function getContactSubmissions(): Promise<ContactSubmissionType[]> 
     if (error) throw error;
 
     logger.info(`Fetched ${data?.length ?? 0} contact submissions`);
-    return data || [];
+    // Normalize the data to ensure isRead is a proper boolean
+    const normalizedData = (data || []).map(normalizeContactSubmission);
+    return normalizedData;
   } catch (error: any) {
     logger.error('Failed to fetch contact submissions', { error: error.message || error });
     throw new Error(error.message?.includes('Unauthorized') || error.message?.includes('Forbidden') ? error.message : 'Kon inzendingen niet ophalen.');
@@ -238,7 +248,7 @@ export async function toggleSubmissionReadStatus(submissionId: string): Promise<
   logger.info('Toggling read status for submission with Supabase', { submissionId });
   const supabase = await createClient();
   try {
-    const session = await validateAdminSession();
+    const session = await validateAdminSession(); // Re-enabled after RLS fix
     logger.info('Admin session validated for toggling read status', { userId: session.userId, submissionId });
 
     // Haal huidige status op
@@ -290,7 +300,7 @@ export async function deleteContactSubmission(submissionId: string): Promise<{ s
   logger.info('Attempting to delete contact submission with Supabase', { submissionId });
   const supabase = await createClient();
   try {
-    const session = await validateAdminSession();
+    const session = await validateAdminSession(); // Re-enabled after RLS fix
     logger.info('Admin session validated for delete submission action', { userId: session.userId, submissionId });
 
     const { error } = await supabase

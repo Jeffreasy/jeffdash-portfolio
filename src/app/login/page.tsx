@@ -1,35 +1,54 @@
-'use client'; // Nodig voor formulier interactie
+'use client';
 
-import React, { useActionState } from 'react';
-import { useFormStatus } from 'react-dom';
+import React, { useState, useTransition } from 'react';
 import { Title, Paper, TextInput, PasswordInput, Button, Stack, Alert } from '@mantine/core';
 import { IconInfoCircle } from '@tabler/icons-react';
-import { loginUser, type LoginState } from '@/lib/actions/auth'; // Importeer de action en state type
-
-// Aparte component voor de submit knop om useFormStatus te gebruiken
-function SubmitButton() {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" fullWidth mt="xl" loading={pending}>
-      Inloggen
-    </Button>
-  );
-}
+import { loginUser, type LoginState } from '@/lib/actions/auth';
+import { useRouter } from 'next/navigation';
 
 export default function AdminLoginPage() {
-  const initialState: LoginState = { success: false };
-  const [state, formAction] = useActionState(loginUser, initialState);
+  const [state, setState] = useState<LoginState>({ success: false });
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+
+  const handleSubmit = async (formData: FormData) => {
+    startTransition(async () => {
+      try {
+        const result = await loginUser(undefined, formData);
+        setState(result);
+        
+        if (result.success) {
+          // Login successful, redirect will be handled by the server action
+          router.push('/admin_area/dashboard');
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        setState({
+          success: false,
+          message: 'Er is een onverwachte fout opgetreden.',
+          errors: { general: ['Client-side error'] }
+        });
+      }
+    });
+  };
 
   return (
     <Paper withBorder shadow="md" p={30} mt={30} radius="md" style={{ maxWidth: 420, margin: 'auto' }}>
       <Title ta="center" order={2} mb="xl">
         Admin Login
       </Title>
-      <form action={formAction}> {/* Gebruik formAction hier */}
+      <form action={handleSubmit}>
         <Stack>
           {/* Toon algemene foutmelding */}
-          {state?.message && !state.success && state.errors?.general && (
+          {state?.message && !state.success && (
             <Alert icon={<IconInfoCircle size="1rem" />} title="Login Fout" color="red" variant="light">
+              {state.message}
+            </Alert>
+          )}
+
+          {/* Toon specifieke field errors */}
+          {state?.errors?.general && (
+            <Alert icon={<IconInfoCircle size="1rem" />} title="Fout" color="red" variant="light">
               {state.errors.general.join(', ')}
             </Alert>
           )}
@@ -41,6 +60,7 @@ export default function AdminLoginPage() {
             name="email"
             type="email"
             error={state?.errors?.email?.join(', ')}
+            disabled={isPending}
           />
           <PasswordInput
             label="Wachtwoord"
@@ -48,12 +68,20 @@ export default function AdminLoginPage() {
             required
             name="password"
             error={state?.errors?.password?.join(', ')}
+            disabled={isPending}
           />
-          <SubmitButton /> {/* Gebruik de aparte knop component */}
+          <Button type="submit" fullWidth mt="xl" loading={isPending}>
+            Inloggen
+          </Button>
         </Stack>
       </form>
-      {/* Debugging: toon state */}
-      {/* {state && <pre>{JSON.stringify(state, null, 2)}</pre>} */}
+      
+      {/* Debug info - remove in production */}
+      {process.env.NODE_ENV === 'development' && state && (
+        <pre style={{ fontSize: '10px', marginTop: '1rem', background: '#f5f5f5', padding: '0.5rem' }}>
+          {JSON.stringify(state, null, 2)}
+        </pre>
+      )}
     </Paper>
   );
 } 
