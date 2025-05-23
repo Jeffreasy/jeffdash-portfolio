@@ -2,6 +2,8 @@ import React from 'react';
 import { Title, SimpleGrid, Container, Button, Group } from '@mantine/core';
 import Link from 'next/link';
 import { IconArrowRight } from '@tabler/icons-react';
+import { Metadata } from 'next';
+import { SITE_CONFIG } from '@/lib/config';
 
 // Importeer de daadwerkelijke sectie componenten
 import HeroSection from '@/components/features/home/HeroSection';
@@ -15,6 +17,34 @@ import BlogPostCard from '@/components/features/blog/BlogPostCard';
 
 // Importeer profielfoto action
 import { getProfilePicture } from '@/lib/actions/content';
+
+// --- SEO Metadata --- //
+export const metadata: Metadata = {
+  title: `${SITE_CONFIG.name} - Webontwikkelaar & Portfolio`,
+  description: 'Jeffrey Lavente - Gepassioneerde webontwikkelaar gespecialiseerd in moderne technologieën zoals Next.js, React, TypeScript. Bekijk mijn projecten en expertise.',
+  keywords: ['Jeffrey Lavente', 'webontwikkelaar', 'portfolio', 'Next.js', 'React', 'TypeScript', 'webontwikkeling', 'fullstack developer'],
+  alternates: {
+    canonical: SITE_CONFIG.url,
+  },
+  openGraph: {
+    title: `${SITE_CONFIG.name} - Webontwikkelaar & Portfolio`,
+    description: 'Jeffrey Lavente - Gepassioneerde webontwikkelaar gespecialiseerd in moderne technologieën. Bekijk mijn projecten en expertise.',
+    url: SITE_CONFIG.url,
+    siteName: SITE_CONFIG.name,
+    type: 'website',
+    locale: 'nl_NL',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: `${SITE_CONFIG.name} - Webontwikkelaar & Portfolio`,
+    description: 'Jeffrey Lavente - Gepassioneerde webontwikkelaar gespecialiseerd in moderne technologieën.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  category: 'technology',
+};
 
 // Mark the page as dynamic
 export const dynamic = 'force-dynamic';

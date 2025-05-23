@@ -30,8 +30,8 @@ const nextConfig = {
     serverActions: {
       allowedOrigins: ['localhost:3000', 'jeffdash-portfolio.vercel.app'],
     },
-    // Reduce webpack cache issues
-    webpackBuildWorker: true,
+    // Disable webpackBuildWorker due to module resolution issues
+    // webpackBuildWorker: true,
   },
   // Webpack optimizations to reduce cache warnings
   webpack: (config, { isServer, dev }) => {
