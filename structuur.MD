@@ -1,129 +1,172 @@
+# Project Structuur Overzicht
+
+## Configuratie & Root Bestanden
+
+```
 jeffdash-portfolio/
 ├── .env                  # Lokale environment variabelen (DATABASE_URL, etc.) - NIET IN GIT!
+├── .env.development.local # Lokale dev environment variabelen (SUPABASE_URL, etc.) - NIET IN GIT!
 ├── .gitignore            # Bestanden/mappen te negeren door Git
+├── .npmrc                # Configuratie voor pnpm
+├── next-env.d.ts         # Next.js TypeScript declaraties
 ├── next.config.mjs       # Next.js configuratie
-├── package.json          # Project dependencies en scripts
+├── package.json          # Project dependencies en scripts (pnpm gebruikt)
+├── pnpm-lock.yaml        # Exacte dependency versies voor pnpm
+├── .pnpm.builds.json     # pnpm build informatie (automatisch gegenereerd)
 ├── postcss.config.js     # PostCSS configuratie (voor Tailwind)
 ├── tailwind.config.ts    # Tailwind CSS configuratie
 ├── tsconfig.json         # TypeScript configuratie
-├── README.md             # Project documentatie
+├── README.md             # Algemene project documentatie
+├── structuur.MD          # Dit bestand (project structuur)
+├── SOFTWARE_DEVELOPMENT_GUIDE.md # Richtlijnen voor ontwikkeling
+├── Frontend.MD           # Documentatie specifiek voor Frontend
+├── backend.MD            # Documentatie specifiek voor Backend
+└── nextjsdoc.md          # Documentatie specifiek voor Next.js
+```
 
-├── prisma/                # Prisma ORM configuratie en migraties
-│   ├── schema.prisma      # Database schema (incl. SEO velden)
-│   ├── migrations/        # Database migratie historie
-│   └── seed.ts            # (Optioneel) Database seeding script
+## Scripts
 
-├── public/                # Statische bestanden
-│   ├── images/            # Statische afbeeldingen (logo, etc.)
-│   ├── fonts/             # Lettertype bestanden
-│   ├── favicon.ico        # Favicon (standaard)
-│   ├── icon.png           # Favicon (Next.js conventie)
-│   ├── apple-icon.png     # Favicon voor Apple devices (Next.js conventie)
-│   └── manifest.json      # (Optioneel) Web App Manifest voor PWA
+```
+├── scripts/               # Hulpscripts voor ontwikkeling
+│   └── CreateAccountScript/ # Script(s) voor het aanmaken van accounts
+│       └── create-admin.mjs # Script voor het aanmaken van een admin account
+```
 
-└── src/                   # Hoofdmap voor broncode
-    ├── app/               # Next.js App Router
-    │   ├── (admin)/         # Route group voor admin sectie (optioneel)
-    │   │   ├── dashboard/
-    │   │   │   └── page.tsx
-    │   │   ├── login/
-    │   │   │   └── page.tsx
-    │   │   └── layout.tsx     # Specifieke layout voor admin (evt. met 'noindex')
-    │   │
-    │   ├── (pages)/         # Route group voor publieke pagina's
-    │   │   ├── page.tsx                  # Homepage (/)
-    │   │   ├── about/
-    │   │   │   ├── page.tsx              # About page (/about)
-    │   │   │   └── opengraph-image.tsx   # (Optioneel) OG image voor /about
+## Publieke Assets
+
+```
+├── public/                # Statische bestanden direct toegankelijk via de browser
+│   ├── apple-icon.png     # App icon voor Apple (Next.js conventie)
+│   ├── favicon.ico        # Standaard favicon
+│   ├── icon.png           # App icon (Next.js conventie)
+│   └── manifest.json      # Web App Manifest
+```
+
+## Broncode (src)
+
+```
+└── src/                   # Hoofdmap voor alle applicatiecode
+```
+
+### `src/app/` - Routing & Pagina's (Next.js App Router)
+
+```
+    ├── app/               # Implementatie van routes, layouts en pagina's
+    │   ├── admin_area/      # Route group voor admin sectie
+    │   │   ├── layout.tsx     # Admin layout (MET authenticatie check, sidebar/navigatie)
     │   │   │
-    │   │   ├── blog/
-    │   │   │   ├── page.tsx              # Blog lijst (/blog)
-    │   │   │   └── [slug]/
-    │   │   │       ├── page.tsx          # Individuele blog post (/blog/[slug])
-    │   │   │       └── opengraph-image.tsx # Dynamische OG image voor blog posts
+    │   │   ├── dashboard/     # Admin dashboard
+    │   │   │   └── page.tsx   #   Overzicht, statistieken, etc.
     │   │   │
-    │   │   ├── contact/
-    │   │   │   └── page.tsx              # Contact pagina (/contact)
+    │   │   ├── projects/      # Projecten Beheer
+    │   │   │   ├── page.tsx   #   Lijst van alle projecten (met links naar new/edit)
+    │   │   │   ├── new/       #   Pagina voor nieuw project formulier
+    │   │   │   │   └── page.tsx
+    │   │   │   └── [slug]/    #   Pagina voor project bewerken formulier (dynamische route)
+    │   │   │       └── page.tsx
     │   │   │
-    │   │   ├── projects/
-    │   │   │   ├── page.tsx              # Project lijst (/projects)
-    │   │   │   └── [slug]/
-    │   │   │       ├── page.tsx          # Individueel project (/projects/[slug])
-    │   │   │       └── opengraph-image.tsx # Dynamische OG image voor projecten
+    │   │   ├── posts/         # Blog Posts Beheer
+    │   │   │   ├── page.tsx   #   Lijst van alle blog posts (met links naar new/edit)
+    │   │   │   ├── new/       #   Pagina voor nieuwe post formulier
+    │   │   │   │   └── page.tsx
+    │   │   │   └── [slug]/    #   Pagina voor post bewerken formulier (dynamische route)
+    │   │   │       └── page.tsx
     │   │   │
-    │   │   └── layout.tsx                # Gedeelde layout voor publieke pagina's
+    │   │   ├── contacts/      # Contact Formulier Inzendingen
+    │   │   │   └── page.tsx   #   Lijst van alle inzendingen
+    │   │   │
+    │   │   └── # login/       # Admin Login (aparte route)
     │   │
-    │   ├── api/             # API Routes (indien nodig naast Server Actions)
-    │   │   └── contact/
-    │   │       └── route.ts
+    │   ├── login/           # Publieke login route (buiten admin layout)
+    │   │   └── page.tsx
     │   │
-    │   ├── layout.tsx         # Root layout (incl. default metadata, Schema)
-    │   ├── globals.css        # Globale CSS / Tailwind base styles
-    │   ├── loading.tsx        # Laad UI (Suspense boundary)
-    │   ├── error.tsx          # Error UI
-    │   ├── not-found.tsx      # 404 Pagina UI
+    │   ├── (pages)/         # Route group voor alle publieke pagina's
+    │   │   ├── page.tsx                  # **Homepage (/)**
+    │   │   ├── about/ page.tsx           # About pagina (/about)
+    │   │   ├── blog/                     # Blog sectie
+    │   │   │   ├── page.tsx              #   Blog lijst pagina (/blog)
+    │   │   │   └── [slug]/ page.tsx      #   Blog detail pagina (/blog/[slug])
+    │   │   ├── contact/ page.tsx         # Contact pagina (/contact)
+    │   │   ├── projects/                 # Projecten sectie
+    │   │   │   ├── page.tsx              #   Projecten lijst pagina (/projects)
+    │   │   │   └── [slug]/ page.tsx      #   Project detail pagina (/projects/[slug])
+    │   │   └── layout.tsx                # **Gedeelde layout** voor alle publieke pagina's (bv. met Header/Footer)
     │   │
-    │   ├── sitemap.ts         # Dynamische Sitemap generatie
-    │   ├── robots.ts          # Dynamische Robots.txt generatie
-    │   └── manifest.ts        # (Optioneel) Dynamisch manifest.json
-    │
-    ├── components/        # Herbruikbare UI componenten
-    │   ├── ui/              # Basis UI elementen (Button, Card, Input, Modal)
-    │   │   ├── Button.tsx
-    │   │   ├── Card.tsx
-    │   │   └── ...
+    │   ├── layout.tsx         # **Root layout** (HTML structuur, MantineProvider, globale metadata)
+    │   ├── globals.css        # Globale CSS stijlen / Tailwind base
+    │   ├── loading.tsx        # Globale laad UI (voor route navigatie)
+    │   ├── error.tsx          # Globale error UI
+    │   ├── not-found.tsx      # Globale 404 pagina UI
     │   │
-    │   ├── layout/          # Layout componenten (Header, Footer)
-    │   │   ├── Header.tsx
-    │   │   └── Footer.tsx
+    │   ├── sitemap.ts         # Dynamische sitemap generatie (/sitemap.xml)
+    │   └── robots.ts          # Dynamische robots.txt generatie (/robots.txt)
+```
+
+### `src/components/` - Herbruikbare UI Componenten
+
+```
+    ├── components/        # Map voor alle React componenten
+    │   ├── ui/              # Basis, generieke UI elementen
+    │   │   ├── Button.tsx   #   (Voorbeeld, kan anders zijn)
+    │   │   └── Card.tsx     #   (Voorbeeld, kan anders zijn)
+    │   ├── layout/          # Componenten specifiek voor de paginalayout
+    │   │   ├── Header.tsx   #   Navigatiebalk bovenaan
+    │   │   └── Footer.tsx   #   Voettekst onderaan
     │   │
-    │   ├── features/        # Feature-specifieke componenten
-    │   │   ├── projects/
+    │   ├── admin/           # Componenten specifiek voor de admin sectie
+    │   │   ├── AdminLayoutClient.tsx # Client-side wrapper voor admin layout
+    │   │   ├── AdminNavbar.tsx # Navigatiebalk/sidebar voor admin
+    │   │   ├── ContactSubmissionsTable.tsx # Tabel voor contact inzendingen
+    │   │   ├── PostForm.tsx    # Formulier voor aanmaken/bewerken posts
+    │   │   ├── ProjectForm.tsx   # Formulier voor aanmaken/bewerken projecten
+    │   │   └── ProjectsTable.tsx # Tabel voor weergave projecten in admin
+    │   │
+    │   ├── features/        # Componenten specifiek voor een bepaalde feature/sectie
+    │   │   ├── home/        #   Homepage specifieke componenten
+    │   │   │   ├── HeroSection.tsx
+    │   │   │   ├── FeaturedProjects.tsx
+    │   │   │   ├── AnimatedProjectGrid.tsx
+    │   │   │   ├── ShortAboutBlurb.tsx
+    │   │   │   └── CallToActionBlock.tsx
+    │   │   ├── projects/    #   Projecten specifieke componenten
     │   │   │   ├── ProjectCard.tsx
     │   │   │   ├── ProjectList.tsx
     │   │   │   └── ProjectDetailView.tsx
-    │   │   │
-    │   │   ├── blog/
+    │   │   ├── blog/        #   Blog specifieke componenten
     │   │   │   ├── BlogPostCard.tsx
     │   │   │   ├── BlogList.tsx
     │   │   │   └── BlogPostDetailView.tsx
-    │   │   │
-    │   │   ├── contact/
+    │   │   ├── contact/     #   Contact specifieke componenten
     │   │   │   └── ContactForm.tsx
-    │   │   │
-    │   │   └── shared/        # Feature-overstijgende componenten
+    │   │   └── shared/      #   Feature-specifieke gedeelde componenten
     │   │       ├── ImageGallery.tsx
-    │   │       ├── TestimonialSlider.tsx
-    │   │       └── SchemaScript.tsx   # Component voor JSON-LD rendering
+    │   │       └── TestimonialSlider.tsx
     │   │
-    │   └── icons/           # (Optioneel) Custom iconen of icon library exports
+    │   ├── shared/          # Algemeen gedeelde componenten
+    │   │   ├── MarkdownRenderer.tsx
+    │   │   └── MarkdownRenderer.module.css
+    │   │
+    │   └── icons/           # Bundelen van custom iconen
     │       └── index.ts
-    │
-    ├── lib/               # Core logic, helpers, types, etc.
-    │   ├── prisma.ts        # Prisma client instantie
-    │   ├── utils.ts         # Algemene utility functies
-    │   ├── config.ts        # Site configuratie & SEO defaults
-    │   │
-    │   ├── actions/         # Server Actions
-    │   │   ├── blog.ts        # Acties voor blog data (getPosts, getPostBySlug)
-    │   │   ├── projects.ts    # Acties voor project data
-    │   │   ├── contact.ts     # Actie voor contactformulier
-    │   │   └── metadata.ts    # (Optioneel) Specifieke acties voor metadata fetching
-    │   │
-    │   ├── hooks/           # Custom React Hooks
-    │   │   └── useScreenSize.ts
-    │   │
-    │   ├── schema/          # JSON-LD Schema generatie functies
-    │   │   ├── website.ts
-    │   │   ├── person.ts
-    │   │   ├── blogPosting.ts
-    │   │   ├── project.ts     # Of SoftwareApplication, CreativeWork etc.
-    │   │   └── index.ts       # (Optioneel) Exporteert alle schema functies
-    │   │
-    │   └── types/           # Gedeelde TypeScript types/interfaces
-    │       ├── index.ts
-    │       ├── project.ts
-    │       └── blog.ts
-    │
-    └── styles/            # (Optioneel) Extra styling configuratie
-        └── theme.ts         # Bv. voor Mantine thema overrides
+```
+
+### `src/lib/` - Core Logic, Actions, Utilities & Configuratie
+
+```
+    └── lib/               # Centrale plek voor niet-UI code
+        ├── supabase/        # **Supabase configuratie & clients**
+        │   ├── client.ts    #   Client-side Supabase client instantie
+        │   └── server.ts    #   Server-side Supabase client instantie (voor Server Actions/Components)
+        ├── actions/         # **Server Actions** (backend logica direct vanuit componenten)
+        │   ├── auth.ts      #   Acties voor login/logout, sessie validatie
+        │   ├── blog.ts      #   Acties voor blog data (CRUD)
+        │   ├── projects.ts  #   Acties voor project data (CRUD)
+        │   └── contact.ts   #   Acties voor contactformulier (CRUD)
+        ├── types/           # Globale TypeScript types/interfaces
+        │   ├── blog.ts      #   (Voorbeeld, kan anders zijn)
+        │   └── index.ts     #   Centraal export punt voor types
+        ├── utils.ts         # Algemene utility functies (bv. formatDate)
+        ├── config.ts        # **Site configuratie** (naam, URL) & SEO defaults
+        ├── logger.ts        # Logging setup
+        └── cloudinary.ts    # Cloudinary configuratie/client
+```

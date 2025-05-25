@@ -2,61 +2,326 @@
 
 import { z } from 'zod';
 import { logger } from '@/lib/logger';
+import { createClient } from '@/lib/supabase/server';
+import { revalidatePath } from 'next/cache';
+import { validateAdminSession } from './auth';
+import crypto from 'crypto';
 
-// Zod schema voor validatie
-const ContactFormSchema = z.object({
-  name: z.string().min(1, { message: "Naam is verplicht." }),
-  email: z.string().email({ message: "Ongeldig emailadres." }),
-  message: z.string().min(1, { message: "Bericht is verplicht." }),
-});
+// --- Types (Vereenvoudigd - TODO: Verbeteren) --- //
+interface ContactSubmission {
+    id: string;
+    name: string;
+    email: string;
+    message: string;
+    isRead: boolean; // Supabase kan dit als string of boolean geven
+    createdAt: string; // Timestamp als string
+}
 
-export type ContactFormState = {
-  message?: string | null;
-  errors?: {
-    name?: string[];
-    email?: string[];
-    message?: string[];
-  };
-  success?: boolean;
+// --- EXPORT type ---
+export type ContactSubmissionType = ContactSubmission; // Gebruik de nieuwe interface
+
+// Rate limiting configuration
+const RATE_LIMIT_CONFIG = {
+  maxAttempts: 5,
+  windowMs: 60 * 60 * 1000, // 1 hour
 };
 
-// Server Action voor het verwerken van het contactformulier
-export async function submitContactForm(
-  prevState: ContactFormState,
-  formData: FormData,
-): Promise<ContactFormState> {
-  const validatedFields = ContactFormSchema.safeParse({
-    name: formData.get('name'),
-    email: formData.get('email'),
-    message: formData.get('message'),
-  });
+// In-memory store for rate limiting
+const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
 
-  // Bij validatiefouten, retourneer de fouten
-  if (!validatedFields.success) {
-    logger.warn('Contact form validation failed', { errors: validatedFields.error.flatten().fieldErrors });
-    return {
-      errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Validatiefout.',
-      success: false,
-    };
+// Rate limit helper functions
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const record = rateLimitStore.get(ip);
+
+  if (!record) {
+    rateLimitStore.set(ip, { count: 1, resetTime: now + RATE_LIMIT_CONFIG.windowMs });
+    return true;
   }
 
-  const { name, email, message } = validatedFields.data;
+  if (now > record.resetTime) {
+    rateLimitStore.set(ip, { count: 1, resetTime: now + RATE_LIMIT_CONFIG.windowMs });
+    return true;
+  }
+
+  if (record.count >= RATE_LIMIT_CONFIG.maxAttempts) {
+    return false;
+  }
+
+  record.count++;
+  return true;
+}
+
+function getRemainingAttempts(ip: string): number {
+  const record = rateLimitStore.get(ip);
+  if (!record) return RATE_LIMIT_CONFIG.maxAttempts;
+  if (Date.now() > record.resetTime) return RATE_LIMIT_CONFIG.maxAttempts;
+  return Math.max(0, RATE_LIMIT_CONFIG.maxAttempts - record.count);
+}
+
+// Zod schema for contact form validation
+const ContactFormSchema = z.object({
+  name: z.string().min(2, { message: 'Naam moet minimaal 2 tekens bevatten.' }),
+  email: z.string().email({ message: 'Ongeldig e-mailadres.' }),
+  subject: z.string().min(3, { message: 'Onderwerp moet minimaal 3 tekens bevatten.' }),
+  message: z.string().min(10, { message: 'Bericht moet minimaal 10 tekens bevatten.' }),
+});
+
+// Type for the state of the contact form
+export type ContactFormState = {
+  success: boolean;
+  message?: string;
+  errors?: Partial<Record<keyof z.infer<typeof ContactFormSchema>, string[]>> & { general?: string[] };
+};
+
+// Helper functie om isRead correct te converteren
+function normalizeContactSubmission(submission: any): ContactSubmissionType {
+  return {
+    ...submission,
+    isRead: submission.isRead === true || submission.isRead === 'true' || submission.isRead === 't'
+  };
+}
+
+/**
+ * Handles the submission of a contact form.
+ */
+export async function submitContactForm(prevState: ContactFormState | undefined, formData: FormData): Promise<ContactFormState> {
+  logger.info('Contact form submission started');
+  const supabase = await createClient();
 
   try {
-    // TODO: Implementeer daadwerkelijke verzendlogica (bijv. email sturen)
-    console.log('--- Contact Form Submission ---');
-    console.log('Name:', name);
-    console.log('Email:', email);
-    console.log('Message:', message);
-    console.log('-----------------------------');
-    logger.info('Contact form submitted successfully', { name, email });
+    // Get client IP (in production, replace with actual IP detection)
+    const clientIp = '127.0.0.1'; // TODO: Replace with actual IP detection
 
-    // Hier zou je bijvoorbeeld een email kunnen sturen met een library zoals Resend of Nodemailer
+    // Check rate limit
+    if (!checkRateLimit(clientIp)) {
+      const remainingTime = Math.ceil((rateLimitStore.get(clientIp)?.resetTime || 0 - Date.now()) / 1000 / 60);
+      logger.warn('Rate limit exceeded for contact form', { clientIp, remainingTime });
+      return {
+        success: false,
+        message: `Te veel pogingen. Probeer het over ${remainingTime} minuten opnieuw.`,
+        errors: { general: ['Rate limit exceeded'] }
+      };
+    }
 
-    return { message: 'Bericht succesvol verzonden!', success: true };
-  } catch (error) {
-    logger.error('Failed to process contact form', error);
-    return { message: 'Er is iets misgegaan bij het verzenden.', success: false };
+    // Validate form data
+    const validatedFields = ContactFormSchema.safeParse(Object.fromEntries(formData));
+    if (!validatedFields.success) {
+      logger.warn('Contact form validation failed', { errors: validatedFields.error.flatten().fieldErrors });
+      return {
+        success: false,
+        message: 'Validatiefouten gevonden.',
+        errors: validatedFields.error.flatten().fieldErrors,
+      };
+    }
+
+    // Insert into database
+    const { error } = await supabase
+      .from('Contact')
+      .insert({
+        ...validatedFields.data,
+        status: 'new',
+        createdAt: new Date().toISOString(),
+      });
+
+    if (error) throw error;
+
+    logger.info('Contact form successfully submitted', { clientIp });
+    revalidatePath('/contact');
+    return {
+      success: true,
+      message: 'Bericht succesvol verzonden! We nemen zo snel mogelijk contact met je op.',
+    };
+  } catch (error: any) {
+    logger.error('Failed to submit contact form', { error: error.message || error });
+    return {
+      success: false,
+      message: 'Er is een fout opgetreden bij het verzenden van het bericht.',
+      errors: { general: ['Server error'] }
+    };
+  }
+}
+
+/**
+ * Gets all contact messages for the admin area.
+ */
+export async function getContactMessages() {
+  logger.info('Fetching contact messages for admin');
+  const supabase = await createClient();
+
+  try {
+    const { data, error } = await supabase
+      .from('Contact')
+      .select('*')
+      .order('createdAt', { ascending: false });
+
+    if (error) throw error;
+
+    return data || [];
+  } catch (error: any) {
+    logger.error('Failed to fetch contact messages', { error: error.message || error });
+    throw new Error('Kon contactberichten niet ophalen.');
+  }
+}
+
+/**
+ * Updates the status of a contact message.
+ */
+export async function updateContactStatus(messageId: string, newStatus: 'new' | 'read' | 'replied' | 'archived') {
+  logger.info('Updating contact message status', { messageId, newStatus });
+  const supabase = await createClient();
+
+  try {
+    const { error } = await supabase
+      .from('Contact')
+      .update({ status: newStatus, updatedAt: new Date().toISOString() })
+      .eq('id', messageId);
+
+    if (error) throw error;
+
+    logger.info('Contact message status updated', { messageId, newStatus });
+    revalidatePath('/admin_area/contact');
+    return { success: true, message: 'Status succesvol bijgewerkt.' };
+  } catch (error: any) {
+    logger.error('Failed to update contact message status', { messageId, newStatus, error: error.message || error });
+    return { success: false, message: 'Kon status niet bijwerken.' };
+  }
+}
+
+/**
+ * Deletes a contact message.
+ */
+export async function deleteContactMessage(messageId: string) {
+  logger.info('Deleting contact message', { messageId });
+  const supabase = await createClient();
+
+  try {
+    const { error } = await supabase
+      .from('Contact')
+      .delete()
+      .eq('id', messageId);
+
+    if (error) throw error;
+
+    logger.info('Contact message deleted', { messageId });
+    revalidatePath('/admin_area/contact');
+    return { success: true, message: 'Bericht succesvol verwijderd.' };
+  } catch (error: any) {
+    logger.error('Failed to delete contact message', { messageId, error: error.message || error });
+    return { success: false, message: 'Kon bericht niet verwijderen.' };
+  }
+}
+
+// --- Actions voor Admin Area --- //
+
+/**
+ * Haalt alle contact inzendingen op voor de admin lijst.
+ */
+export async function getContactSubmissions(): Promise<ContactSubmissionType[]> {
+  logger.info('Fetching all contact submissions for admin with Supabase');
+  const supabase = await createClient();
+  try {
+    await validateAdminSession(); // Check admin rights - Re-enabled after RLS fix
+    logger.info('Admin session validated for getContactSubmissions');
+
+    const { data, error } = await supabase
+      .from('ContactSubmission')
+      .select('*')
+      .order('createdAt', { ascending: false });
+
+    if (error) throw error;
+
+    logger.info(`Fetched ${data?.length ?? 0} contact submissions`);
+    // Normalize the data to ensure isRead is a proper boolean
+    const normalizedData = (data || []).map(normalizeContactSubmission);
+    return normalizedData;
+  } catch (error: any) {
+    logger.error('Failed to fetch contact submissions', { error: error.message || error });
+    throw new Error(error.message?.includes('Unauthorized') || error.message?.includes('Forbidden') ? error.message : 'Kon inzendingen niet ophalen.');
+  }
+}
+
+/**
+ * Wijzigt de 'isRead' status van een inzending.
+ */
+export async function toggleSubmissionReadStatus(submissionId: string): Promise<{ success: boolean; message?: string; newState?: boolean }> {
+  logger.info('Toggling read status for submission with Supabase', { submissionId });
+  const supabase = await createClient();
+  try {
+    const session = await validateAdminSession(); // Re-enabled after RLS fix
+    logger.info('Admin session validated for toggling read status', { userId: session.userId, submissionId });
+
+    // Haal huidige status op
+    const { data: currentSubmission, error: fetchError } = await supabase
+      .from('ContactSubmission')
+      .select('isRead')
+      .eq('id', submissionId)
+      .single();
+
+    if (fetchError || !currentSubmission) {
+       if (fetchError?.code === 'PGRST116') throw new Error('Inzending niet gevonden.');
+       throw fetchError || new Error('Kon huidige status niet ophalen.');
+    }
+
+    const newReadState = !currentSubmission.isRead;
+
+    // Update de status
+    const { error: updateError } = await supabase
+      .from('ContactSubmission')
+      .update({ isRead: newReadState })
+      .eq('id', submissionId);
+
+    if (updateError) throw updateError;
+
+    logger.info('Read status successfully toggled', { submissionId, newReadState, userId: session.userId });
+    revalidatePath('/admin_area/contacts');
+    return {
+      success: true,
+      message: `Status gewijzigd naar ${newReadState ? 'gelezen' : 'ongelezen'}.`,
+      newState: newReadState
+    };
+
+  } catch (error: any) {
+    logger.error('Failed to toggle read status', { submissionId, error: error.message || error });
+    let errorMessage = 'Kon status niet wijzigen door een serverfout.';
+    if (error.message === 'Inzending niet gevonden.') {
+      errorMessage = error.message;
+    } else if (error.message?.includes('Unauthorized') || error.message?.includes('Forbidden')) {
+      errorMessage = error.message;
+    }
+    return { success: false, message: errorMessage };
+  }
+}
+
+/**
+ * Verwijdert een contact inzending.
+ */
+export async function deleteContactSubmission(submissionId: string): Promise<{ success: boolean; message?: string }> {
+  logger.info('Attempting to delete contact submission with Supabase', { submissionId });
+  const supabase = await createClient();
+  try {
+    const session = await validateAdminSession(); // Re-enabled after RLS fix
+    logger.info('Admin session validated for delete submission action', { userId: session.userId, submissionId });
+
+    const { error } = await supabase
+      .from('ContactSubmission')
+      .delete()
+      .eq('id', submissionId);
+
+    if (error) throw error;
+
+    logger.info('Contact submission successfully deleted', { submissionId, userId: session.userId });
+    revalidatePath('/admin_area/contacts');
+    return { success: true, message: 'Inzending succesvol verwijderd.' };
+
+  } catch (error: any) {
+    logger.error('Failed to delete contact submission', { submissionId, error: error.message || error });
+    let errorMessage = 'Kon inzending niet verwijderen door een serverfout.';
+    if (error.code === 'PGRST116') { // Check for Supabase 'not found'
+       errorMessage = 'Inzending niet gevonden om te verwijderen.';
+    } else if (error.message?.includes('Unauthorized') || error.message?.includes('Forbidden')) {
+      errorMessage = error.message;
+    }
+    return { success: false, message: errorMessage };
   }
 } 

@@ -2,17 +2,74 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import '@mantine/core/styles.css';
+import '@mantine/notifications/styles.css';
 import "./globals.css";
 import { MantineProvider, ColorSchemeScript, mantineHtmlProps } from '@mantine/core';
-// import { GoogleAnalytics } from '@next/third-parties/google'; // Houd GA even uitgeschakeld
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
+import { GoogleAnalytics } from '@next/third-parties/google';
+import { Notifications } from '@mantine/notifications';
+import { ModalsProvider } from '@mantine/modals';
+import { SITE_CONFIG } from '@/lib/config';
 
-const inter = Inter({ subsets: ["latin"] });
+// Import layout wrapper
+import LayoutWrapper from '@/components/layout/LayoutWrapper';
+
+const inter = Inter({ 
+  subsets: ["latin"],
+  display: 'swap', // Improved font loading
+  variable: '--font-inter',
+});
 
 export const metadata: Metadata = {
-  title: "Jeffdash Portfolio",
-  description: "Portfolio van Jeffrey",
+  title: {
+    default: SITE_CONFIG.name,
+    template: `%s | ${SITE_CONFIG.name}`,
+  },
+  description: SITE_CONFIG.description,
+  keywords: [
+    'Jeffrey Lavente',
+    'Web Developer',
+    'Full Stack Developer',
+    'React',
+    'Next.js',
+    'TypeScript',
+    'Portfolio',
+  ],
+  authors: [{ name: 'Jeffrey Lavente' }],
+  creator: 'Jeffrey Lavente',
+  metadataBase: new URL(SITE_CONFIG.url),
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'nl_NL',
+    url: SITE_CONFIG.url,
+    siteName: SITE_CONFIG.name,
+    title: SITE_CONFIG.name,
+    description: SITE_CONFIG.description,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: SITE_CONFIG.name,
+    description: SITE_CONFIG.description,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/apple-icon.png',
+  },
+  manifest: '/manifest.json',
 };
 
 // const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
@@ -23,13 +80,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" {...mantineHtmlProps}>
+    <html lang="nl" {...mantineHtmlProps} className={inter.variable}>
       <head>
         <ColorSchemeScript />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body className={inter.className}>
-        <MantineProvider defaultColorScheme="light">
-          <main>{children}</main>
+        <MantineProvider defaultColorScheme="dark">
+          <ModalsProvider>
+            <Notifications position="top-right" zIndex={1000} limit={5} />
+            
+            <LayoutWrapper>
+              {children}
+            </LayoutWrapper>
+            
+          </ModalsProvider>
         </MantineProvider>
         {/* {gaId && <GoogleAnalytics gaId={gaId} />} */}
       </body>

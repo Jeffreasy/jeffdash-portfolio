@@ -1,0 +1,81 @@
+'use client';
+
+import React from 'react';
+import { Card, Text, Button, Container, Alert } from '@mantine/core';
+import { IconAlertCircle } from '@tabler/icons-react';
+
+interface Props {
+  children: React.ReactNode;
+  componentName: string;
+}
+
+interface State {
+  hasError: boolean;
+  error?: Error;
+}
+
+class AdminErrorBoundary extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error): State {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    // Enhanced error logging for admin components
+    console.error(`Admin Error in ${this.props.componentName}:`, {
+      error,
+      errorInfo,
+      timestamp: new Date().toISOString(),
+      component: this.props.componentName,
+      // Add any additional security-relevant information here
+    });
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <Container size="sm" py="xl">
+          <Alert
+            icon={<IconAlertCircle size="1rem" />}
+            title="Administratieve Fout"
+            color="red"
+            variant="filled"
+            mb="md"
+          >
+            Er is een fout opgetreden in het administratieve gedeelte.
+          </Alert>
+          
+          <Card shadow="sm" padding="lg" radius="md" withBorder>
+            <Text size="xl" fw={500} mb="md" c="red">
+              Fout in {this.props.componentName}
+            </Text>
+            <Text mb="xl" c="dimmed">
+              {this.state.error?.message || `Er is een onverwachte fout opgetreden in ${this.props.componentName}.`}
+            </Text>
+            <Text size="sm" c="dimmed" mb="xl">
+              Deze fout is gelogd voor verdere analyse. Probeer de pagina te vernieuwen of neem contact op met de beheerder als het probleem aanhoudt.
+            </Text>
+            <Button
+              onClick={() => {
+                this.setState({ hasError: false });
+                window.location.reload();
+              }}
+              variant="light"
+              color="red"
+            >
+              Probeer opnieuw
+            </Button>
+          </Card>
+        </Container>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+export default AdminErrorBoundary; 

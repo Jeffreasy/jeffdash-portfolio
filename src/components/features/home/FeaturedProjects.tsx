@@ -1,68 +1,135 @@
 // Dit is nu een Server Component
 import React from 'react';
-// Belangrijk: Zorg ervoor dat ProjectCard goed is ontworpen.
-// Deze zou Mantine's Card, Image, Text, Badge, Group, Button/Anchor moeten gebruiken.
-import ProjectCard from '../projects/ProjectCard';
-import { SimpleGrid, Container, Title, Button, Group, Text } from '@mantine/core'; // Title, Button, Group, Text toegevoegd
+// Verwijder ProjectCard import hier, wordt nu gebruikt in AnimatedProjectGrid
+import { Container, Title, Button, Group, Text, Box } from '@mantine/core';
 import Link from 'next/link';
-import { IconArrowRight } from '@tabler/icons-react'; // Voor button icoon (installeer @tabler/icons-react)
-// Importeer de data ophaal functie en het type
+import { IconArrowRight, IconBrandGithub } from '@tabler/icons-react';
 import { getFeaturedProjects, FeaturedProjectType } from '@/lib/actions/projects';
+// Verwijder motion import
+// Importeer de nieuwe client component voor de animatie
+import AnimatedProjectGrid from './AnimatedProjectGrid';
+import PageErrorBoundary from '../shared/PageErrorBoundary';
 
-// Component is nu async om data te kunnen awaiten
+/**
+ * FeaturedProjects Component
+ * Server Component that fetches and displays featured projects
+ * Uses AnimatedProjectGrid for client-side animations
+ */
 export default async function FeaturedProjects() {
-  // --- Data Ophalen --- (Gebeurt nu op de server)
+  // Fetch featured projects data on the server
   const { featuredProjects, totalProjectCount } = await getFeaturedProjects();
 
-  // --- Render Logic ---
-  // Toon niets of een bericht als er geen projecten zijn
+  // Handle empty state
   if (!featuredProjects || featuredProjects.length === 0) {
     return (
-      <Container size="lg" py={{ base: 'xl', sm: 'calc(var(--mantine-spacing-xl) * 2)' }}>
-        <Text ta="center" c="dimmed">Momenteel geen projecten om weer te geven.</Text>
-      </Container>
+      <PageErrorBoundary>
+        <section style={{ 
+          position: 'relative',
+          overflow: 'hidden',
+          background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%)',
+        }}>
+          <Container size="lg" py={{ base: 'xl', md: '3xl' }}>
+            <Box style={{ textAlign: 'center' }}>
+              <Title order={2} c="dimmed" mb="md">
+                Projecten worden geladen...
+              </Title>
+              <Text c="dimmed">
+                Momenteel geen uitgelichte projecten om weer te geven.
+              </Text>
+            </Box>
+          </Container>
+        </section>
+      </PageErrorBoundary>
     );
   }
 
+  // Render featured projects with CTA section
   return (
-    <Container size="lg" py={{ base: 'xl', sm: 'calc(var(--mantine-spacing-xl) * 2)' }}>
-      {/* Sectie Titel */}
-      <Title order={2} ta="center" mb="xl">
-        Uitgelichte Projecten
-      </Title>
+    <PageErrorBoundary>
+      <section style={{ 
+        position: 'relative',
+        overflow: 'hidden',
+        background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%)',
+      }}>
+        {/* Decorative background element */}
+        <div style={{
+          position: 'absolute',
+          top: '20%',
+          right: '10%',
+          width: '300px',
+          height: '300px',
+          background: 'radial-gradient(circle, rgba(59, 130, 246, 0.06) 0%, transparent 70%)',
+          borderRadius: '50%',
+          filter: 'blur(60px)',
+          pointerEvents: 'none',
+        }} />
 
-      {/* Grid met Project Kaarten */}
-      <SimpleGrid
-        cols={{ base: 1, sm: 2, md: 3 }} // Responsive kolommen
-        spacing="xl" // Ruimte tussen de kaarten
-      >
-        {/* Gebruik de opgehaalde featuredProjects */}
-        {featuredProjects.map((project: FeaturedProjectType) => (
-          // De ProjectCard component toont de details.
-          // Zorg ervoor dat deze component de 'project' prop gebruikt om:
-          // - De afbeelding (imageUrl) te tonen
-          // - De titel (title) te tonen
-          // - De beschrijving (description) te tonen
-          // - De tags (tags) weer te geven (bijv. met Mantine's <Badge>)
-          // - Te linken naar de detailpagina: <Anchor component={Link} href={`/projects/${project.slug}`}>
-          <ProjectCard key={project.id} project={project} />
-        ))}
-      </SimpleGrid>
+        <Container size="lg" py={{ base: 'xl', md: '3xl' }} style={{ position: 'relative', zIndex: 1 }}>
+          {/* Animated project grid */}
+          <AnimatedProjectGrid 
+            projects={featuredProjects}
+            title="Uitgelichte Projecten"
+            description="Een selectie van mijn meest recente en interessante werk"
+            showTitle={true}
+          />
 
-      {/* Toon knop alleen als er meer projecten zijn dan getoond */}
-      {totalProjectCount > featuredProjects.length && (
-        <Group justify="center" mt="xl">
-          <Button
-            component={Link}
-            href="/projects" // Link naar je hoofd projectenpagina
-            variant="outline" // Subtielere stijl dan primaire CTA
-            size="md"
-            rightSection={<IconArrowRight size={16} />} // Optioneel: icoon
-          >
-            Bekijk alle projecten
-          </Button>
-        </Group>
-      )}
-    </Container>
+          {/* Call-to-action section */}
+          {totalProjectCount > featuredProjects.length && (
+            <Box style={{ 
+              textAlign: 'center',
+              marginTop: 'var(--mantine-spacing-3xl)',
+              padding: 'var(--mantine-spacing-xl)',
+              borderRadius: 'var(--mantine-radius-lg)',
+              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.05))',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              backdropFilter: 'blur(10px)',
+            }}>
+              <Title order={3} size="h2" mb="md" c="gray.2">
+                Meer projecten bekijken?
+              </Title>
+              <Text c="gray.4" mb="xl" maw={400} mx="auto">
+                Ontdek alle {totalProjectCount} projecten in mijn portfolio en zie de volledige scope van mijn werk.
+              </Text>
+              
+              <Group justify="center" gap="md">
+                <Button
+                  component={Link}
+                  href="/projects"
+                  variant="gradient"
+                  gradient={{ from: 'blue.6', to: 'cyan.5' }}
+                  size="lg"
+                  radius="md"
+                  rightSection={<IconArrowRight size={18} />}
+                  style={{
+                    boxShadow: '0 8px 32px rgba(59, 130, 246, 0.3)',
+                    border: '1px solid rgba(59, 130, 246, 0.2)',
+                  }}
+                >
+                  Alle Projecten
+                </Button>
+                
+                <Button
+                  component="a"
+                  href="https://github.com/Jeffreasy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  variant="outline"
+                  color="gray"
+                  size="lg"
+                  radius="md"
+                  leftSection={<IconBrandGithub size={18} />}
+                  style={{
+                    borderColor: 'rgba(255, 255, 255, 0.2)',
+                    color: 'var(--mantine-color-gray-2)',
+                  }}
+                >
+                  GitHub
+                </Button>
+              </Group>
+            </Box>
+          )}
+        </Container>
+      </section>
+    </PageErrorBoundary>
   );
 }
