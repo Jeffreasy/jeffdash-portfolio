@@ -2,30 +2,20 @@ import React from 'react';
 import { Metadata } from 'next';
 import { SITE_CONFIG } from '@/lib/config';
 
-// Importeer de daadwerkelijke sectie componenten
-import HeroSection from '@/components/features/home/HeroSection';
-import FeaturedProjects from '@/components/features/home/FeaturedProjects';
-import ShortAboutBlurb from '@/components/features/home/ShortAboutBlurb';
-import CallToActionBlock from '@/components/features/home/CallToActionBlock';
-import RecentBlogSection from '@/components/features/home/RecentBlogSection';
-
-// Importeer blog-gerelateerde zaken
-import { getPublishedPosts } from '@/lib/actions/blog';
-
-// Importeer profielfoto action
-import { getProfilePicture } from '@/lib/actions/content';
+// Import the construction component
+import UnderConstruction from './underconstruction/construction';
 
 // --- SEO Metadata --- //
 export const metadata: Metadata = {
-  title: `${SITE_CONFIG.name} - Webontwikkelaar & Portfolio`,
-  description: 'Jeffrey Lavente - Gepassioneerde webontwikkelaar gespecialiseerd in moderne technologieën zoals Next.js, React, TypeScript. Bekijk mijn projecten en expertise.',
-  keywords: ['Jeffrey Lavente', 'webontwikkelaar', 'portfolio', 'Next.js', 'React', 'TypeScript', 'webontwikkeling', 'fullstack developer'],
+  title: `${SITE_CONFIG.name} - Onder Constructie`,
+  description: 'Jeffrey Lavente Portfolio - Momenteel onder constructie. Ik werk hard aan iets geweldigs voor je! Kom binnenkort terug voor mijn volledige portfolio.',
+  keywords: ['Jeffrey Lavente', 'webontwikkelaar', 'portfolio', 'onder constructie', 'Next.js', 'React', 'TypeScript', 'webontwikkeling'],
   alternates: {
     canonical: SITE_CONFIG.url,
   },
   openGraph: {
-    title: `${SITE_CONFIG.name} - Webontwikkelaar & Portfolio`,
-    description: 'Jeffrey Lavente - Gepassioneerde webontwikkelaar gespecialiseerd in moderne technologieën. Bekijk mijn projecten en expertise.',
+    title: `${SITE_CONFIG.name} - Onder Constructie`,
+    description: 'Jeffrey Lavente Portfolio - Momenteel onder constructie. Kom binnenkort terug voor mijn volledige portfolio.',
     url: SITE_CONFIG.url,
     siteName: SITE_CONFIG.name,
     type: 'website',
@@ -33,60 +23,22 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: `${SITE_CONFIG.name} - Webontwikkelaar & Portfolio`,
-    description: 'Jeffrey Lavente - Gepassioneerde webontwikkelaar gespecialiseerd in moderne technologieën.',
+    title: `${SITE_CONFIG.name} - Onder Constructie`,
+    description: 'Jeffrey Lavente Portfolio - Momenteel onder constructie. Kom binnenkort terug!',
   },
   robots: {
-    index: true,
-    follow: true,
+    index: false, // Don't index while under construction
+    follow: false,
+    noarchive: true,
+    nosnippet: true,
   },
   category: 'technology',
 };
 
-// Mark the page as dynamic
-export const dynamic = 'force-dynamic';
+// Mark the page as static since construction page doesn't need data fetching
+export const dynamic = 'force-static';
 
-// Pagina wordt async vanwege data fetching
-export default async function HomePage() {
-  // Haal data parallel op
-  const [recentPosts, profilePicture] = await Promise.all([
-    getPublishedPosts(3),
-    getProfilePicture()
-  ]);
-
-  return (
-    // De <main> tag wordt nu door de RootLayout verzorgd
-    <>
-      {/* Verwelkomingstitel kan eventueel onderdeel worden van HeroSection */}
-      {/* <Title order={1}>Welkom bij Jeffdash Portfolio</Title> */}
-
-      {/* 1. Hero Section */}
-      <section aria-labelledby="hero-title">
-        <h2 id="hero-title" className="sr-only">Hero Section</h2>
-        <HeroSection />
-      </section>
-
-      {/* 2. Featured Projects */}
-      <section aria-labelledby="featured-projects-title">
-        <FeaturedProjects />
-      </section>
-
-      {/* 3. Recent Blog Posts (NIEUW) - Nu als client component */}
-      <RecentBlogSection posts={recentPosts} />
-
-      {/* 4. Short About Blurb - Nu met image props */}
-      <section aria-labelledby="about-blurb-title">
-        <ShortAboutBlurb 
-          profileImageUrl={profilePicture.url} 
-          profileImageAlt={profilePicture.alt}
-        />
-      </section>
-
-      {/* 5. Call to Action */}
-      <section aria-labelledby="cta-title">
-        <h2 id="cta-title" className="sr-only">Call to Action</h2>
-        <CallToActionBlock />
-      </section>
-    </>
-  );
+// Simple page that shows construction component
+export default function HomePage() {
+  return <UnderConstruction />;
 } 
