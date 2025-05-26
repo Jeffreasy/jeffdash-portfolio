@@ -41,8 +41,8 @@ const PricingCard: React.FC<PricingCardProps> = ({ plan, index, onViewDetails })
     <motion.div
       variants={cardVariants}
       whileHover={{
-        y: -8,
-        transition: { duration: 0.3, ease: "easeOut" }
+        y: -4,
+        transition: { duration: 0.2, ease: "easeOut" }
       }}
       style={{ height: '100%' }}
     >
@@ -53,12 +53,11 @@ const PricingCard: React.FC<PricingCardProps> = ({ plan, index, onViewDetails })
         p={{ base: "md", md: "lg" }}
         style={{
           background: plan.popular 
-            ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(6, 182, 212, 0.03) 100%)'
-            : 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.04) 100%)',
+            ? 'rgba(59, 130, 246, 0.08)'
+            : 'rgba(255, 255, 255, 0.02)',
           border: plan.popular 
             ? '2px solid rgba(59, 130, 246, 0.2)'
             : '1px solid rgba(255, 255, 255, 0.08)',
-          backdropFilter: 'blur(10px)',
           position: 'relative',
         }}
       >
@@ -105,14 +104,23 @@ const PricingCard: React.FC<PricingCardProps> = ({ plan, index, onViewDetails })
           <Box>
             <Group align="baseline" gap="xs">
               <Text
+                fw={900}
+                lh={1}
                 style={{
-                  fontSize: 'clamp(1.5rem, 4vw, 2rem)',
-                  fontWeight: 900,
-                  lineHeight: 1,
+                  fontSize: 'var(--pricing-text-size, 1.5rem)',
                   background: `linear-gradient(135deg, var(--mantine-color-${plan.color}-4), var(--mantine-color-${plan.color}-6))`,
                   backgroundClip: 'text',
                   WebkitBackgroundClip: 'text',
                   color: 'transparent',
+                  WebkitTextFillColor: 'transparent',
+                  '--pricing-text-size': '1.5rem',
+                }}
+                styles={{
+                  root: {
+                    '@media (min-width: 768px)': {
+                      '--pricing-text-size': '2rem',
+                    }
+                  }
                 }}
               >
                 {plan.price}

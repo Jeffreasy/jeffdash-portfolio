@@ -59,26 +59,17 @@ const PricingSection: React.FC = () => {
           overflow: 'hidden',
         }}
       >
-        {/* Background decoration */}
-        <motion.div
+        {/* Background decoration - simplified for mobile performance */}
+        <Box
           style={{
             position: 'absolute',
             top: '20%',
             right: '15%',
-            width: '300px',
-            height: '300px',
-            background: 'radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%)',
+            width: '200px',
+            height: '200px',
+            background: 'radial-gradient(circle, rgba(59, 130, 246, 0.06) 0%, transparent 70%)',
             borderRadius: '50%',
-            filter: 'blur(40px)',
-          }}
-          animate={{
-            x: [0, 30, 0],
-            y: [0, -20, 0],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Infinity,
-            ease: "easeInOut",
+            opacity: 0.7,
           }}
         />
 
@@ -104,19 +95,29 @@ const PricingSection: React.FC = () => {
                 <Title
                   order={2}
                   ta="center"
+                  fw={900}
+                  lh={1.2}
                   style={{
-                    fontSize: 'clamp(1.5rem, 5vw, 2.8rem)',
-                    fontWeight: 900,
-                    lineHeight: 1.2,
+                    fontSize: 'var(--title-size, 1.8rem)',
+                    '--title-size': '1.8rem',
+                  }}
+                  styles={{
+                    root: {
+                      '@media (min-width: 768px)': {
+                        '--title-size': '2.5rem',
+                      }
+                    }
                   }}
                 >
                   <Text
                     component="span"
+                    c="blue.4"
                     style={{
                       background: 'linear-gradient(135deg, var(--mantine-color-blue-4), var(--mantine-color-cyan-4))',
                       backgroundClip: 'text',
                       WebkitBackgroundClip: 'text',
                       color: 'transparent',
+                      WebkitTextFillColor: 'transparent',
                     }}
                   >
                     Kies Het Perfecte Plan
