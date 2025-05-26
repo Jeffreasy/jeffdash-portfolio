@@ -1,6 +1,6 @@
+// src/app/layout.tsx - OORSPRONKELIJKE STAAT HERSTELD
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-// Core Mantine styles package first
 import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
 import "./globals.css";
@@ -72,7 +72,7 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
 };
 
-const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+// const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
 export default function RootLayout({
   children,
@@ -96,7 +96,7 @@ export default function RootLayout({
             
           </ModalsProvider>
         </MantineProvider>
-        {gaId && <GoogleAnalytics gaId={gaId} />}
+        {/* {gaId && <GoogleAnalytics gaId={gaId} />} */}
       </body>
     </html>
   );

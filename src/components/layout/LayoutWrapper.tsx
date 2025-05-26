@@ -50,16 +50,20 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
     );
   }
   
-  // Check if we're in admin area or login - these don't need Header/Footer
+  // Check routes that don't need Header/Footer
   const isAdminRoute = pathname?.startsWith('/admin_area') || pathname?.startsWith('/login');
+  const isConstructionPage = pathname === '/'; // Homepage with construction page
+  const isRouteWithoutLayout = isAdminRoute || isConstructionPage;
   
-  if (isAdminRoute) {
-    // Admin routes handle their own layout
+  if (isRouteWithoutLayout) {
+    // These routes handle their own layout or need no layout
     return (
       <Box
         style={{
           minHeight: '100vh',
-          background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%)',
+          background: isConstructionPage 
+            ? 'transparent' // Construction page has its own background
+            : 'linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%)',
         }}
       >
         {children}

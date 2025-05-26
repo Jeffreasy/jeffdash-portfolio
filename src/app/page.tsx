@@ -18,15 +18,15 @@ import { getProfilePicture } from '@/lib/actions/content';
 
 // --- SEO Metadata --- //
 export const metadata: Metadata = {
-  title: `${SITE_CONFIG.name} - Webontwikkelaar & Portfolio`,
-  description: 'Jeffrey Lavente - Gepassioneerde webontwikkelaar gespecialiseerd in moderne technologieën zoals Next.js, React, TypeScript. Bekijk mijn projecten en expertise.',
-  keywords: ['Jeffrey Lavente', 'webontwikkelaar', 'portfolio', 'Next.js', 'React', 'TypeScript', 'webontwikkeling', 'fullstack developer'],
+  title: `${SITE_CONFIG.name} - Full-Stack Developer & AI Explorer`,
+  description: 'Jeffrey Lavente Portfolio - Gepassioneerd Full-Stack Developer die moderne webtechnologieën en AI combineert om innovatieve webapplicaties te creëren.',
+  keywords: ['Jeffrey Lavente', 'webontwikkelaar', 'portfolio', 'Full-Stack Developer', 'AI', 'Next.js', 'React', 'TypeScript', 'webontwikkeling'],
   alternates: {
     canonical: SITE_CONFIG.url,
   },
   openGraph: {
-    title: `${SITE_CONFIG.name} - Webontwikkelaar & Portfolio`,
-    description: 'Jeffrey Lavente - Gepassioneerde webontwikkelaar gespecialiseerd in moderne technologieën. Bekijk mijn projecten en expertise.',
+    title: `${SITE_CONFIG.name} - Full-Stack Developer & AI Explorer`,
+    description: 'Jeffrey Lavente Portfolio - Innovatieve webapplicaties met moderne technologieën en AI.',
     url: SITE_CONFIG.url,
     siteName: SITE_CONFIG.name,
     type: 'website',
@@ -34,8 +34,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: `${SITE_CONFIG.name} - Webontwikkelaar & Portfolio`,
-    description: 'Jeffrey Lavente - Gepassioneerde webontwikkelaar gespecialiseerd in moderne technologieën.',
+    title: `${SITE_CONFIG.name} - Full-Stack Developer & AI Explorer`,
+    description: 'Jeffrey Lavente Portfolio - Innovatieve webapplicaties met moderne technologieën.',
   },
   robots: {
     index: true,
@@ -43,9 +43,6 @@ export const metadata: Metadata = {
   },
   category: 'technology',
 };
-
-// Mark the page as dynamic
-export const dynamic = 'force-dynamic';
 
 // Pagina wordt async vanwege data fetching
 export default async function HomePage() {
