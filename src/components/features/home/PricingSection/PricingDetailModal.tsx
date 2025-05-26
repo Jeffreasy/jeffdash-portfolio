@@ -90,8 +90,10 @@ const PricingDetailModal: React.FC<PricingDetailModalProps> = ({
             </Group>
           }
           size="lg"
-          radius="xl"
-          centered
+          radius="md"
+          centered={true}
+          closeOnEscape={true}
+          trapFocus={true}
           overlayProps={{
             backgroundOpacity: 0.55,
             blur: 3,
@@ -100,12 +102,26 @@ const PricingDetailModal: React.FC<PricingDetailModalProps> = ({
             content: {
               background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%)',
               border: '1px solid rgba(255, 255, 255, 0.1)',
-              backdropFilter: 'blur(20px)',
-              margin: '0.5rem',
+              margin: 0,
+              maxHeight: '90vh',
+              overflow: 'auto',
               '@media (max-width: 768px)': {
-                margin: '0',
-                borderRadius: '0',
-                minHeight: '100vh',
+                width: 'calc(100vw - 2rem)',
+                maxWidth: '480px',
+                maxHeight: '80vh',
+                margin: '0 auto',
+              },
+            },
+            inner: {
+              padding: '2rem 1rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              minHeight: '100vh',
+              '@media (max-width: 768px)': {
+                padding: '1rem',
+                alignItems: 'center',
+                justifyContent: 'center',
               },
             },
             header: {
@@ -146,14 +162,23 @@ const PricingDetailModal: React.FC<PricingDetailModalProps> = ({
                 </Text>
                 <Group align="baseline" gap="xs">
                   <Text
+                    fw={900}
+                    lh={1}
                     style={{
-                      fontSize: 'clamp(1.4rem, 3.5vw, 1.8rem)',
-                      fontWeight: 900,
-                      lineHeight: 1,
+                      fontSize: 'var(--modal-price-size, 1.4rem)',
                       background: `linear-gradient(135deg, var(--mantine-color-${plan.color}-4), var(--mantine-color-${plan.color}-6))`,
                       backgroundClip: 'text',
                       WebkitBackgroundClip: 'text',
                       color: 'transparent',
+                      WebkitTextFillColor: 'transparent',
+                      '--modal-price-size': '1.4rem',
+                    }}
+                    styles={{
+                      root: {
+                        '@media (min-width: 768px)': {
+                          '--modal-price-size': '1.8rem',
+                        }
+                      }
                     }}
                   >
                     {plan.price}
