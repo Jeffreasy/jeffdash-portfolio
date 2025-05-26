@@ -5,6 +5,7 @@ import { SITE_CONFIG } from '@/lib/config';
 // Importeer de daadwerkelijke sectie componenten
 import HeroSection from '@/components/features/home/HeroSection';
 import FeaturedProjects from '@/components/features/home/FeaturedProjects';
+import PricingSection from '@/components/features/home/PricingSection';
 import ShortAboutBlurb from '@/components/features/home/ShortAboutBlurb';
 import CallToActionBlock from '@/components/features/home/CallToActionBlock';
 import RecentBlogSection from '@/components/features/home/RecentBlogSection';
@@ -71,10 +72,15 @@ export default async function HomePage() {
         <FeaturedProjects />
       </section>
 
-      {/* 3. Recent Blog Posts (NIEUW) - Nu als client component */}
+      {/* 3. Pricing Section */}
+      <section aria-labelledby="pricing-title">
+        <PricingSection />
+      </section>
+
+      {/* 4. Recent Blog Posts (NIEUW) - Nu als client component */}
       <RecentBlogSection posts={recentPosts} />
 
-      {/* 4. Short About Blurb - Nu met image props */}
+      {/* 5. Short About Blurb - Nu met image props */}
       <section aria-labelledby="about-blurb-title">
         <ShortAboutBlurb 
           profileImageUrl={profilePicture.url} 
@@ -82,7 +88,7 @@ export default async function HomePage() {
         />
       </section>
 
-      {/* 5. Call to Action */}
+      {/* 6. Call to Action */}
       <section aria-labelledby="cta-title">
         <h2 id="cta-title" className="sr-only">Call to Action</h2>
         <CallToActionBlock />

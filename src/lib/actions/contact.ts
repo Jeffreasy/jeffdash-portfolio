@@ -63,8 +63,8 @@ function getRemainingAttempts(ip: string): number {
 const ContactFormSchema = z.object({
   name: z.string().min(2, { message: 'Naam moet minimaal 2 tekens bevatten.' }),
   email: z.string().email({ message: 'Ongeldig e-mailadres.' }),
-  subject: z.string().min(3, { message: 'Onderwerp moet minimaal 3 tekens bevatten.' }),
   message: z.string().min(10, { message: 'Bericht moet minimaal 10 tekens bevatten.' }),
+  selectedPlan: z.string().optional(), // Plan information as JSON string
 });
 
 // Type for the state of the contact form
@@ -104,6 +104,18 @@ export async function submitContactForm(prevState: ContactFormState | undefined,
       };
     }
 
+    // Extract and parse plan information
+    const selectedPlanData = formData.get('selectedPlan');
+    let planInfo = null;
+    if (selectedPlanData && typeof selectedPlanData === 'string') {
+      try {
+        planInfo = JSON.parse(selectedPlanData);
+        logger.info('Plan information included in contact form', { planInfo });
+      } catch (error) {
+        logger.warn('Invalid plan data format', { selectedPlanData });
+      }
+    }
+
     // Validate form data
     const validatedFields = ContactFormSchema.safeParse(Object.fromEntries(formData));
     if (!validatedFields.success) {
@@ -117,20 +129,30 @@ export async function submitContactForm(prevState: ContactFormState | undefined,
 
     // Insert into database
     const { error } = await supabase
-      .from('Contact')
+      .from('ContactSubmission')
       .insert({
-        ...validatedFields.data,
-        status: 'new',
+        name: validatedFields.data.name,
+        email: validatedFields.data.email,
+        message: planInfo 
+          ? `[${planInfo.name} - ${planInfo.price}]\n\n${validatedFields.data.message}`
+          : validatedFields.data.message,
+        isRead: false,
         createdAt: new Date().toISOString(),
       });
 
     if (error) throw error;
 
-    logger.info('Contact form successfully submitted', { clientIp });
+    logger.info('Contact form successfully submitted', { 
+      clientIp, 
+      planIncluded: !!planInfo,
+      planName: planInfo?.name 
+    });
     revalidatePath('/contact');
     return {
       success: true,
-      message: 'Bericht succesvol verzonden! We nemen zo snel mogelijk contact met je op.',
+      message: planInfo 
+        ? `Bedankt voor je interesse in ${planInfo.name}! We nemen zo snel mogelijk contact met je op voor meer details.`
+        : 'Bericht succesvol verzonden! We nemen zo snel mogelijk contact met je op.',
     };
   } catch (error: any) {
     logger.error('Failed to submit contact form', { error: error.message || error });
