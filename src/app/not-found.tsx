@@ -6,7 +6,8 @@ import { IconHome, IconArrowLeft, IconError404 } from '@tabler/icons-react';
 
 export default function NotFound() {
   const handleGoBack = () => {
-    if (typeof window !== 'undefined' && window.history.length > 1) {
+    // No need for typeof window check in client component click handler
+    if (window.history.length > 1) {
       window.history.back();
     } else {
       window.location.href = '/';

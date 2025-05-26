@@ -85,7 +85,7 @@ export default function RootLayout({
         <ColorSchemeScript />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
-      <body className={inter.className}>
+      <body className={inter.className} suppressHydrationWarning={true}>
         <MantineProvider defaultColorScheme="dark">
           <ModalsProvider>
             <Notifications position="top-right" zIndex={1000} limit={5} />
