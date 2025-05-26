@@ -1,44 +1,44 @@
 import React from 'react';
 import { Metadata } from 'next';
 import { SITE_CONFIG } from '@/lib/config';
-import { getProjects } from '@/lib/actions/projects';
-import ProjectList from '@/components/features/projects/ProjectList';
+
+// Import the construction component
+import UnderConstruction from '../underconstruction/construction';
 
 // --- SEO Metadata --- //
 export const metadata: Metadata = {
-  title: `Projecten | ${SITE_CONFIG.name}`,
-  description: 'Bekijk een overzicht van webontwikkeling projecten van Jeffrey Lavente. Van moderne websites tot complexe webapplicaties, gebouwd met Next.js, React en TypeScript.',
-  keywords: ['projecten', 'portfolio', 'webontwikkeling', 'websites', 'webapplicaties', 'Next.js', 'React', 'Jeffrey Lavente'],
+  title: `${SITE_CONFIG.name} - Onder Constructie`,
+  description: 'Jeffrey Lavente Portfolio - Momenteel onder constructie. Ik werk hard aan iets geweldigs voor je! Kom binnenkort terug voor mijn volledige portfolio.',
+  keywords: ['Jeffrey Lavente', 'webontwikkelaar', 'portfolio', 'onder constructie', 'Next.js', 'React', 'TypeScript', 'webontwikkeling'],
   alternates: {
     canonical: `${SITE_CONFIG.url}/projects`,
   },
   openGraph: {
-    title: `Projecten | ${SITE_CONFIG.name}`,
-    description: 'Bekijk een overzicht van webontwikkeling projecten van Jeffrey Lavente. Van moderne websites tot complexe webapplicaties.',
+    title: `${SITE_CONFIG.name} - Onder Constructie`,
+    description: 'Jeffrey Lavente Portfolio - Momenteel onder constructie. Kom binnenkort terug voor mijn volledige portfolio.',
     url: `${SITE_CONFIG.url}/projects`,
     siteName: SITE_CONFIG.name,
     type: 'website',
     locale: 'nl_NL',
   },
   twitter: {
-    card: 'summary',
-    title: `Projecten | ${SITE_CONFIG.name}`,
-    description: 'Bekijk een overzicht van webontwikkeling projecten van Jeffrey Lavente.',
+    card: 'summary_large_image',
+    title: `${SITE_CONFIG.name} - Onder Constructie`,
+    description: 'Jeffrey Lavente Portfolio - Momenteel onder constructie. Kom binnenkort terug!',
   },
   robots: {
-    index: true,
-    follow: true,
+    index: false, // Don't index while under construction
+    follow: false,
+    noarchive: true,
+    nosnippet: true,
   },
+  category: 'technology',
 };
 
-// Mark the page as dynamic
-export const dynamic = 'force-dynamic';
+// Mark the page as static since construction page doesn't need data fetching
+export const dynamic = 'force-static';
 
-// Deze pagina is een Server Component
-export default async function ProjectsPage() {
-  // Haal de projecten op aan de server-kant
-  const projects = await getProjects();
-
-  // Geef de opgehaalde projecten door aan de ProjectList component
-  return <ProjectList projects={projects} />;
+// Simple page that shows construction component
+export default function ProjectsPage() {
+  return <UnderConstruction />;
 } 

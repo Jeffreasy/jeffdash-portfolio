@@ -1,44 +1,44 @@
 import React from 'react';
 import { Metadata } from 'next';
 import { SITE_CONFIG } from '@/lib/config';
-import { getPublishedPosts } from '@/lib/actions/blog';
-import BlogList from '@/components/features/blog/BlogList';
+
+// Import the construction component
+import UnderConstruction from '../underconstruction/construction';
 
 // --- SEO Metadata --- //
 export const metadata: Metadata = {
-  title: `Blog | ${SITE_CONFIG.name}`,
-  description: 'Ontdek interessante artikelen over webontwikkeling, moderne technologieën zoals Next.js, React, TypeScript en meer. Tips, tutorials en inzichten van Jeffrey Lavente.',
-  keywords: ['blog', 'webontwikkeling', 'Next.js', 'React', 'TypeScript', 'tutorials', 'programming', 'Jeffrey Lavente'],
+  title: `${SITE_CONFIG.name} - Onder Constructie`,
+  description: 'Jeffrey Lavente Portfolio - Momenteel onder constructie. Ik werk hard aan iets geweldigs voor je! Kom binnenkort terug voor mijn volledige portfolio.',
+  keywords: ['Jeffrey Lavente', 'webontwikkelaar', 'portfolio', 'onder constructie', 'Next.js', 'React', 'TypeScript', 'webontwikkeling'],
   alternates: {
     canonical: `${SITE_CONFIG.url}/blog`,
   },
   openGraph: {
-    title: `Blog | ${SITE_CONFIG.name}`,
-    description: 'Ontdek interessante artikelen over webontwikkeling, moderne technologieën en programming tips.',
+    title: `${SITE_CONFIG.name} - Onder Constructie`,
+    description: 'Jeffrey Lavente Portfolio - Momenteel onder constructie. Kom binnenkort terug voor mijn volledige portfolio.',
     url: `${SITE_CONFIG.url}/blog`,
     siteName: SITE_CONFIG.name,
     type: 'website',
     locale: 'nl_NL',
   },
   twitter: {
-    card: 'summary',
-    title: `Blog | ${SITE_CONFIG.name}`,
-    description: 'Ontdek interessante artikelen over webontwikkeling en moderne technologieën.',
+    card: 'summary_large_image',
+    title: `${SITE_CONFIG.name} - Onder Constructie`,
+    description: 'Jeffrey Lavente Portfolio - Momenteel onder constructie. Kom binnenkort terug!',
   },
   robots: {
-    index: true,
-    follow: true,
+    index: false, // Don't index while under construction
+    follow: false,
+    noarchive: true,
+    nosnippet: true,
   },
+  category: 'technology',
 };
 
-// Mark the page as dynamic
-export const dynamic = 'force-dynamic';
+// Mark the page as static since construction page doesn't need data fetching
+export const dynamic = 'force-static';
 
-// Deze pagina is een Server Component
-export default async function BlogPage() {
-  // Haal de gepubliceerde blog posts op aan de server-kant
-  const posts = await getPublishedPosts();
-
-  // Geef de opgehaalde posts door aan de BlogList component
-  return <BlogList posts={posts} />;
+// Simple page that shows construction component
+export default function BlogPage() {
+  return <UnderConstruction />;
 } 

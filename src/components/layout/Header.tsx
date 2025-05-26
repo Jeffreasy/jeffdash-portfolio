@@ -22,10 +22,11 @@ import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
 import LayoutErrorBoundary from './LayoutErrorBoundary';
 
+// During construction, all navigation links redirect to homepage
 const mainLinks = [
-  { link: '/projects', label: 'Projects' },
-  { link: '/blog', label: 'Blog' },
-  { link: '/about', label: 'About' },
+  { link: '/', label: 'Projects' },
+  { link: '/', label: 'Blog' },
+  { link: '/', label: 'About' },
 ];
 
 const socialLinks = [
@@ -156,7 +157,7 @@ export default function Header() {
     <motion.div variants={linkVariants} whileHover="hover" whileTap="tap">
       <Button 
         component={Link} 
-        href="/contact" 
+        href="/" 
         onClick={close} 
         variant="gradient"
         gradient={{ from: 'blue.6', to: 'cyan.5' }}
