@@ -62,7 +62,7 @@ const PricingDetailModal: React.FC<PricingDetailModalProps> = ({
           opened={opened}
           onClose={onClose}
           title={
-            <Group gap="sm">
+            <Group gap="sm" wrap="nowrap">
               <ThemeIcon
                 size="md"
                 radius="md"
@@ -71,15 +71,18 @@ const PricingDetailModal: React.FC<PricingDetailModalProps> = ({
               >
                 <plan.icon size={16} />
               </ThemeIcon>
-              <Text size="lg" fw={700} c="gray.1">
-                {plan.name}
-              </Text>
+              <Box flex={1}>
+                <Text size="lg" fw={700} c="gray.1" lineClamp={1}>
+                  {plan.name}
+                </Text>
+              </Box>
               {plan.popular && (
                 <Badge
                   variant="gradient"
                   gradient={plan.gradient}
                   size="sm"
                   leftSection={<IconStar size={10} />}
+                  style={{ flexShrink: 0 }}
                 >
                   Populair
                 </Badge>
@@ -98,11 +101,20 @@ const PricingDetailModal: React.FC<PricingDetailModalProps> = ({
               background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%)',
               border: '1px solid rgba(255, 255, 255, 0.1)',
               backdropFilter: 'blur(20px)',
+              margin: '0.5rem',
+              '@media (max-width: 768px)': {
+                margin: '0',
+                borderRadius: '0',
+                minHeight: '100vh',
+              },
             },
             header: {
               background: 'transparent',
               borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
               paddingBottom: rem(16),
+              '@media (max-width: 768px)': {
+                paddingTop: rem(20),
+              },
             },
             title: {
               width: '100%',
@@ -111,6 +123,11 @@ const PricingDetailModal: React.FC<PricingDetailModalProps> = ({
               color: 'var(--mantine-color-gray-4)',
               '&:hover': {
                 background: 'rgba(255, 255, 255, 0.1)',
+              },
+            },
+            body: {
+              '@media (max-width: 768px)': {
+                paddingBottom: rem(20),
               },
             },
           }}
@@ -129,10 +146,10 @@ const PricingDetailModal: React.FC<PricingDetailModalProps> = ({
                 </Text>
                 <Group align="baseline" gap="xs">
                   <Text
-                    size="1.8rem"
-                    fw={900}
-                    lh={1}
                     style={{
+                      fontSize: 'clamp(1.4rem, 3.5vw, 1.8rem)',
+                      fontWeight: 900,
+                      lineHeight: 1,
                       background: `linear-gradient(135deg, var(--mantine-color-${plan.color}-4), var(--mantine-color-${plan.color}-6))`,
                       backgroundClip: 'text',
                       WebkitBackgroundClip: 'text',

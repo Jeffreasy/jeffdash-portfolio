@@ -48,9 +48,9 @@ const PricingCard: React.FC<PricingCardProps> = ({ plan, index, onViewDetails })
     >
       <Card
         shadow="xl"
-        radius="xl"
+        radius="lg"
         h="100%"
-        p="lg"
+        p={{ base: "md", md: "lg" }}
         style={{
           background: plan.popular 
             ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(6, 182, 212, 0.03) 100%)'
@@ -80,7 +80,7 @@ const PricingCard: React.FC<PricingCardProps> = ({ plan, index, onViewDetails })
           </Badge>
         )}
 
-        <Stack gap="md" h="100%">
+        <Stack gap="sm" h="100%">
           {/* Header */}
           <Group>
             <ThemeIcon
@@ -105,10 +105,10 @@ const PricingCard: React.FC<PricingCardProps> = ({ plan, index, onViewDetails })
           <Box>
             <Group align="baseline" gap="xs">
               <Text
-                size="2rem"
-                fw={900}
-                lh={1}
                 style={{
+                  fontSize: 'clamp(1.5rem, 4vw, 2rem)',
+                  fontWeight: 900,
+                  lineHeight: 1,
                   background: `linear-gradient(135deg, var(--mantine-color-${plan.color}-4), var(--mantine-color-${plan.color}-6))`,
                   backgroundClip: 'text',
                   WebkitBackgroundClip: 'text',
@@ -192,7 +192,7 @@ const PricingCard: React.FC<PricingCardProps> = ({ plan, index, onViewDetails })
               gradient={plan.ctaVariant === 'gradient' ? plan.gradient : undefined}
               color={plan.color}
               fullWidth
-              size="sm"
+              size="md"
               radius="md"
               rightSection={<IconArrowRight size={16} />}
               style={{

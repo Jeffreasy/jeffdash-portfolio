@@ -51,7 +51,8 @@ const PricingSection: React.FC = () => {
     <PageErrorBoundary>
       <Box
         component="section"
-        py={rem(80)}
+        py={{ base: rem(40), md: rem(80) }}
+        px={{ base: rem(16), md: 0 }}
         style={{
           background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.97) 0%, rgba(15, 23, 42, 0.97) 100%)',
           position: 'relative',
@@ -89,7 +90,7 @@ const PricingSection: React.FC = () => {
             viewport={{ once: true, amount: 0.3 }}
           >
             {/* Section Header */}
-            <Stack align="center" gap="lg" mb={rem(50)}>
+            <Stack align="center" gap="lg" mb={{ base: rem(30), md: rem(50) }}>
               <motion.div variants={itemVariants}>
                 <Group gap="xs" justify="center">
                   <IconBolt size={20} style={{ color: 'var(--mantine-color-yellow-4)' }} />
@@ -104,7 +105,7 @@ const PricingSection: React.FC = () => {
                   order={2}
                   ta="center"
                   style={{
-                    fontSize: 'clamp(2rem, 4vw, 2.8rem)',
+                    fontSize: 'clamp(1.5rem, 5vw, 2.8rem)',
                     fontWeight: 900,
                     lineHeight: 1.2,
                   }}
@@ -138,9 +139,9 @@ const PricingSection: React.FC = () => {
             </Stack>
 
             {/* Pricing Cards */}
-            <Grid gutter="lg" mb={rem(60)}>
+            <Grid gutter={{ base: "md", md: "lg" }} mb={{ base: rem(40), md: rem(60) }}>
               {pricingPlans.map((plan, index) => (
-                <Grid.Col key={plan.id} span={{ base: 12, sm: 6, lg: 3 }}>
+                <Grid.Col key={plan.id} span={{ base: 12, md: 6, lg: 3 }}>
                   <PricingCard 
                     plan={plan} 
                     index={index} 
