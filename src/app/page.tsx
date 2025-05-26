@@ -16,6 +16,9 @@ import { getPublishedPosts } from '@/lib/actions/blog';
 // Importeer profielfoto action
 import { getProfilePicture } from '@/lib/actions/content';
 
+// Force dynamic rendering to avoid static generation issues with Supabase
+export const dynamic = 'force-dynamic';
+
 // --- SEO Metadata --- //
 export const metadata: Metadata = {
   title: `${SITE_CONFIG.name} - Full-Stack Developer & AI Explorer`,
