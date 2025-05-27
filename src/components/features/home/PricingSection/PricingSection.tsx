@@ -4,8 +4,10 @@ import React from 'react';
 import { Container, Grid, Title, Text, Button, Box, Group, Stack, List, ThemeIcon, Badge } from '@mantine/core';
 import { IconBolt, IconStar, IconArrowRight, IconCheck, IconEye, IconPlus } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
-import { modals } from '@mantine/modals';
+
 import PageErrorBoundary from '../../shared/PageErrorBoundary';
+import ContactModal from '@/components/features/contact/ContactModal';
+import { useContactModal } from '@/hooks/useContactModal';
 import { pricingPlans, PricingPlan } from './data';
 
 // Animation variants
@@ -32,226 +34,16 @@ const cardVariants = {
   },
 };
 
-// Modal Content Component
-const PlanModalContent: React.FC<{ plan: PricingPlan }> = ({ plan }) => {
-  return (
-    <Stack gap="lg">
-      {/* Header */}
-      <Group>
-        <ThemeIcon 
-          size="xl" 
-          radius="md" 
-          variant="gradient" 
-          gradient={plan.gradient}
-        >
-          <plan.icon size={24} />
-        </ThemeIcon>
-        <Box flex={1}>
-          <Title order={3} c="gray.1">
-            {plan.name}
-          </Title>
-          <Text c="dimmed" size="sm">
-            {plan.description}
-          </Text>
-        </Box>
-      </Group>
 
-      {/* Pricing */}
-      <Box
-        style={{
-          padding: 'var(--mantine-spacing-md)',
-          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.05))',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          borderRadius: 'var(--mantine-radius-md)',
-        }}
-      >
-        <Group align="baseline" gap="xs" mb="xs">
-          <Text 
-            fw={900} 
-            lh={1}
-            style={{
-              fontSize: '2rem',
-              background: `linear-gradient(135deg, var(--mantine-color-${plan.color}-4), var(--mantine-color-${plan.color}-6))`,
-              backgroundClip: 'text',
-              WebkitBackgroundClip: 'text',
-              color: 'transparent',
-            }}
-          >
-            {plan.price}
-          </Text>
-          {plan.originalPrice && (
-            <Text size="lg" c="dimmed" td="line-through">
-              {plan.originalPrice}
-            </Text>
-          )}
-        </Group>
-        <Text size="sm" c="dimmed">
-          {plan.period}
-        </Text>
-      </Box>
 
-      {/* Features */}
-      <Box>
-        <Title order={4} size="h5" mb="md" c="gray.2">
-          Wat is inbegrepen:
-        </Title>
-        <List 
-          spacing="sm" 
-          size="sm" 
-          icon={
-            <ThemeIcon 
-              size="sm" 
-              radius="xl" 
-              color={plan.color} 
-              variant="light"
-            >
-              <IconCheck size={12} />
-            </ThemeIcon>
-          }
-        >
-          {plan.features.map((feature, index) => (
-            <List.Item key={index}>
-              <Text size="sm" c="gray.3">
-                {feature}
-              </Text>
-            </List.Item>
-          ))}
-        </List>
-      </Box>
-
-      {/* CTA */}
-      <Group gap="md" mt="md">
-        <motion.div
-          whileHover={{ 
-            scale: 1.02,
-            transition: { duration: 0.2, ease: "easeOut" }
-          }}
-          whileTap={{ 
-            scale: 0.98,
-            transition: { duration: 0.1 }
-          }}
-          style={{ flex: 1 }}
-        >
-          <Button
-            component="a"
-            href={`mailto:jeffrey@jeffdash.nl?subject=Interesse in ${plan.name}&body=Hallo Jeffrey,%0D%0A%0D%0AIk ben geïnteresseerd in het ${plan.name} plan.%0D%0A%0D%0AKun je me meer informatie geven?%0D%0A%0D%0AMet vriendelijke groet`}
-            variant={plan.ctaVariant}
-            gradient={plan.ctaVariant === 'gradient' ? plan.gradient : undefined}
-            color={plan.color}
-            fullWidth
-            size="md"
-            radius="md"
-            rightSection={
-              <motion.div
-                animate={{ x: 0 }}
-                whileHover={{ x: 4 }}
-                transition={{ duration: 0.2 }}
-              >
-                <IconArrowRight size={16} />
-              </motion.div>
-            }
-            style={{
-              fontWeight: 600,
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              position: 'relative',
-              overflow: 'hidden',
-              ...(plan.popular && { 
-                boxShadow: '0 8px 32px rgba(59, 130, 246, 0.3)' 
-              }),
-            }}
-            styles={{
-              root: {
-                '&:hover': {
-                  boxShadow: plan.popular 
-                    ? '0 12px 40px rgba(59, 130, 246, 0.5)' 
-                    : '0 8px 32px rgba(59, 130, 246, 0.3)',
-                  transform: 'translateY(-2px)',
-                },
-                '&:active': {
-                  transform: 'translateY(0px)',
-                },
-                '&::before': {
-                  content: '""',
-                  position: 'absolute',
-                  top: 0,
-                  left: '-100%',
-                  width: '100%',
-                  height: '100%',
-                  background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent)',
-                  transition: 'left 0.5s ease',
-                },
-                '&:hover::before': {
-                  left: '100%',
-                }
-              }
-            }}
-          >
-            {plan.ctaText}
-          </Button>
-        </motion.div>
-        
-        <motion.div
-          whileHover={{ 
-            scale: 1.02,
-            transition: { duration: 0.2, ease: "easeOut" }
-          }}
-          whileTap={{ 
-            scale: 0.98,
-            transition: { duration: 0.1 }
-          }}
-        >
-          <Button
-            variant="outline"
-            color="gray"
-            size="md"
-            onClick={() => modals.closeAll()}
-            style={{
-              borderColor: 'rgba(255, 255, 255, 0.2)',
-              color: 'var(--mantine-color-gray-2)',
-              fontWeight: 600,
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              position: 'relative',
-              overflow: 'hidden',
-            }}
-            styles={{
-              root: {
-                '&:hover': {
-                  borderColor: 'rgba(255, 255, 255, 0.4)',
-                  color: 'var(--mantine-color-gray-1)',
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  transform: 'translateY(-1px)',
-                },
-                '&:active': {
-                  transform: 'translateY(0px)',
-                },
-              }
-            }}
-          >
-            Sluiten
-          </Button>
-        </motion.div>
-      </Group>
-    </Stack>
-  );
-};
-
-// Function to open plan modal
-const openPlanModal = (plan: PricingPlan) => {
-  modals.open({
-    title: `${plan.name} - Gedetailleerde Informatie`,
-    size: 'lg',
-    centered: true,
-    children: <PlanModalContent plan={plan} />,
-    styles: {
-      title: {
-        fontSize: '1.25rem',
-        fontWeight: 700,
-      },
-    },
-  });
+// Function to open contact modal with plan
+const openContactModalWithPlan = (plan: PricingPlan, contactModal: any) => {
+  contactModal.openWithPlan(plan);
 };
 
 const PricingSection: React.FC = () => {
+  const contactModal = useContactModal();
+
   return (
     <PageErrorBoundary>
       <Box
@@ -388,7 +180,7 @@ const PricingSection: React.FC = () => {
                     style={{ height: '100%' }}
                   >
                     <Box
-                      onClick={() => openPlanModal(plan)}
+                      onClick={() => openContactModalWithPlan(plan, contactModal)}
                       style={{
                         position: 'relative',
                         background: plan.popular 
@@ -513,8 +305,6 @@ const PricingSection: React.FC = () => {
 
                       {/* CTA Button */}
                       <Button
-                        component="a"
-                        href={`mailto:jeffrey@jeffdash.nl?subject=Interesse in ${plan.name}&body=Hallo Jeffrey,%0D%0A%0D%0AIk ben geïnteresseerd in het ${plan.name} plan.%0D%0A%0D%0AKun je me meer informatie geven?%0D%0A%0D%0AMet vriendelijke groet`}
                         variant={plan.ctaVariant}
                         gradient={plan.ctaVariant === 'gradient' ? plan.gradient : undefined}
                         color={plan.color}
@@ -522,7 +312,10 @@ const PricingSection: React.FC = () => {
                         size="md"
                         radius="md"
                         rightSection={<IconArrowRight size={16} />}
-                        onClick={(e) => e.stopPropagation()} // Prevent modal opening when clicking CTA
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent modal opening when clicking CTA
+                          contactModal.openWithPlan(plan);
+                        }}
                         style={{
                           fontWeight: 600,
                           marginTop: 'var(--mantine-spacing-md)',
@@ -556,8 +349,7 @@ const PricingSection: React.FC = () => {
                   }}
                 >
                   <Button
-                    component="a"
-                    href="mailto:jeffrey@jeffdash.nl?subject=Gratis Advies Aanvraag&body=Hallo Jeffrey,%0D%0A%0D%0AIk zou graag gratis advies willen over welk plan het beste bij mij past.%0D%0A%0D%0AKun je me helpen?%0D%0A%0D%0AMet vriendelijke groet"
+                    onClick={() => contactModal.openModal()}
                     variant="outline"
                     color="gray"
                     size="lg"
@@ -615,6 +407,13 @@ const PricingSection: React.FC = () => {
           </motion.div>
         </Container>
       </Box>
+
+      {/* Contact Modal */}
+      <ContactModal
+        opened={contactModal.opened}
+        onClose={contactModal.closeModal}
+        selectedPlan={contactModal.selectedPlan}
+      />
     </PageErrorBoundary>
   );
 };
