@@ -120,7 +120,7 @@ export default async function AdminDashboardPage() {
         </Card>
       )}
 
-      <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md">
+      <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="md">
         <Card withBorder p="md">
           <Stack gap="xs">
             <Title order={4}>Projecten</Title>
@@ -147,6 +147,16 @@ export default async function AdminDashboardPage() {
             <Text size="xl" fw={700}>{contactsCount}</Text>
             <Button component={Link} href="/admin_area/contacts" size="xs">
               Beheren
+            </Button>
+          </Stack>
+        </Card>
+
+        <Card withBorder p="md">
+          <Stack gap="xs">
+            <Title order={4}>Email Test</Title>
+            <Text size="sm" c="gray.6">Mailgun Integratie</Text>
+            <Button component={Link} href="/admin_area/email-test" size="xs" variant="outline">
+              Test Emails
             </Button>
           </Stack>
         </Card>

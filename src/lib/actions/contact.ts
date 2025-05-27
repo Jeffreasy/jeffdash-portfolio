@@ -83,7 +83,7 @@ function normalizeContactSubmission(submission: any): ContactSubmissionType {
 }
 
 /**
- * Handles the submission of a contact form.
+ * Handles the submission of a contact form with email integration.
  */
 export async function submitContactForm(prevState: ContactFormState | undefined, formData: FormData): Promise<ContactFormState> {
   logger.info('Contact form submission started');
@@ -142,6 +142,278 @@ export async function submitContactForm(prevState: ContactFormState | undefined,
 
     if (error) throw error;
 
+    // Send emails directly using Mailgun
+    try {
+      // Import the sendEmail function
+      const { sendEmail } = await import('@/lib/mailgun');
+      
+      // Send confirmation email to user
+      const userEmailResult = await sendEmail({
+        to: validatedFields.data.email,
+        from: 'no-reply@jeffdash.com',
+        subject: 'Bedankt voor je bericht - Jeffrey Portfolio',
+        html: `
+          <!DOCTYPE html>
+          <html lang="nl">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Bedankt voor je bericht</title>
+          </head>
+          <body style="margin: 0; padding: 0; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+            <div style="max-width: 600px; margin: 0 auto; background: #ffffff;">
+              
+              <!-- Header with gradient -->
+              <div style="background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%); padding: 40px 30px; text-align: center;">
+                <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 900; letter-spacing: -0.5px;">
+                  Jeffrey Portfolio
+                </h1>
+                <p style="margin: 8px 0 0 0; color: rgba(255, 255, 255, 0.9); font-size: 16px; font-weight: 500;">
+                  Full-Stack Developer & Designer
+                </p>
+              </div>
+
+              <!-- Main content -->
+              <div style="padding: 40px 30px;">
+                <div style="text-align: center; margin-bottom: 30px;">
+                  <div style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%); padding: 12px 24px; border-radius: 50px; margin-bottom: 20px;">
+                    <span style="color: #ffffff; font-size: 24px;">✓</span>
+                  </div>
+                  <h2 style="margin: 0; color: #1e293b; font-size: 24px; font-weight: 700;">
+                    Bedankt voor je bericht!
+                  </h2>
+                </div>
+
+                <div style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(6, 182, 212, 0.05) 100%); border: 1px solid rgba(59, 130, 246, 0.1); border-radius: 12px; padding: 24px; margin-bottom: 30px;">
+                  <p style="margin: 0 0 16px 0; color: #374151; font-size: 16px; line-height: 1.6;">
+                    Hallo <strong style="color: #1e293b;">${validatedFields.data.name}</strong>,
+                  </p>
+                  <p style="margin: 0 0 16px 0; color: #374151; font-size: 16px; line-height: 1.6;">
+                    Bedankt voor je interesse in mijn werk. Ik heb je bericht ontvangen en neem binnen <strong>24 uur</strong> contact met je op.
+                  </p>
+                  ${planInfo ? `
+                    <div style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%); border: 1px solid rgba(34, 197, 94, 0.2); border-radius: 8px; padding: 16px; margin: 20px 0;">
+                      <p style="margin: 0; color: #059669; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                        Je bent geïnteresseerd in:
+                      </p>
+                      <p style="margin: 8px 0 0 0; color: #1e293b; font-size: 18px; font-weight: 700;">
+                        ${planInfo.name} - ${planInfo.price}
+                      </p>
+                    </div>
+                  ` : ''}
+                </div>
+
+                <!-- What happens next -->
+                <div style="background: #f8fafc; border-radius: 12px; padding: 24px; margin-bottom: 30px;">
+                  <h3 style="margin: 0 0 16px 0; color: #1e293b; font-size: 18px; font-weight: 600;">
+                    Wat gebeurt er nu?
+                  </h3>
+                  <div style="display: flex; align-items: flex-start; margin-bottom: 12px;">
+                    <div style="background: #3b82f6; color: #ffffff; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; margin-right: 12px; flex-shrink: 0;">1</div>
+                    <p style="margin: 0; color: #374151; font-size: 14px; line-height: 1.5;">
+                      Ik bekijk je bericht en bereid een persoonlijke reactie voor
+                    </p>
+                  </div>
+                  <div style="display: flex; align-items: flex-start; margin-bottom: 12px;">
+                    <div style="background: #3b82f6; color: #ffffff; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; margin-right: 12px; flex-shrink: 0;">2</div>
+                    <p style="margin: 0; color: #374151; font-size: 14px; line-height: 1.5;">
+                      Je ontvangt binnen 24 uur een persoonlijke reactie
+                    </p>
+                  </div>
+                  <div style="display: flex; align-items: flex-start;">
+                    <div style="background: #3b82f6; color: #ffffff; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; margin-right: 12px; flex-shrink: 0;">3</div>
+                    <p style="margin: 0; color: #374151; font-size: 14px; line-height: 1.5;">
+                      We plannen een gesprek om je project te bespreken
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Signature -->
+                <div style="text-align: center; padding: 20px 0;">
+                  <p style="margin: 0 0 8px 0; color: #374151; font-size: 16px; line-height: 1.6;">
+                    Met vriendelijke groet,
+                  </p>
+                  <p style="margin: 0; color: #1e293b; font-size: 18px; font-weight: 700;">
+                    Jeffrey Lavente
+                  </p>
+                  <p style="margin: 4px 0 0 0; color: #6b7280; font-size: 14px;">
+                    Full-Stack Developer & Designer
+                  </p>
+                </div>
+
+                <!-- CTA Button -->
+                <div style="text-align: center; margin: 30px 0;">
+                  <a href="https://jeffdash.com" style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%); color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);">
+                    Bekijk mijn portfolio
+                  </a>
+                </div>
+              </div>
+
+              <!-- Footer -->
+              <div style="background: #f8fafc; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+                <p style="margin: 0 0 12px 0; color: #6b7280; font-size: 14px;">
+                  Jeffrey Portfolio - Professionele webdevelopment en design
+                </p>
+                <p style="margin: 0 0 16px 0; color: #6b7280; font-size: 12px;">
+                  Dit is een automatisch gegenereerd bericht. Je kunt niet direct op deze email antwoorden.
+                </p>
+                <div style="margin-top: 20px;">
+                  <a href="https://jeffdash.com" style="color: #3b82f6; text-decoration: none; font-size: 14px; margin: 0 12px;">Website</a>
+                  <a href="https://jeffdash.com/projects" style="color: #3b82f6; text-decoration: none; font-size: 14px; margin: 0 12px;">Projecten</a>
+                  <a href="https://jeffdash.com/contact" style="color: #3b82f6; text-decoration: none; font-size: 14px; margin: 0 12px;">Contact</a>
+                </div>
+              </div>
+            </div>
+          </body>
+          </html>
+        `,
+        text: `Bedankt voor je bericht!\n\nHallo ${validatedFields.data.name},\n\nBedankt voor je interesse in mijn werk. Ik heb je bericht ontvangen en neem binnen 24 uur contact met je op.\n\n${planInfo ? `Je bent geïnteresseerd in: ${planInfo.name} - ${planInfo.price}\n\n` : ''}Wat gebeurt er nu?\n1. Ik bekijk je bericht en bereid een persoonlijke reactie voor\n2. Je ontvangt binnen 24 uur een persoonlijke reactie\n3. We plannen een gesprek om je project te bespreken\n\nMet vriendelijke groet,\nJeffrey Lavente\nFull-Stack Developer & Designer\n\nWebsite: https://jeffdash.com`
+      });
+
+      // Send notification email to Jeffrey  
+      const fromEmail = planInfo ? 'sales@jeffdash.com' : 'contact@jeffdash.com';
+      const notificationResult = await sendEmail({
+        to: 'laventejeffrey@gmail.com', // Tijdelijk naar Gmail voor test
+        from: fromEmail,
+        subject: `${planInfo ? '💼 Nieuwe Plan Aanvraag' : '📧 Nieuw Contact Bericht'} van ${validatedFields.data.name}`,
+        html: `
+          <!DOCTYPE html>
+          <html lang="nl">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Nieuw Contact Bericht</title>
+          </head>
+          <body style="margin: 0; padding: 0; background: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+            <div style="max-width: 600px; margin: 0 auto; background: #ffffff; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+              
+              <!-- Header -->
+              <div style="background: ${planInfo ? 'linear-gradient(135deg, #059669 0%, #10b981 100%)' : 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)'}; padding: 30px; text-align: center;">
+                <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700;">
+                  ${planInfo ? '💼 Nieuwe Plan Aanvraag' : '📧 Nieuw Contact Bericht'}
+                </h1>
+                <p style="margin: 8px 0 0 0; color: rgba(255, 255, 255, 0.9); font-size: 14px;">
+                  Jeffrey Portfolio Admin
+                </p>
+              </div>
+
+              <!-- Client Info -->
+              <div style="padding: 30px;">
+                <div style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(6, 182, 212, 0.05) 100%); border: 1px solid rgba(59, 130, 246, 0.1); border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+                  <h2 style="margin: 0 0 20px 0; color: #1e293b; font-size: 18px; font-weight: 600; display: flex; align-items: center;">
+                    <span style="background: #3b82f6; color: #ffffff; width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; margin-right: 12px;">👤</span>
+                    Klant Informatie
+                  </h2>
+                  
+                  <div style="display: grid; gap: 12px;">
+                    <div style="display: flex; align-items: center;">
+                      <span style="color: #6b7280; font-size: 14px; font-weight: 500; width: 80px; flex-shrink: 0;">Naam:</span>
+                      <span style="color: #1e293b; font-size: 16px; font-weight: 600;">${validatedFields.data.name}</span>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                      <span style="color: #6b7280; font-size: 14px; font-weight: 500; width: 80px; flex-shrink: 0;">Email:</span>
+                      <a href="mailto:${validatedFields.data.email}" style="color: #3b82f6; font-size: 16px; text-decoration: none; font-weight: 500;">${validatedFields.data.email}</a>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                      <span style="color: #6b7280; font-size: 14px; font-weight: 500; width: 80px; flex-shrink: 0;">Tijd:</span>
+                      <span style="color: #1e293b; font-size: 14px;">${new Date().toLocaleString('nl-NL', { 
+                        weekday: 'long', 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric', 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                      })}</span>
+                    </div>
+                  </div>
+                </div>
+
+                ${planInfo ? `
+                  <!-- Plan Info -->
+                  <div style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%); border: 1px solid rgba(34, 197, 94, 0.2); border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+                    <h3 style="margin: 0 0 16px 0; color: #059669; font-size: 16px; font-weight: 600; display: flex; align-items: center;">
+                      <span style="background: #10b981; color: #ffffff; width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; margin-right: 10px;">💼</span>
+                      Plan Interesse
+                    </h3>
+                    <div style="background: #ffffff; border-radius: 8px; padding: 16px; border: 1px solid rgba(34, 197, 94, 0.1);">
+                      <p style="margin: 0; color: #1e293b; font-size: 18px; font-weight: 700;">
+                        ${planInfo.name}
+                      </p>
+                      <p style="margin: 4px 0 0 0; color: #059669; font-size: 16px; font-weight: 600;">
+                        ${planInfo.price}
+                      </p>
+                    </div>
+                  </div>
+                ` : ''}
+
+                <!-- Message -->
+                <div style="background: #f8fafc; border-radius: 12px; padding: 24px; margin-bottom: 30px;">
+                  <h3 style="margin: 0 0 16px 0; color: #1e293b; font-size: 16px; font-weight: 600; display: flex; align-items: center;">
+                    <span style="background: #6b7280; color: #ffffff; width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; margin-right: 10px;">💬</span>
+                    Bericht
+                  </h3>
+                  <div style="background: #ffffff; border-radius: 8px; padding: 20px; border: 1px solid #e5e7eb; line-height: 1.6; color: #374151; font-size: 15px;">
+                    ${validatedFields.data.message.replace(/\n/g, '<br>')}
+                  </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                  <a href="mailto:${validatedFields.data.email}?subject=Re: Je bericht via Jeffrey Portfolio&body=Hallo ${validatedFields.data.name},%0D%0A%0D%0ABedankt voor je bericht!" 
+                     style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%); color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 14px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);">
+                    📧 Beantwoord Direct
+                  </a>
+                  <a href="https://jeffdash.com/admin_area/contacts" 
+                     style="display: inline-block; background: #6b7280; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 14px;">
+                    📋 Bekijk in Admin
+                  </a>
+                </div>
+              </div>
+
+              <!-- Footer -->
+              <div style="background: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
+                <p style="margin: 0; color: #6b7280; font-size: 12px;">
+                  Jeffrey Portfolio Admin Notificatie - ${new Date().toLocaleString('nl-NL')}
+                </p>
+              </div>
+            </div>
+          </body>
+          </html>
+        `,
+        text: `${planInfo ? 'NIEUWE PLAN AANVRAAG' : 'NIEUW CONTACT BERICHT'}\n\nKlant: ${validatedFields.data.name}\nEmail: ${validatedFields.data.email}\nTijd: ${new Date().toLocaleString('nl-NL')}\n\n${planInfo ? `Plan: ${planInfo.name} - ${planInfo.price}\n\n` : ''}BERICHT:\n${validatedFields.data.message}\n\nBeantwoord direct: mailto:${validatedFields.data.email}`
+      });
+
+      if (userEmailResult.success && notificationResult.success) {
+        logger.info('Contact emails sent successfully via direct Mailgun integration', {
+          userEmail: {
+            to: validatedFields.data.email,
+            from: 'no-reply@jeffdash.com',
+            success: userEmailResult.success
+          },
+          adminEmail: {
+            to: 'laventejeffrey@gmail.com',
+            from: fromEmail,
+            success: notificationResult.success
+          }
+        });
+      } else {
+        logger.warn('Some emails failed to send', { 
+          userEmailResult: {
+            success: userEmailResult.success,
+            error: userEmailResult.error
+          }, 
+          notificationResult: {
+            success: notificationResult.success,
+            error: notificationResult.error
+          }
+        });
+      }
+    } catch (emailError: any) {
+      logger.warn('Email sending failed, but form was saved to database', { 
+        error: emailError.message 
+      });
+    }
+
     logger.info('Contact form successfully submitted', { 
       clientIp, 
       planIncluded: !!planInfo,
@@ -151,8 +423,8 @@ export async function submitContactForm(prevState: ContactFormState | undefined,
     return {
       success: true,
       message: planInfo 
-        ? `Bedankt voor je interesse in ${planInfo.name}! We nemen zo snel mogelijk contact met je op voor meer details.`
-        : 'Bericht succesvol verzonden! We nemen zo snel mogelijk contact met je op.',
+        ? `Bedankt voor je interesse in ${planInfo.name}! We hebben je bericht ontvangen en je ontvangt een bevestigingsmail. We nemen zo snel mogelijk contact met je op voor meer details.`
+        : 'Bericht succesvol verzonden! Je ontvangt een bevestigingsmail en we nemen zo snel mogelijk contact met je op.',
     };
   } catch (error: any) {
     logger.error('Failed to submit contact form', { error: error.message || error });
