@@ -5,6 +5,7 @@ import { Title, Text, Button, Container, Box, Group, Stack } from '@mantine/core
 import { IconArrowRight, IconCode, IconSparkles } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
 import PageErrorBoundary from '../shared/PageErrorBoundary';
+import { ContactModal, useContactModal } from '@/components/features/contact';
 // Optioneel: importeer een CSS-module voor meer geavanceerde stijlen of animaties
 // import classes from './HeroSection.module.css';
 
@@ -77,6 +78,7 @@ const useTypingEffect = (text: string, speed: number = 100) => {
 
 const HeroSection: React.FC = () => {
   const titleId = "hero-title";
+  const contactModal = useContactModal();
   
   // Typing effect voor de naam
   const typedName = useTypingEffect("Jeffrey", 150);
@@ -244,8 +246,7 @@ const HeroSection: React.FC = () => {
                     }}
                   >
                     <Button
-                      component="a"
-                      href="mailto:jeffrey@jeffdash.nl?subject=Portfolio Interesse&body=Hallo Jeffrey,%0D%0A%0D%0AIk ben geïnteresseerd in je werk en zou graag meer willen weten over je projecten.%0D%0A%0D%0AMet vriendelijke groet"
+                      onClick={() => contactModal.openModal()}
                       size="xl"
                       radius="md"
                       variant="gradient"
@@ -312,8 +313,7 @@ const HeroSection: React.FC = () => {
                     }}
                   >
                     <Button
-                      component="a"
-                      href="mailto:jeffrey@jeffdash.nl?subject=Contact Aanvraag&body=Hallo Jeffrey,%0D%0A%0D%0AIk zou graag contact met je opnemen.%0D%0A%0D%0AMet vriendelijke groet"
+                      onClick={() => contactModal.openModal()}
                       size="xl"
                       radius="md"
                       variant="outline"
@@ -388,6 +388,15 @@ const HeroSection: React.FC = () => {
           </motion.div>
         </Container>
       </Box>
+
+      {/* Contact Modal */}
+      <ContactModal
+        opened={contactModal.opened}
+        onClose={contactModal.closeModal}
+        selectedPlan={contactModal.selectedPlan}
+        title="Laten we samenwerken!"
+        description="Geïnteresseerd in mijn werk? Vertel me meer over je project en laten we kijken hoe ik je kan helpen."
+      />
     </PageErrorBoundary>
   );
 };

@@ -2,6 +2,7 @@ import React from 'react';
 import { Box } from '@mantine/core';
 import Header from './Header';
 import Footer from './Footer';
+import ScrollToTopButton from './ScrollToTopButton';
 import PageErrorBoundary from '@/components/features/shared/PageErrorBoundary';
 
 interface LayoutWrapperProps {
@@ -34,6 +35,7 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
         </Box>
       </PageErrorBoundary>
       <Footer />
+      <ScrollToTopButton />
     </Box>
   );
 } 

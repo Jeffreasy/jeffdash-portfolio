@@ -24,6 +24,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import LayoutErrorBoundary from './LayoutErrorBoundary';
+import { ContactModal, useContactModal } from '@/components/features/contact';
 
 // Navigation links
 const mainLinks = [
@@ -75,6 +76,7 @@ const mobileItemVariants = {
 export default function Header() {
   const [opened, { toggle, close }] = useDisclosure(false);
   const pathname = usePathname();
+  const contactModal = useContactModal();
 
   if (!pathname) {
     throw new Error('Pathname is required for navigation');
@@ -144,9 +146,10 @@ export default function Header() {
   const ctaButton = (
     <motion.div variants={linkVariants} whileHover="hover" whileTap="tap">
       <Button 
-        component="a"
-        href="mailto:jeffrey@jeffdash.nl?subject=Contact via Header&body=Hallo Jeffrey,%0D%0A%0D%0AIk zou graag contact met je opnemen.%0D%0A%0D%0AMet vriendelijke groet"
-        onClick={close} 
+        onClick={() => {
+          close();
+          contactModal.openModal();
+        }}
         variant="gradient"
         gradient={{ from: 'blue.6', to: 'cyan.5' }}
         style={{
@@ -319,9 +322,10 @@ export default function Header() {
                   Contact
                 </Text>
                 <Button 
-                  component="a"
-                  href="mailto:jeffrey@jeffdash.nl?subject=Contact via Mobile Menu&body=Hallo Jeffrey,%0D%0A%0D%0AIk zou graag contact met je opnemen.%0D%0A%0D%0AMet vriendelijke groet"
-                  onClick={close} 
+                  onClick={() => {
+                    close();
+                    contactModal.openModal();
+                  }}
                   variant="gradient"
                   gradient={{ from: 'blue.6', to: 'cyan.5' }}
                   size="lg"
@@ -370,6 +374,15 @@ export default function Header() {
           </Drawer>
         </Box>
       </motion.div>
+
+      {/* Contact Modal */}
+      <ContactModal
+        opened={contactModal.opened}
+        onClose={contactModal.closeModal}
+        selectedPlan={contactModal.selectedPlan}
+        title="Neem Contact Op"
+        description="Heb je een vraag, opmerking of wil je samenwerken? Vul het onderstaande formulier in en ik neem zo snel mogelijk contact met je op."
+      />
     </LayoutErrorBoundary>
   );
 } 

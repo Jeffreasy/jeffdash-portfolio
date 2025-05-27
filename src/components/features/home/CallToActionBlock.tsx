@@ -5,8 +5,11 @@ import { Container, Paper, Title, Text, Group, Button } from '@mantine/core';
 import { IconMail, IconEye } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
 import PageErrorBoundary from '../shared/PageErrorBoundary';
+import { ContactModal, useContactModal } from '@/components/features/contact';
 
 const CallToActionBlock: React.FC = () => {
+  const contactModal = useContactModal();
+
   return (
     <PageErrorBoundary>
       <section style={{
@@ -141,8 +144,7 @@ const CallToActionBlock: React.FC = () => {
                     transition={{ duration: 0.2 }}
                   >
                     <Button
-                      component="a"
-                      href="mailto:jeffrey@jeffdash.nl?subject=Samenwerking Aanvraag&body=Hallo Jeffrey,%0D%0A%0D%0AIk ben geïnteresseerd in samenwerking en zou graag willen bespreken hoe je kunt helpen met mijn project.%0D%0A%0D%0AMet vriendelijke groet"
+                      onClick={() => contactModal.openModal()}
                       size="lg"
                       variant="gradient"
                       gradient={{ from: 'blue.6', to: 'cyan.5' }}
@@ -188,6 +190,15 @@ const CallToActionBlock: React.FC = () => {
           </motion.div>
         </Container>
       </section>
+
+      {/* Contact Modal */}
+      <ContactModal
+        opened={contactModal.opened}
+        onClose={contactModal.closeModal}
+        selectedPlan={contactModal.selectedPlan}
+        title="Laten we samenwerken!"
+        description="Vertel me meer over je project en laten we bespreken hoe ik je kan helpen om je ideeën tot leven te brengen."
+      />
     </PageErrorBoundary>
   );
 };
