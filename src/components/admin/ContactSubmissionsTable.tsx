@@ -12,9 +12,8 @@ import {
   Modal,
   Alert,
   Anchor,
-  Paper,
-  useMantineTheme,
-  useMantineColorScheme,
+  Box,
+  Stack,
 } from '@mantine/core';
 import {
   IconCheck,
@@ -22,7 +21,9 @@ import {
   IconEyeOff,
   IconTrash,
   IconAlertCircle,
+  IconX,
 } from '@tabler/icons-react';
+import { motion } from 'framer-motion';
 import {
   ContactSubmissionType,
   toggleSubmissionReadStatus,
@@ -35,6 +36,29 @@ interface ContactSubmissionsTableProps {
   initialSubmissions: ContactSubmissionType[];
 }
 
+// Animation variants
+const tableVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05,
+    },
+  },
+} as const;
+
+const rowVariants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.3,
+      ease: "easeOut",
+    },
+  },
+} as const;
+
 export default function ContactSubmissionsTable({
   initialSubmissions,
 }: ContactSubmissionsTableProps) {
@@ -43,8 +67,6 @@ export default function ContactSubmissionsTable({
     throw new Error('Initial submissions must be an array');
   }
 
-  const theme = useMantineTheme();
-  const { colorScheme } = useMantineColorScheme();
   const [submissions, setSubmissions] = useState<ContactSubmissionType[]>(initialSubmissions);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [submissionToDelete, setSubmissionToDelete] = useState<ContactSubmissionType | null>(null);
@@ -71,6 +93,13 @@ export default function ContactSubmissionsTable({
           message: result.message,
           color: 'blue',
           icon: result.newState ? <IconEyeCheck size={16} /> : <IconEyeOff size={16} />,
+          styles: {
+            root: {
+              background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%)',
+              border: '1px solid rgba(59, 130, 246, 0.2)',
+              backdropFilter: 'blur(10px)',
+            },
+          },
         });
       } else {
         throw new Error(result.message || 'Kon status niet wijzigen.');
@@ -82,6 +111,13 @@ export default function ContactSubmissionsTable({
         message: err.message || 'Kon de status niet wijzigen.',
         color: 'red',
         icon: <IconAlertCircle />,
+        styles: {
+          root: {
+            background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%)',
+            border: '1px solid rgba(239, 68, 68, 0.2)',
+            backdropFilter: 'blur(10px)',
+          },
+        },
       });
     } finally {
       setIsToggling(null);
@@ -121,7 +157,14 @@ export default function ContactSubmissionsTable({
           title: 'Succes',
           message: result.message,
           color: 'green',
-          icon: <IconTrash size={16} />,
+          icon: <IconCheck size={16} />,
+          styles: {
+            root: {
+              background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(21, 128, 61, 0.1) 100%)',
+              border: '1px solid rgba(34, 197, 94, 0.2)',
+              backdropFilter: 'blur(10px)',
+            },
+          },
         });
         closeDeleteModal();
       } else {
@@ -153,109 +196,369 @@ export default function ContactSubmissionsTable({
 
   return (
     <AdminErrorBoundary componentName="Contact Submissions Table">
-      <Paper shadow="md" p="md" withBorder>
-        <Table striped highlightOnHover withTableBorder withColumnBorders>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>Naam</Table.Th>
-              <Table.Th>Email</Table.Th>
-              <Table.Th style={{ minWidth: '250px' }}>Bericht (preview)</Table.Th>
-              <Table.Th>Ontvangen op</Table.Th>
-              <Table.Th>Status</Table.Th>
-              <Table.Th>Acties</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {submissions.length > 0 ? (
-              submissions.map((submission) => (
-                <Table.Tr 
-                  key={submission.id} 
-                  bg={submission.isRead ? undefined : (colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0])}
-                >
-                  <Table.Td>
-                    <Text fw={submission.isRead ? 400 : 700}>{submission.name}</Text>
-                  </Table.Td>
-                  <Table.Td>
-                    <Anchor href={`mailto:${submission.email}`} size="sm">
-                      {submission.email}
-                    </Anchor>
-                  </Table.Td>
-                  <Table.Td>
-                    <Text size="sm" lineClamp={2}>{submission.message}</Text>
-                  </Table.Td>
-                  <Table.Td>{formatDate(new Date(submission.createdAt))}</Table.Td>
-                  <Table.Td>
-                    <Badge color={submission.isRead ? 'gray' : 'blue'} variant="light">
-                      {submission.isRead ? 'Gelezen' : 'Nieuw'}
-                    </Badge>
-                  </Table.Td>
-                  <Table.Td>
-                    <Group gap="xs">
-                      <Tooltip label={submission.isRead ? 'Markeer als ongelezen' : 'Markeer als gelezen'}>
-                        <ActionIcon
-                          variant="subtle"
-                          color={submission.isRead ? 'gray' : 'blue'}
-                          onClick={() => handleToggleRead(submission)}
-                          loading={isToggling === submission.id}
-                          aria-label={submission.isRead ? 'Markeer als ongelezen' : 'Markeer als gelezen'}
-                        >
-                          {submission.isRead ? <IconEyeOff size={16} /> : <IconEyeCheck size={16} />}
-                        </ActionIcon>
-                      </Tooltip>
-                      <Tooltip label="Verwijder inzending">
-                        <ActionIcon
-                          variant="subtle"
-                          color="red"
-                          onClick={() => openDeleteModal(submission)}
-                          aria-label={`Verwijder inzending van ${submission.name}`}
-                        >
-                          <IconTrash size={16} />
-                        </ActionIcon>
-                      </Tooltip>
-                    </Group>
-                  </Table.Td>
-                </Table.Tr>
-              ))
-            ) : (
-              <Table.Tr>
-                <Table.Td colSpan={6}>
-                  <Text ta="center" c="dimmed">
-                    Geen contactinzendingen gevonden.
-                  </Text>
-                </Table.Td>
-              </Table.Tr>
-            )}
-          </Table.Tbody>
-        </Table>
+      <Box
+        style={{
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Decorative background element */}
+        <div style={{
+          position: 'absolute',
+          top: '20%',
+          right: '10%',
+          width: '120px',
+          height: '120px',
+          background: 'radial-gradient(circle, rgba(34, 197, 94, 0.1) 0%, transparent 70%)',
+          borderRadius: '50%',
+          filter: 'blur(30px)',
+          pointerEvents: 'none',
+          zIndex: 0,
+        }} />
 
+        <motion.div
+          variants={tableVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <Box
+            style={{
+              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: '12px',
+              overflow: 'hidden',
+              position: 'relative',
+              zIndex: 1,
+            }}
+          >
+            <Table
+              striped
+              highlightOnHover
+              styles={{
+                table: {
+                  backgroundColor: 'transparent',
+                },
+                thead: {
+                  backgroundColor: 'rgba(255, 255, 255, 0.02)',
+                  borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+                },
+                th: {
+                  color: 'var(--mantine-color-gray-2)',
+                  fontWeight: 600,
+                  fontSize: '0.875rem',
+                  padding: '1rem',
+                  borderRight: '1px solid rgba(255, 255, 255, 0.05)',
+                  background: 'transparent',
+                },
+                td: {
+                  color: 'var(--mantine-color-gray-3)',
+                  padding: '1rem',
+                  borderRight: '1px solid rgba(255, 255, 255, 0.05)',
+                  borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+                  background: 'transparent',
+                },
+                tr: {
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.02)',
+                  },
+                  '&[data-unread="true"]': {
+                    backgroundColor: 'rgba(59, 130, 246, 0.05)',
+                    borderLeft: '3px solid var(--mantine-color-blue-4)',
+                  },
+                },
+              }}
+            >
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th>Naam</Table.Th>
+                  <Table.Th>Email</Table.Th>
+                  <Table.Th style={{ minWidth: '250px' }}>Bericht (preview)</Table.Th>
+                  <Table.Th>Ontvangen op</Table.Th>
+                  <Table.Th>Status</Table.Th>
+                  <Table.Th>Acties</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
+                {submissions.length > 0 ? (
+                  submissions.map((submission, index) => (
+                    <motion.tr
+                      key={submission.id}
+                      variants={rowVariants}
+                      custom={index}
+                      data-unread={!submission.isRead}
+                      style={{
+                        backgroundColor: !submission.isRead 
+                          ? 'rgba(59, 130, 246, 0.05)' 
+                          : 'transparent',
+                      }}
+                    >
+                      <Table.Td>
+                        <Text 
+                          fw={submission.isRead ? 400 : 700} 
+                          c={submission.isRead ? 'gray.3' : 'gray.1'}
+                          style={{
+                            WebkitFontSmoothing: 'antialiased',
+                            MozOsxFontSmoothing: 'grayscale',
+                          }}
+                        >
+                          {submission.name}
+                        </Text>
+                      </Table.Td>
+                      <Table.Td>
+                        <Anchor 
+                          href={`mailto:${submission.email}`} 
+                          size="sm"
+                          style={{
+                            color: 'var(--mantine-color-blue-4)',
+                            textDecoration: 'none',
+                            '&:hover': {
+                              color: 'var(--mantine-color-blue-3)',
+                              textDecoration: 'underline',
+                            }
+                          }}
+                        >
+                          {submission.email}
+                        </Anchor>
+                      </Table.Td>
+                      <Table.Td>
+                        <Text 
+                          size="sm" 
+                          lineClamp={2}
+                          c="gray.4"
+                          style={{
+                            lineHeight: 1.4,
+                            WebkitFontSmoothing: 'antialiased',
+                            MozOsxFontSmoothing: 'grayscale',
+                          }}
+                        >
+                          {submission.message}
+                        </Text>
+                      </Table.Td>
+                      <Table.Td>
+                        <Text 
+                          size="sm" 
+                          c="gray.4"
+                          style={{
+                            fontFamily: 'monospace',
+                            fontSize: '0.8rem',
+                          }}
+                        >
+                          {formatDate(new Date(submission.createdAt))}
+                        </Text>
+                      </Table.Td>
+                      <Table.Td>
+                        <Badge 
+                          color={submission.isRead ? 'gray' : 'blue'} 
+                          variant="light"
+                          style={{
+                            background: submission.isRead 
+                              ? 'linear-gradient(135deg, rgba(107, 114, 128, 0.1) 0%, rgba(75, 85, 99, 0.1) 100%)'
+                              : 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%)',
+                            border: `1px solid ${submission.isRead 
+                              ? 'rgba(107, 114, 128, 0.2)' 
+                              : 'rgba(59, 130, 246, 0.2)'}`,
+                            color: submission.isRead 
+                              ? 'var(--mantine-color-gray-4)' 
+                              : 'var(--mantine-color-blue-3)',
+                            fontWeight: 500,
+                          }}
+                        >
+                          {submission.isRead ? 'Gelezen' : 'Nieuw'}
+                        </Badge>
+                      </Table.Td>
+                      <Table.Td>
+                        <Group gap="xs">
+                          <Tooltip 
+                            label={submission.isRead ? 'Markeer als ongelezen' : 'Markeer als gelezen'}
+                            styles={{
+                              tooltip: {
+                                background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(31, 41, 55, 0.8) 100%)',
+                                backdropFilter: 'blur(10px)',
+                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                color: 'var(--mantine-color-gray-2)',
+                              },
+                            }}
+                          >
+                            <ActionIcon
+                              variant="subtle"
+                              color={submission.isRead ? 'gray' : 'blue'}
+                              onClick={() => handleToggleRead(submission)}
+                              loading={isToggling === submission.id}
+                              aria-label={submission.isRead ? 'Markeer als ongelezen' : 'Markeer als gelezen'}
+                              style={{
+                                background: submission.isRead 
+                                  ? 'linear-gradient(135deg, rgba(107, 114, 128, 0.1) 0%, rgba(75, 85, 99, 0.1) 100%)'
+                                  : 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%)',
+                                border: `1px solid ${submission.isRead 
+                                  ? 'rgba(107, 114, 128, 0.2)' 
+                                  : 'rgba(59, 130, 246, 0.2)'}`,
+                                '&:hover': {
+                                  background: submission.isRead 
+                                    ? 'linear-gradient(135deg, rgba(107, 114, 128, 0.15) 0%, rgba(75, 85, 99, 0.15) 100%)'
+                                    : 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(6, 182, 212, 0.15) 100%)',
+                                  transform: 'translateY(-1px)',
+                                },
+                              }}
+                            >
+                              {submission.isRead ? <IconEyeOff size={16} /> : <IconEyeCheck size={16} />}
+                            </ActionIcon>
+                          </Tooltip>
+                          <Tooltip 
+                            label="Verwijder inzending"
+                            styles={{
+                              tooltip: {
+                                background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(31, 41, 55, 0.8) 100%)',
+                                backdropFilter: 'blur(10px)',
+                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                color: 'var(--mantine-color-gray-2)',
+                              },
+                            }}
+                          >
+                            <ActionIcon
+                              variant="subtle"
+                              color="red"
+                              onClick={() => openDeleteModal(submission)}
+                              aria-label={`Verwijder inzending van ${submission.name}`}
+                              style={{
+                                background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%)',
+                                border: '1px solid rgba(239, 68, 68, 0.2)',
+                                '&:hover': {
+                                  background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.15) 100%)',
+                                  transform: 'translateY(-1px)',
+                                },
+                              }}
+                            >
+                              <IconTrash size={16} />
+                            </ActionIcon>
+                          </Tooltip>
+                        </Group>
+                      </Table.Td>
+                    </motion.tr>
+                  ))
+                ) : (
+                  <Table.Tr>
+                    <Table.Td colSpan={6}>
+                      <Box
+                        style={{
+                          textAlign: 'center',
+                          padding: 'var(--mantine-spacing-xl)',
+                        }}
+                      >
+                        <Text c="gray.5" size="sm">
+                          Geen contactinzendingen gevonden.
+                        </Text>
+                      </Box>
+                    </Table.Td>
+                  </Table.Tr>
+                )}
+              </Table.Tbody>
+            </Table>
+          </Box>
+        </motion.div>
+
+        {/* Delete Confirmation Modal */}
         <Modal
           opened={showDeleteModal}
           onClose={closeDeleteModal}
-          title="Inzending Verwijderen Bevestigen"
+          title="Inzending Verwijderen"
           centered
           size="sm"
+          styles={{
+            content: {
+              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+            },
+            header: {
+              background: 'transparent',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+            },
+            title: {
+              color: 'var(--mantine-color-gray-1)',
+              fontWeight: 600,
+            },
+            close: {
+              color: 'var(--mantine-color-gray-3)',
+              '&:hover': {
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              },
+            },
+          }}
         >
-          {submissionToDelete && (
-            <Text mb="md">
-              Weet je zeker dat je de inzending van "{submissionToDelete.name}" ({submissionToDelete.email}) wilt verwijderen?
-              Deze actie kan niet ongedaan worden gemaakt.
-            </Text>
-          )}
-          {error && (
-            <Alert title="Fout bij verwijderen" color="red" icon={<IconAlertCircle />} mb="md">
-              {error}
-            </Alert>
-          )}
-          <Group justify="flex-end">
-            <Button variant="default" onClick={closeDeleteModal} disabled={isDeleting}>
-              Annuleren
-            </Button>
-            <Button color="red" onClick={handleDeleteConfirm} loading={isDeleting}>
-              Verwijderen
-            </Button>
-          </Group>
+          <Stack gap="md">
+            {submissionToDelete && (
+              <Text c="gray.3" size="sm" style={{ lineHeight: 1.5 }}>
+                Weet je zeker dat je de inzending van{' '}
+                <Text component="span" fw={600} c="gray.1">
+                  {submissionToDelete.name}
+                </Text>{' '}
+                ({submissionToDelete.email}) permanent wilt verwijderen?
+                <br />
+                <Text component="span" c="gray.4" size="xs">
+                  Deze actie kan niet ongedaan worden gemaakt.
+                </Text>
+              </Text>
+            )}
+            
+            {error && (
+              <Alert 
+                title="Fout bij verwijderen" 
+                color="red" 
+                icon={<IconAlertCircle />}
+                styles={{
+                  root: {
+                    background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%)',
+                    border: '1px solid rgba(239, 68, 68, 0.2)',
+                    backdropFilter: 'blur(10px)',
+                  },
+                  title: {
+                    color: 'var(--mantine-color-red-4)',
+                  },
+                  message: {
+                    color: 'var(--mantine-color-red-3)',
+                  }
+                }}
+              >
+                {error}
+              </Alert>
+            )}
+            
+            <Group justify="flex-end" gap="sm">
+              <Button 
+                variant="subtle" 
+                color="gray"
+                onClick={closeDeleteModal} 
+                disabled={isDeleting}
+                style={{
+                  background: 'linear-gradient(135deg, rgba(107, 114, 128, 0.1) 0%, rgba(75, 85, 99, 0.1) 100%)',
+                  border: '1px solid rgba(107, 114, 128, 0.2)',
+                  color: 'var(--mantine-color-gray-3)',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, rgba(107, 114, 128, 0.15) 0%, rgba(75, 85, 99, 0.15) 100%)',
+                  },
+                }}
+              >
+                Annuleren
+              </Button>
+              <Button 
+                color="red" 
+                onClick={handleDeleteConfirm} 
+                loading={isDeleting}
+                variant="gradient"
+                gradient={{ from: 'red.6', to: 'red.7' }}
+                style={{
+                  boxShadow: '0 4px 16px rgba(239, 68, 68, 0.3)',
+                  border: '1px solid rgba(239, 68, 68, 0.2)',
+                  fontWeight: 500,
+                }}
+              >
+                {isDeleting ? 'Verwijderen...' : 'Verwijderen'}
+              </Button>
+            </Group>
+          </Stack>
         </Modal>
-      </Paper>
+      </Box>
     </AdminErrorBoundary>
   );
 } 

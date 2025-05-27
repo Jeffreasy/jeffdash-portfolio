@@ -19,19 +19,7 @@ export default async function AdminAreaLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // --- Verwijder de authenticatie check --- 
-  // const session = await validateSession();
-  // 
-  // if (!session) {
-  //   console.log('AdminAreaLayout: Geen geldige sessie, redirect naar /login');
-  //   redirect('/login'); 
-  // }
-  // 
-  // console.log(`AdminAreaLayout: Geldige sessie voor gebruiker ${session.userId}, rol ${session.role}. Renderen via Client Component...`);
-  // --- Einde verwijderde check ---
-
-  // Geef children direct door aan de Client Component
-  // De middleware handelt nu de toegangscontrole af.
+  // The middleware handles access control for admin routes
   return (
     <AdminLayoutClient>
       {children}

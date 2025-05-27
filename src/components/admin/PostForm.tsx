@@ -15,8 +15,11 @@ import {
   TagsInput, // For tags
   Select,   // For category (optional)
   LoadingOverlay,
+  Box,
+  ThemeIcon,
 } from '@mantine/core';
-import { IconAlertCircle, IconDeviceFloppy } from '@tabler/icons-react';
+import { IconAlertCircle, IconDeviceFloppy, IconFileText } from '@tabler/icons-react';
+import { motion } from 'framer-motion';
 import { notifications } from '@mantine/notifications';
 import { PostFormState, FullAdminPostType } from '@/lib/actions/blog'; // Import types
 import { useRouter } from 'next/navigation'; // Import useRouter
@@ -32,17 +35,64 @@ interface PostFormProps {
   formTitle: string;
 }
 
+// Animation variants
+const inputVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      ease: [0.25, 0.46, 0.45, 0.94],
+    },
+  },
+} as const;
+
+const buttonVariants = {
+  idle: { scale: 1 },
+  hover: { 
+    scale: 1.02,
+    transition: { duration: 0.2, ease: "easeOut" }
+  },
+  tap: { scale: 0.98 },
+} as const;
+
 // SubmitButton component to show loading state
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <Button 
-      type="submit" 
-      loading={pending} 
-      leftSection={<IconDeviceFloppy size={14}/>}
-    >
-      {isEditing ? 'Wijzigingen Opslaan' : 'Post Aanmaken'}
-    </Button>
+    <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+      <Button 
+        type="submit" 
+        loading={pending} 
+        leftSection={<IconDeviceFloppy size={16}/>}
+        size="lg"
+        variant="gradient"
+        gradient={{ from: 'violet.6', to: 'purple.5' }}
+        fullWidth
+        style={{
+          boxShadow: '0 8px 32px rgba(139, 92, 246, 0.3)',
+          border: '1px solid rgba(139, 92, 246, 0.2)',
+          fontWeight: 600,
+        }}
+        styles={{
+          root: {
+            '&:hover': {
+              boxShadow: '0 12px 40px rgba(139, 92, 246, 0.4)',
+              transform: 'translateY(-2px)',
+            },
+            '&:active': {
+              transform: 'translateY(0px)',
+            },
+          },
+        }}
+      >
+        {pending 
+          ? (isEditing ? 'Bezig met opslaan...' : 'Bezig met aanmaken...') 
+          : (isEditing ? 'Wijzigingen Opslaan' : 'Post Aanmaken')
+        }
+      </Button>
+    </motion.div>
   );
 }
 
@@ -86,6 +136,13 @@ export default function PostForm({ action, initialData, formTitle }: PostFormPro
           title: 'Succes',
           message: state.message || (isEditing ? 'Post succesvol bijgewerkt!' : 'Post succesvol aangemaakt!'),
           color: 'green',
+          styles: {
+            root: {
+              background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(21, 128, 61, 0.1) 100%)',
+              border: '1px solid rgba(34, 197, 94, 0.2)',
+              backdropFilter: 'blur(10px)',
+            },
+          },
         });
         // Note: Redirect is handled by the server action itself
         // router.push('/admin_area/posts'); // Avoid client-side redirect if server action does it
@@ -96,6 +153,13 @@ export default function PostForm({ action, initialData, formTitle }: PostFormPro
           message: state.message,
           color: 'red',
           icon: <IconAlertCircle />,
+          styles: {
+            root: {
+              background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%)',
+              border: '1px solid rgba(239, 68, 68, 0.2)',
+              backdropFilter: 'blur(10px)',
+            },
+          },
         });
       }
     } catch (err) {
@@ -182,142 +246,273 @@ export default function PostForm({ action, initialData, formTitle }: PostFormPro
   };
   // --- Einde slug generatie logica ---
 
+  const inputStyles = {
+    label: {
+      color: 'var(--mantine-color-gray-2)',
+      fontWeight: 500,
+      marginBottom: '8px',
+      WebkitFontSmoothing: 'antialiased',
+      MozOsxFontSmoothing: 'grayscale',
+    },
+    input: {
+      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
+      border: '1px solid rgba(255, 255, 255, 0.1)',
+      color: 'var(--mantine-color-gray-1)',
+      backdropFilter: 'blur(10px)',
+      '&:focus': {
+        borderColor: 'rgba(139, 92, 246, 0.5)',
+        boxShadow: '0 0 0 2px rgba(139, 92, 246, 0.2)',
+      },
+      '&::placeholder': {
+        color: 'var(--mantine-color-gray-5)',
+      }
+    },
+    error: {
+      color: 'var(--mantine-color-red-4)',
+    }
+  };
+
   return (
     <AdminErrorBoundary componentName="Post Form">
-      <Paper shadow="md" p="xl" withBorder>
-        <form action={formAction}>
-          <LoadingOverlay visible={useFormStatus().pending} overlayProps={{ radius: "sm", blur: 2 }} />
-          <Stack gap="lg">
-            <Title order={3}>{formTitle}</Title>
+      <Box
+        style={{
+          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
+          backdropFilter: 'blur(10px)',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          borderRadius: '12px',
+          padding: 'var(--mantine-spacing-xl)',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Decorative element */}
+        <div style={{
+          position: 'absolute',
+          top: '-20px',
+          right: '-20px',
+          width: '100px',
+          height: '100px',
+          background: 'radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%)',
+          borderRadius: '50%',
+          filter: 'blur(20px)',
+          pointerEvents: 'none',
+        }} />
 
-            {/* Hidden input for postId when editing */}
-            {isEditing && initialData?.id && (
-              <input type="hidden" name="postId" value={initialData.id} />
-            )}
-
-            {/* General Error Message */}
-            {state?.errors?.general && (
-              <Alert title="Fout" color="red" icon={<IconAlertCircle />}>
-                {state.errors.general.join(', ')}
-              </Alert>
-            )}
-
-            <TextInput
-              label="Titel"
-              name="title"
-              required
-              value={title} // Controlled component for slug generation
-              onChange={handleTitleChange}
-              error={state?.errors?.title?.join(', ')}
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={{
+            visible: {
+              transition: {
+                staggerChildren: 0.1,
+              },
+            },
+          }}
+          style={{ position: 'relative', zIndex: 1 }}
+        >
+          <form action={formAction}>
+            <LoadingOverlay 
+              visible={useFormStatus().pending} 
+              overlayProps={{ 
+                radius: "sm", 
+                blur: 2,
+                backgroundOpacity: 0.1,
+              }}
+              loaderProps={{
+                color: 'violet.4',
+                type: 'dots',
+                size: 'lg',
+              }}
             />
+            <Stack gap="lg">
+              <motion.div variants={inputVariants}>
+                <Group gap="md" mb="lg">
+                  <ThemeIcon
+                    size="lg"
+                    radius="md"
+                    variant="gradient"
+                    gradient={{ from: 'violet.6', to: 'purple.5' }}
+                  >
+                    <IconFileText size={20} />
+                  </ThemeIcon>
+                  <Title 
+                    order={2}
+                    style={{
+                      background: 'linear-gradient(135deg, var(--mantine-color-violet-4), var(--mantine-color-purple-4))',
+                      backgroundClip: 'text',
+                      WebkitBackgroundClip: 'text',
+                      color: 'transparent',
+                      fontSize: '1.5rem',
+                      fontWeight: 700,
+                    }}
+                  >
+                    {formTitle}
+                  </Title>
+                </Group>
+              </motion.div>
 
-            <TextInput
-              label="Slug"
-              name="slug"
-              required
-              placeholder="wordt-automatisch-gegenereerd-of-pas-aan"
-              value={slug} // Controlled component
-              onChange={handleSlugChange}
-              error={state?.errors?.slug?.join(', ')}
-              description="Unieke identifier voor de URL. Alleen kleine letters, cijfers en koppeltekens."
-            />
+              {/* Hidden input for postId when editing */}
+              {isEditing && initialData?.id && (
+                <input type="hidden" name="postId" value={initialData.id} />
+              )}
 
-            {/* TODO: Add a Rich Text Editor (e.g., Mantine RTE or Tiptap) instead of simple Textarea */}
-            <Textarea
-              label="Inhoud (Markdown wordt ondersteund)"
-              name="content"
-              required
-              rows={15}
-              defaultValue={initialData?.content || ''}
-              error={state?.errors?.content?.join(', ')}
-              description="Gebruik Markdown voor opmaak."
-            />
+              {/* General Error Message */}
+              {state?.errors?.general && (
+                <motion.div variants={inputVariants}>
+                  <Alert 
+                    title="Fout" 
+                    color="red" 
+                    icon={<IconAlertCircle />}
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%)',
+                      border: '1px solid rgba(239, 68, 68, 0.2)',
+                      backdropFilter: 'blur(10px)',
+                    }}
+                    styles={{
+                      title: {
+                        color: 'var(--mantine-color-red-4)',
+                      },
+                      message: {
+                        color: 'var(--mantine-color-red-3)',
+                      }
+                    }}
+                  >
+                    {state.errors.general.join(', ')}
+                  </Alert>
+                </motion.div>
+              )}
 
-            <Textarea
-              label="Samenvatting (Excerpt)"
-              name="excerpt"
-              rows={3}
-              defaultValue={initialData?.excerpt || ''}
-              error={state?.errors?.excerpt?.join(', ')}
-              description="Korte samenvatting voor de bloglijst."
-            />
-            
-            {/* --- Afbeeldingen --- */}
-            <TextInput
-              label="URL Uitgelichte Afbeelding"
-              name="featuredImageUrl"
-              type="url"
-              defaultValue={initialData?.featuredImageUrl || ''}
-              error={state?.errors?.featuredImageUrl?.join(', ')}
-              placeholder="https://..."
-            />
-            
-            <TextInput
-              label="Alt-tekst Uitgelichte Afbeelding"
-              name="featuredImageAltText"
-              defaultValue={initialData?.featuredImageAltText || ''}
-              error={state?.errors?.featuredImageAltText?.join(', ')}
-              description="Belangrijk voor SEO en toegankelijkheid."
-            />
-            
-            {/* --- Taxonomie --- */}
-            <TagsInput
-              label="Tags"
-              name="tags" // Name is needed for FormData
-              value={tags} // Controlled component
-              onChange={handleTagsChange} // Update state on change
-              placeholder="Voeg tags toe (bv. react, nextjs)"
-              clearable
-              error={state?.errors?.tags?.join(', ')}
-              description="Scheid tags met een komma of Enter."
-            />
-            {/* Hidden input to pass tags array correctly */} 
-            <input type="hidden" name="tags" value={tags.join(',')} /> 
+              {/* Title Field */}
+              <motion.div variants={inputVariants}>
+                <TextInput
+                  label="Titel"
+                  name="title"
+                  placeholder="Voer de titel van je post in..."
+                  value={title}
+                  onChange={handleTitleChange}
+                  error={state?.errors?.title?.[0]}
+                  required
+                  size="md"
+                  styles={inputStyles}
+                />
+              </motion.div>
 
+              {/* Slug Field */}
+              <motion.div variants={inputVariants}>
+                <TextInput
+                  label="Slug (URL)"
+                  name="slug"
+                  placeholder="url-vriendelijke-slug"
+                  value={slug}
+                  onChange={handleSlugChange}
+                  error={state?.errors?.slug?.[0]}
+                  required
+                  size="md"
+                  styles={inputStyles}
+                  description="De URL-vriendelijke versie van de titel. Wordt automatisch gegenereerd maar kan handmatig aangepast worden."
+                />
+              </motion.div>
 
-            {/* Voorbeeld Categorie Select - Vervang met echte categorieën */}
-            <Select
-              label="Categorie"
-              name="category"
-              placeholder="Kies een categorie"
-              data={['Web Development', 'Tutorial', 'Nieuws', 'Opinie']} // Vervang met dynamische lijst indien nodig
-              defaultValue={initialData?.category || ''}
-              error={state?.errors?.category?.join(', ')}
-              clearable
-            />
+              {/* Excerpt Field */}
+              <motion.div variants={inputVariants}>
+                <Textarea
+                  label="Excerpt (Samenvatting)"
+                  name="excerpt"
+                  placeholder="Korte samenvatting van je post..."
+                  defaultValue={initialData?.excerpt || ''}
+                  error={state?.errors?.excerpt?.[0]}
+                  minRows={3}
+                  size="md"
+                  styles={inputStyles}
+                  description="Een korte samenvatting die wordt getoond in overzichten."
+                />
+              </motion.div>
 
-            {/* --- Publicatie & SEO --- */}
-            <Checkbox
-              label="Gepubliceerd"
-              name="published"
-              defaultChecked={initialData?.published || false}
-              error={state?.errors?.published?.join(', ')}
-            />
+              {/* Content Field */}
+              <motion.div variants={inputVariants}>
+                <Textarea
+                  label="Content (Markdown)"
+                  name="content"
+                  placeholder="Schrijf je post content in Markdown..."
+                  defaultValue={initialData?.content || ''}
+                  error={state?.errors?.content?.[0]}
+                  required
+                  minRows={10}
+                  size="md"
+                  styles={inputStyles}
+                  description="De volledige inhoud van je post in Markdown formaat."
+                />
+              </motion.div>
 
-            <TextInput
-              label="Meta Titel (SEO)"
-              name="metaTitle"
-              defaultValue={initialData?.metaTitle || ''}
-              error={state?.errors?.metaTitle?.join(', ')}
-              description="Optioneel. Indien leeg, wordt de post titel gebruikt."
-            />
+              {/* Category Field */}
+              <motion.div variants={inputVariants}>
+                <Select
+                  label="Categorie"
+                  name="category"
+                  placeholder="Selecteer een categorie..."
+                  defaultValue={initialData?.category || ''}
+                  error={state?.errors?.category?.[0]}
+                  data={[
+                    { value: 'tech', label: 'Technologie' },
+                    { value: 'design', label: 'Design' },
+                    { value: 'development', label: 'Development' },
+                    { value: 'tutorial', label: 'Tutorial' },
+                    { value: 'personal', label: 'Persoonlijk' },
+                  ]}
+                  size="md"
+                  styles={inputStyles}
+                  clearable
+                />
+              </motion.div>
 
-            <Textarea
-              label="Meta Beschrijving (SEO)"
-              name="metaDescription"
-              rows={2}
-              defaultValue={initialData?.metaDescription || ''}
-              error={state?.errors?.metaDescription?.join(', ')}
-              description="Optioneel. Indien leeg, wordt de samenvatting gebruikt."
-            />
+              {/* Tags Field */}
+              <motion.div variants={inputVariants}>
+                <TagsInput
+                  label="Tags"
+                  name="tags"
+                  placeholder="Voeg tags toe..."
+                  value={tags}
+                  onChange={handleTagsChange}
+                  error={state?.errors?.tags?.[0]}
+                  size="md"
+                  styles={inputStyles}
+                  description="Druk op Enter om een tag toe te voegen."
+                />
+                {/* Hidden input to submit tags */}
+                <input type="hidden" name="tagsJson" value={JSON.stringify(tags)} />
+              </motion.div>
 
-            <Group justify="flex-end" mt="xl">
-              <Button variant="default" onClick={() => router.back()}>Annuleren</Button>
-              <SubmitButton isEditing={isEditing} />
-            </Group>
-          </Stack>
-        </form>
-      </Paper>
+              {/* Published Checkbox */}
+              <motion.div variants={inputVariants}>
+                <Checkbox
+                  label="Publiceren"
+                  name="published"
+                  defaultChecked={initialData?.published || false}
+                  size="md"
+                  styles={{
+                    label: {
+                      color: 'var(--mantine-color-gray-2)',
+                      fontWeight: 500,
+                    },
+                    input: {
+                      '&:checked': {
+                        backgroundColor: 'var(--mantine-color-violet-6)',
+                        borderColor: 'var(--mantine-color-violet-6)',
+                      },
+                    },
+                  }}
+                  description="Vink aan om de post direct te publiceren."
+                />
+              </motion.div>
+
+              {/* Submit Button */}
+              <motion.div variants={inputVariants}>
+                <SubmitButton isEditing={isEditing} />
+              </motion.div>
+            </Stack>
+          </form>
+        </motion.div>
+      </Box>
     </AdminErrorBoundary>
   );
 } 
