@@ -219,7 +219,16 @@ const ShortAboutContent = memo<{
                 </motion.div>
 
                 {/* CTA */}
-                <motion.div variants={itemVariants}>
+                <motion.div
+                  whileHover={{ 
+                    scale: 1.02,
+                    transition: { duration: 0.2, ease: "easeOut" }
+                  }}
+                  whileTap={{ 
+                    scale: 0.98,
+                    transition: { duration: 0.1 }
+                  }}
+                >
                   <Button
                     component={Link}
                     href="/about"
@@ -227,11 +236,52 @@ const ShortAboutContent = memo<{
                     gradient={{ from: 'blue.6', to: 'cyan.5' }}
                     size="lg"
                     radius="md"
-                    rightSection={<IconArrowRight size={18} />}
+                    rightSection={
+                      <motion.div
+                        animate={{ x: 0 }}
+                        whileHover={{ x: 4 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <IconArrowRight size={18} />
+                      </motion.div>
+                    }
                     style={{
                       boxShadow: '0 8px 32px rgba(59, 130, 246, 0.3)',
                       border: '1px solid rgba(59, 130, 246, 0.2)',
                       marginTop: 'var(--mantine-spacing-md)',
+                      fontWeight: 600,
+                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      position: 'relative',
+                      overflow: 'hidden',
+                    }}
+                    styles={{
+                      root: {
+                        '&:hover': {
+                          boxShadow: '0 12px 40px rgba(59, 130, 246, 0.5)',
+                          transform: 'translateY(-2px)',
+                          background: 'linear-gradient(135deg, #3b82f6, #06b6d4, #8b5cf6)',
+                          backgroundSize: '200% 200%',
+                          animation: 'gradient-shift 2s ease infinite',
+                          border: '1px solid rgba(139, 92, 246, 0.4)',
+                        },
+                        '&:active': {
+                          transform: 'translateY(0px)',
+                          boxShadow: '0 4px 16px rgba(59, 130, 246, 0.3)',
+                        },
+                        '&::before': {
+                          content: '""',
+                          position: 'absolute',
+                          top: 0,
+                          left: '-100%',
+                          width: '100%',
+                          height: '100%',
+                          background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent)',
+                          transition: 'left 0.5s ease',
+                        },
+                        '&:hover::before': {
+                          left: '100%',
+                        }
+                      }
                     }}
                   >
                     Meer Over Mij
@@ -262,7 +312,18 @@ const ShortAboutBlurb: React.FC<ShortAboutBlurbProps> = ({
       <section style={{
         position: 'relative',
         overflow: 'hidden',
-        background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%)',
+        background: `
+          linear-gradient(180deg, 
+            transparent 0%, 
+            rgba(0, 0, 0, 0.2) 15%, 
+            rgba(15, 23, 42, 0.95) 25%, 
+            rgba(15, 23, 42, 0.95) 75%, 
+            rgba(0, 0, 0, 0.2) 85%, 
+            transparent 100%
+          )
+        `,
+        paddingTop: 'clamp(4rem, 8vw, 8rem)',
+        paddingBottom: 'clamp(4rem, 8vw, 8rem)',
       }}>
         {/* Animated background elements */}
         <motion.div

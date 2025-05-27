@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Container, Title, Text, Paper, Group, Button, Stack, Box } from '@mantine/core';
-import { IconBrandLinkedin, IconBrandGithub } from '@tabler/icons-react';
+import { IconBrandLinkedin, IconBrandGithub, IconArrowRight, IconMail } from '@tabler/icons-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
@@ -35,27 +35,7 @@ const itemVariants = {
   },
 } as const;
 
-const buttonVariants = {
-  hidden: { opacity: 0, scale: 0.8 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    transition: {
-      duration: 0.5,
-      ease: [0.25, 0.46, 0.45, 0.94],
-    },
-  },
-  hover: {
-    scale: 1.05,
-    transition: {
-      duration: 0.2,
-      ease: "easeOut",
-    },
-  },
-  tap: {
-    scale: 0.95,
-  },
-} as const;
+
 
 interface AboutContentProps {
   content: {
@@ -299,9 +279,14 @@ export default function AboutContent({ content }: AboutContentProps) {
                   <motion.div variants={itemVariants}>
                     <Group justify="center" gap="lg" mt="md" wrap="wrap">
                       <motion.div
-                        variants={buttonVariants}
-                        whileHover="hover"
-                        whileTap="tap"
+                        whileHover={{ 
+                          scale: 1.02,
+                          transition: { duration: 0.2, ease: "easeOut" }
+                        }}
+                        whileTap={{ 
+                          scale: 0.98,
+                          transition: { duration: 0.1 }
+                        }}
                       >
                         <Button
                           component="a"
@@ -311,11 +296,53 @@ export default function AboutContent({ content }: AboutContentProps) {
                           variant="gradient"
                           gradient={{ from: 'blue.6', to: 'cyan.5' }}
                           leftSection={<IconBrandLinkedin size={18} />}
+                          rightSection={
+                            <motion.div
+                              animate={{ x: 0 }}
+                              whileHover={{ x: 4 }}
+                              transition={{ duration: 0.2 }}
+                            >
+                              <IconArrowRight size={16} />
+                            </motion.div>
+                          }
                           disabled={linkedInUrl === '#'}
                           size="lg"
                           style={{
                             boxShadow: '0 8px 32px rgba(59, 130, 246, 0.3)',
                             border: '1px solid rgba(59, 130, 246, 0.2)',
+                            fontWeight: 600,
+                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            position: 'relative',
+                            overflow: 'hidden',
+                          }}
+                          styles={{
+                            root: {
+                              '&:hover': {
+                                boxShadow: '0 12px 40px rgba(59, 130, 246, 0.5)',
+                                transform: 'translateY(-2px)',
+                                background: 'linear-gradient(135deg, #3b82f6, #06b6d4, #8b5cf6)',
+                                backgroundSize: '200% 200%',
+                                animation: 'gradient-shift 2s ease infinite',
+                                border: '1px solid rgba(139, 92, 246, 0.4)',
+                              },
+                              '&:active': {
+                                transform: 'translateY(0px)',
+                                boxShadow: '0 4px 16px rgba(59, 130, 246, 0.3)',
+                              },
+                              '&::before': {
+                                content: '""',
+                                position: 'absolute',
+                                top: 0,
+                                left: '-100%',
+                                width: '100%',
+                                height: '100%',
+                                background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent)',
+                                transition: 'left 0.5s ease',
+                              },
+                              '&:hover::before': {
+                                left: '100%',
+                              }
+                            }
                           }}
                         >
                           LinkedIn
@@ -323,9 +350,14 @@ export default function AboutContent({ content }: AboutContentProps) {
                       </motion.div>
                       
                       <motion.div
-                        variants={buttonVariants}
-                        whileHover="hover"
-                        whileTap="tap"
+                        whileHover={{ 
+                          scale: 1.02,
+                          transition: { duration: 0.2, ease: "easeOut" }
+                        }}
+                        whileTap={{ 
+                          scale: 0.98,
+                          transition: { duration: 0.1 }
+                        }}
                       >
                         <Button
                           component="a"
@@ -335,11 +367,52 @@ export default function AboutContent({ content }: AboutContentProps) {
                           variant="outline"
                           color="gray"
                           leftSection={<IconBrandGithub size={18} />}
+                          rightSection={
+                            <motion.div
+                              animate={{ x: 0 }}
+                              whileHover={{ x: 4 }}
+                              transition={{ duration: 0.2 }}
+                            >
+                              <IconArrowRight size={16} />
+                            </motion.div>
+                          }
                           disabled={githubUrl === '#'}
                           size="lg"
                           style={{
                             borderColor: 'rgba(255, 255, 255, 0.2)',
                             color: 'var(--mantine-color-gray-2)',
+                            fontWeight: 600,
+                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            position: 'relative',
+                            overflow: 'hidden',
+                          }}
+                          styles={{
+                            root: {
+                              '&:hover': {
+                                borderColor: 'rgba(139, 92, 246, 0.4)',
+                                color: 'var(--mantine-color-gray-1)',
+                                background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1))',
+                                boxShadow: '0 8px 32px rgba(139, 92, 246, 0.3)',
+                                transform: 'translateY(-2px)',
+                              },
+                              '&:active': {
+                                transform: 'translateY(0px)',
+                                boxShadow: '0 4px 16px rgba(139, 92, 246, 0.2)',
+                              },
+                              '&::before': {
+                                content: '""',
+                                position: 'absolute',
+                                top: 0,
+                                left: '-100%',
+                                width: '100%',
+                                height: '100%',
+                                background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent)',
+                                transition: 'left 0.5s ease',
+                              },
+                              '&:hover::before': {
+                                left: '100%',
+                              }
+                            }
                           }}
                         >
                           GitHub
@@ -347,19 +420,66 @@ export default function AboutContent({ content }: AboutContentProps) {
                       </motion.div>
                       
                       <motion.div
-                        variants={buttonVariants}
-                        whileHover="hover"
-                        whileTap="tap"
+                        whileHover={{ 
+                          scale: 1.02,
+                          transition: { duration: 0.2, ease: "easeOut" }
+                        }}
+                        whileTap={{ 
+                          scale: 0.98,
+                          transition: { duration: 0.1 }
+                        }}
                       >
                         <Button
                           component={Link}
                           href="/contact"
                           variant="outline"
                           color="gray"
+                          leftSection={<IconMail size={18} />}
+                          rightSection={
+                            <motion.div
+                              animate={{ x: 0 }}
+                              whileHover={{ x: 4 }}
+                              transition={{ duration: 0.2 }}
+                            >
+                              <IconArrowRight size={16} />
+                            </motion.div>
+                          }
                           size="lg"
                           style={{
                             borderColor: 'rgba(255, 255, 255, 0.2)',
                             color: 'var(--mantine-color-gray-2)',
+                            fontWeight: 600,
+                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            position: 'relative',
+                            overflow: 'hidden',
+                          }}
+                          styles={{
+                            root: {
+                              '&:hover': {
+                                borderColor: 'rgba(6, 182, 212, 0.4)',
+                                color: 'var(--mantine-color-gray-1)',
+                                background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(59, 130, 246, 0.1))',
+                                boxShadow: '0 8px 32px rgba(6, 182, 212, 0.3)',
+                                transform: 'translateY(-2px)',
+                              },
+                              '&:active': {
+                                transform: 'translateY(0px)',
+                                boxShadow: '0 4px 16px rgba(6, 182, 212, 0.2)',
+                              },
+                              '&::before': {
+                                content: '""',
+                                position: 'absolute',
+                                top: 0,
+                                left: '-100%',
+                                width: '100%',
+                                height: '100%',
+                                background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent)',
+                                transition: 'left 0.5s ease',
+                              },
+                              '&:hover::before': {
+                                left: '100%',
+                              }
+                            }
                           }}
                         >
                           Neem Contact Op

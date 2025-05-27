@@ -12,7 +12,18 @@ const CallToActionBlock: React.FC = () => {
       <section style={{
         position: 'relative',
         overflow: 'hidden',
-        background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%)',
+        background: `
+          linear-gradient(180deg, 
+            transparent 0%, 
+            rgba(0, 0, 0, 0.2) 15%, 
+            rgba(15, 23, 42, 0.95) 25%, 
+            rgba(15, 23, 42, 0.95) 75%, 
+            rgba(0, 0, 0, 0.2) 85%, 
+            transparent 100%
+          )
+        `,
+        paddingTop: 'clamp(4rem, 8vw, 8rem)',
+        paddingBottom: 'clamp(4rem, 8vw, 8rem)',
       }}>
         {/* Animated background elements */}
         <motion.div

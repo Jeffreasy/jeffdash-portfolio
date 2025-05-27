@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import NextImage from 'next/image';
 import { Card, Text, Stack, Badge, Group, Button, Paper } from '@mantine/core';
+import { IconArrowRight } from '@tabler/icons-react';
 import type { FeaturedProjectType, ProjectPreviewType } from '@/lib/actions/projects';
 import { motion } from 'framer-motion';
 import PageErrorBoundary from '../shared/PageErrorBoundary';
@@ -214,22 +215,74 @@ function ProjectCard({ project }: ProjectCardProps) {
           <div style={{ 
             padding: '0 var(--mantine-spacing-lg) var(--mantine-spacing-lg)',
           }}>
-            <Button
-              component={Link}
-              href={`/projects/${project.slug}`}
-              variant="gradient"
-              gradient={{ from: 'blue.6', to: 'cyan.5' }}
-              fullWidth
-              size="sm"
-              radius="md"
-              style={{
-                boxShadow: '0 4px 16px rgba(59, 130, 246, 0.25)',
-                border: '1px solid rgba(59, 130, 246, 0.2)',
-                fontWeight: 500,
+            <motion.div
+              whileHover={{ 
+                scale: 1.02,
+                transition: { duration: 0.2, ease: "easeOut" }
+              }}
+              whileTap={{ 
+                scale: 0.98,
+                transition: { duration: 0.1 }
               }}
             >
-              Bekijk Project
-            </Button>
+              <Button
+                component={Link}
+                href={`/projects/${project.slug}`}
+                variant="gradient"
+                gradient={{ from: 'blue.6', to: 'cyan.5' }}
+                fullWidth
+                size="sm"
+                radius="md"
+                rightSection={
+                  <motion.div
+                    animate={{ x: 0 }}
+                    whileHover={{ x: 4 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <IconArrowRight size={16} />
+                  </motion.div>
+                }
+                style={{
+                  boxShadow: '0 4px 16px rgba(59, 130, 246, 0.25)',
+                  border: '1px solid rgba(59, 130, 246, 0.2)',
+                  fontWeight: 600,
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  position: 'relative',
+                  overflow: 'hidden',
+                }}
+                styles={{
+                  root: {
+                    '&:hover': {
+                      boxShadow: '0 12px 40px rgba(59, 130, 246, 0.5)',
+                      transform: 'translateY(-2px)',
+                      background: 'linear-gradient(135deg, #3b82f6, #06b6d4, #8b5cf6)',
+                      backgroundSize: '200% 200%',
+                      animation: 'gradient-shift 2s ease infinite',
+                      border: '1px solid rgba(139, 92, 246, 0.4)',
+                    },
+                    '&:active': {
+                      transform: 'translateY(0px)',
+                      boxShadow: '0 4px 16px rgba(59, 130, 246, 0.3)',
+                    },
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      left: '-100%',
+                      width: '100%',
+                      height: '100%',
+                      background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent)',
+                      transition: 'left 0.5s ease',
+                    },
+                    '&:hover::before': {
+                      left: '100%',
+                    }
+                  }
+                }}
+              >
+                Bekijk Project
+              </Button>
+            </motion.div>
           </div>
 
           {/* Subtle decorative element */}

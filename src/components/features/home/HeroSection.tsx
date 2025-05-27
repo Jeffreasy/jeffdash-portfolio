@@ -92,7 +92,16 @@ const HeroSection: React.FC = () => {
           display: 'flex',
           alignItems: 'center',
           overflow: 'hidden',
-          background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%)',
+          background: `
+            linear-gradient(180deg, 
+              transparent 0%, 
+              rgba(0, 0, 0, 0.2) 15%, 
+              rgba(15, 23, 42, 0.95) 25%, 
+              rgba(15, 23, 42, 0.95) 75%, 
+              rgba(0, 0, 0, 0.2) 85%, 
+              transparent 100%
+            )
+          `,
         }}
       >
         {/* Animated background elements */}
@@ -225,9 +234,14 @@ const HeroSection: React.FC = () => {
               <motion.div variants={textVariants}>
                 <Group gap="lg" justify="center" mt="xl">
                   <motion.div
-                    variants={buttonVariants}
-                    whileHover="hover"
-                    whileTap="tap"
+                    whileHover={{ 
+                      scale: 1.02,
+                      transition: { duration: 0.2, ease: "easeOut" }
+                    }}
+                    whileTap={{ 
+                      scale: 0.98,
+                      transition: { duration: 0.1 }
+                    }}
                   >
                     <Button
                       component="a"
@@ -236,10 +250,51 @@ const HeroSection: React.FC = () => {
                       radius="md"
                       variant="gradient"
                       gradient={{ from: 'blue.6', to: 'cyan.5' }}
-                      rightSection={<IconArrowRight size={20} />}
+                      rightSection={
+                        <motion.div
+                          animate={{ x: 0 }}
+                          whileHover={{ x: 4 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <IconArrowRight size={20} />
+                        </motion.div>
+                      }
                       style={{
                         boxShadow: '0 8px 32px rgba(59, 130, 246, 0.3)',
                         border: '1px solid rgba(59, 130, 246, 0.2)',
+                        fontWeight: 600,
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        position: 'relative',
+                        overflow: 'hidden',
+                      }}
+                      styles={{
+                        root: {
+                          '&:hover': {
+                            boxShadow: '0 12px 40px rgba(59, 130, 246, 0.5)',
+                            transform: 'translateY(-2px)',
+                            background: 'linear-gradient(135deg, #3b82f6, #06b6d4, #8b5cf6)',
+                            backgroundSize: '200% 200%',
+                            animation: 'gradient-shift 2s ease infinite',
+                            border: '1px solid rgba(139, 92, 246, 0.4)',
+                          },
+                          '&:active': {
+                            transform: 'translateY(0px)',
+                            boxShadow: '0 4px 16px rgba(59, 130, 246, 0.3)',
+                          },
+                          '&::before': {
+                            content: '""',
+                            position: 'absolute',
+                            top: 0,
+                            left: '-100%',
+                            width: '100%',
+                            height: '100%',
+                            background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent)',
+                            transition: 'left 0.5s ease',
+                          },
+                          '&:hover::before': {
+                            left: '100%',
+                          }
+                        }
                       }}
                     >
                       Bekijk Mijn Werk
@@ -247,9 +302,14 @@ const HeroSection: React.FC = () => {
                   </motion.div>
                   
                   <motion.div
-                    variants={buttonVariants}
-                    whileHover="hover"
-                    whileTap="tap"
+                    whileHover={{ 
+                      scale: 1.02,
+                      transition: { duration: 0.2, ease: "easeOut" }
+                    }}
+                    whileTap={{ 
+                      scale: 0.98,
+                      transition: { duration: 0.1 }
+                    }}
                   >
                     <Button
                       component="a"
@@ -261,6 +321,38 @@ const HeroSection: React.FC = () => {
                       style={{
                         borderColor: 'rgba(255, 255, 255, 0.2)',
                         color: 'var(--mantine-color-gray-2)',
+                        fontWeight: 600,
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        position: 'relative',
+                        overflow: 'hidden',
+                      }}
+                      styles={{
+                        root: {
+                          '&:hover': {
+                            borderColor: 'rgba(6, 182, 212, 0.4)',
+                            color: 'var(--mantine-color-gray-1)',
+                            background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(59, 130, 246, 0.1))',
+                            boxShadow: '0 8px 32px rgba(6, 182, 212, 0.3)',
+                            transform: 'translateY(-2px)',
+                          },
+                          '&:active': {
+                            transform: 'translateY(0px)',
+                            boxShadow: '0 4px 16px rgba(6, 182, 212, 0.2)',
+                          },
+                          '&::before': {
+                            content: '""',
+                            position: 'absolute',
+                            top: 0,
+                            left: '-100%',
+                            width: '100%',
+                            height: '100%',
+                            background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent)',
+                            transition: 'left 0.5s ease',
+                          },
+                          '&:hover::before': {
+                            left: '100%',
+                          }
+                        }
                       }}
                     >
                       Neem Contact Op

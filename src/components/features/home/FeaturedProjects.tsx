@@ -2,7 +2,7 @@
 import React from 'react';
 // Verwijder ProjectCard import hier, wordt nu gebruikt in AnimatedProjectGrid
 import { Container, Title, Button, Group, Text, Box } from '@mantine/core';
-import { IconArrowRight, IconBrandGithub } from '@tabler/icons-react';
+import { IconArrowRight, IconBrandGithub, IconEye } from '@tabler/icons-react';
 import { getFeaturedProjects, FeaturedProjectType } from '@/lib/actions/projects';
 // Verwijder motion import
 // Importeer de nieuwe client component voor de animatie
@@ -48,7 +48,18 @@ export default async function FeaturedProjects() {
       <section style={{ 
         position: 'relative',
         overflow: 'hidden',
-        background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%)',
+        background: `
+          linear-gradient(180deg, 
+            transparent 0%, 
+            rgba(0, 0, 0, 0.2) 15%, 
+            rgba(15, 23, 42, 0.95) 25%, 
+            rgba(15, 23, 42, 0.95) 75%, 
+            rgba(0, 0, 0, 0.2) 85%, 
+            transparent 100%
+          )
+        `,
+        paddingTop: 'clamp(4rem, 8vw, 8rem)',
+        paddingBottom: 'clamp(4rem, 8vw, 8rem)',
       }}>
         {/* Decorative background element */}
         <div style={{
@@ -93,36 +104,34 @@ export default async function FeaturedProjects() {
               <Group justify="center" gap="md">
                 <Button
                   component="a"
-                  href="mailto:jeffrey@jeffdash.nl?subject=Project Portfolio Interesse&body=Hallo Jeffrey,%0D%0A%0D%0AIk ben geïnteresseerd in je projecten en zou graag meer willen weten over je werk.%0D%0A%0D%0AMet vriendelijke groet"
+                  href="/projects"
                   variant="gradient"
                   gradient={{ from: 'blue.6', to: 'cyan.5' }}
                   size="lg"
                   radius="md"
-                  rightSection={<IconArrowRight size={18} />}
+                  rightSection={<IconEye size={18} />}
                   style={{
                     boxShadow: '0 8px 32px rgba(59, 130, 246, 0.3)',
                     border: '1px solid rgba(59, 130, 246, 0.2)',
                   }}
                 >
-                  Vraag Over Projecten
+                  Bekijk Alle Projecten
                 </Button>
                 
                 <Button
                   component="a"
-                  href="https://github.com/Jeffreasy"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href="mailto:jeffrey@jeffdash.nl?subject=Project Portfolio Interesse&body=Hallo Jeffrey,%0D%0A%0D%0AIk ben geïnteresseerd in je projecten en zou graag meer willen weten over je werk.%0D%0A%0D%0AMet vriendelijke groet"
                   variant="outline"
                   color="gray"
                   size="lg"
                   radius="md"
-                  leftSection={<IconBrandGithub size={18} />}
+                  rightSection={<IconArrowRight size={18} />}
                   style={{
                     borderColor: 'rgba(255, 255, 255, 0.2)',
                     color: 'var(--mantine-color-gray-2)',
                   }}
                 >
-                  GitHub
+                  Vraag Over Projecten
                 </Button>
               </Group>
             </Box>

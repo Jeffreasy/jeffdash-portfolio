@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Card, Image, Text, Stack, Badge, Group, Button, AspectRatio } from '@mantine/core';
+import { IconArrowRight } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
 import type { PublishedPostPreviewType } from '@/lib/actions/blog';
 import { formatDate } from '@/lib/utils'; // Utility functie om datum te formatteren (moet mogelijk aangemaakt worden)
@@ -269,23 +270,75 @@ export default function BlogPostCard({ post }: BlogPostCardProps) {
           </Stack>
 
           {/* Lees Meer button */}
-          <Button
-            component={Link}
-            href={`/blog/${post.slug}`}
-            variant="gradient"
-            gradient={{ from: 'blue.6', to: 'cyan.5' }}
-            fullWidth
-            size="sm"
-            radius="md"
-            style={{
-              boxShadow: '0 4px 16px rgba(59, 130, 246, 0.25)',
-              border: '1px solid rgba(59, 130, 246, 0.2)',
-              fontWeight: 500,
-              marginTop: 'var(--mantine-spacing-md)',
+          <motion.div
+            whileHover={{ 
+              scale: 1.02,
+              transition: { duration: 0.2, ease: "easeOut" }
+            }}
+            whileTap={{ 
+              scale: 0.98,
+              transition: { duration: 0.1 }
             }}
           >
-            Lees Meer
-          </Button>
+            <Button
+              component={Link}
+              href={`/blog/${post.slug}`}
+              variant="gradient"
+              gradient={{ from: 'blue.6', to: 'cyan.5' }}
+              fullWidth
+              size="sm"
+              radius="md"
+              rightSection={
+                <motion.div
+                  animate={{ x: 0 }}
+                  whileHover={{ x: 4 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <IconArrowRight size={16} />
+                </motion.div>
+              }
+              style={{
+                boxShadow: '0 4px 16px rgba(59, 130, 246, 0.25)',
+                border: '1px solid rgba(59, 130, 246, 0.2)',
+                fontWeight: 600,
+                marginTop: 'var(--mantine-spacing-md)',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                position: 'relative',
+                overflow: 'hidden',
+              }}
+              styles={{
+                root: {
+                  '&:hover': {
+                    boxShadow: '0 12px 40px rgba(59, 130, 246, 0.5)',
+                    transform: 'translateY(-2px)',
+                    background: 'linear-gradient(135deg, #3b82f6, #06b6d4, #8b5cf6)',
+                    backgroundSize: '200% 200%',
+                    animation: 'gradient-shift 2s ease infinite',
+                    border: '1px solid rgba(139, 92, 246, 0.4)',
+                  },
+                  '&:active': {
+                    transform: 'translateY(0px)',
+                    boxShadow: '0 4px 16px rgba(59, 130, 246, 0.3)',
+                  },
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    top: 0,
+                    left: '-100%',
+                    width: '100%',
+                    height: '100%',
+                    background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent)',
+                    transition: 'left 0.5s ease',
+                  },
+                  '&:hover::before': {
+                    left: '100%',
+                  }
+                }
+              }}
+            >
+              Lees Meer
+            </Button>
+          </motion.div>
 
           {/* Subtle decorative element */}
           <div style={{
