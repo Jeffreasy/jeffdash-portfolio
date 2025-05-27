@@ -1,11 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { SimpleGrid, Container, Title, Text, Box } from '@mantine/core';
 import { motion } from 'framer-motion';
 import BlogPostCard from './BlogPostCard'; // Importeer de kaart component
 import type { PublishedPostPreviewType } from '@/lib/actions/blog'; // Importeer het post preview type
 import BlogErrorBoundary from './BlogErrorBoundary';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 // Animation variants for the container
 const containerVariants = {
@@ -45,10 +46,22 @@ interface BlogListProps {
 }
 
 export default function BlogList({ posts }: BlogListProps) {
+  const { trackEvent, trackPageView } = useAnalytics();
+  
   // Valideer posts array
   if (!Array.isArray(posts)) {
     throw new Error('Posts must be an array');
   }
+
+  // Track blog list view
+  useEffect(() => {
+    trackPageView('blog_section_viewed', {
+      section: 'blog_list',
+      total_posts: posts?.length || 0,
+      has_posts: !!(posts && posts.length > 0),
+      page_type: 'blog_listing'
+    });
+  }, [trackPageView, posts]);
 
   // Toon een bericht als er geen posts zijn
   if (!posts || posts.length === 0) {

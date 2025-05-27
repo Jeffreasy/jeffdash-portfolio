@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Container, Grid, Title, Text, Button, Box, Group, Stack, List, ThemeIcon, Badge } from '@mantine/core';
 import { IconBolt, IconStar, IconArrowRight, IconCheck, IconEye, IconPlus } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 import PageErrorBoundary from '../../shared/PageErrorBoundary';
 import ContactModal from '@/components/features/contact/ContactModal';
 import { useContactModal } from '@/hooks/useContactModal';
+import { useAnalytics } from '@/hooks/useAnalytics';
 import { pricingPlans, PricingPlan } from './data';
 
 // Animation variants
@@ -34,15 +35,61 @@ const cardVariants = {
   },
 };
 
-
-
 // Function to open contact modal with plan
-const openContactModalWithPlan = (plan: PricingPlan, contactModal: any) => {
+const openContactModalWithPlan = (plan: PricingPlan, contactModal: any, trackEvent: any) => {
+  // Track plan selection
+  trackEvent('plan_selected', {
+    plan_name: plan.name,
+    plan_price: plan.price,
+    plan_color: plan.color,
+    is_popular: plan.popular || false,
+    selection_method: 'card_click'
+  });
+  
   contactModal.openWithPlan(plan);
 };
 
 const PricingSection: React.FC = () => {
   const contactModal = useContactModal();
+  const { trackEvent, trackPageView } = useAnalytics();
+
+  // Track section view when component mounts and comes into view
+  useEffect(() => {
+    trackPageView('pricing_section', {
+      total_plans: pricingPlans.length,
+      popular_plan: pricingPlans.find(p => p.popular)?.name || 'none'
+    });
+  }, [trackPageView]);
+
+  // Handle plan card view tracking
+  const handlePlanView = (plan: PricingPlan) => {
+    trackEvent('plan_viewed', {
+      plan_name: plan.name,
+      plan_price: plan.price,
+      plan_color: plan.color,
+      is_popular: plan.popular || false,
+      view_method: 'card_hover'
+    });
+  };
+
+  // Handle CTA button clicks
+  const handleCtaClick = (plan: PricingPlan, method: 'button' | 'general_inquiry') => {
+    if (method === 'button') {
+      trackEvent('plan_selected', {
+        plan_name: plan.name,
+        plan_price: plan.price,
+        plan_color: plan.color,
+        is_popular: plan.popular || false,
+        selection_method: 'cta_button'
+      });
+    } else {
+      trackEvent('plan_viewed', {
+        plan_name: 'general_inquiry',
+        plan_price: 'custom',
+        selection_method: 'general_cta'
+      });
+    }
+  };
 
   return (
     <PageErrorBoundary>
@@ -177,10 +224,11 @@ const PricingSection: React.FC = () => {
                       y: -8,
                       transition: { duration: 0.3, ease: "easeOut" }
                     }}
+                    onHoverStart={() => handlePlanView(plan)}
                     style={{ height: '100%' }}
                   >
                     <Box
-                      onClick={() => openContactModalWithPlan(plan, contactModal)}
+                      onClick={() => openContactModalWithPlan(plan, contactModal, trackEvent)}
                       style={{
                         position: 'relative',
                         background: plan.popular 
@@ -314,6 +362,7 @@ const PricingSection: React.FC = () => {
                         rightSection={<IconArrowRight size={16} />}
                         onClick={(e) => {
                           e.stopPropagation(); // Prevent modal opening when clicking CTA
+                          handleCtaClick(plan, 'button');
                           contactModal.openWithPlan(plan);
                         }}
                         style={{
@@ -349,7 +398,10 @@ const PricingSection: React.FC = () => {
                   }}
                 >
                   <Button
-                    onClick={() => contactModal.openModal()}
+                    onClick={() => {
+                      handleCtaClick({} as PricingPlan, 'general_inquiry');
+                      contactModal.openModal();
+                    }}
                     variant="outline"
                     color="gray"
                     size="lg"

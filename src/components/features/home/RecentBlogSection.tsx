@@ -7,6 +7,7 @@ import { IconArrowRight } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
 import BlogPostCard from '@/components/features/blog/BlogPostCard';
 import type { PublishedPostPreviewType } from '@/lib/actions/blog';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 interface RecentBlogSectionProps {
   posts: PublishedPostPreviewType[];
@@ -46,10 +47,41 @@ const itemVariants = {
 export default function RecentBlogSection({ posts }: RecentBlogSectionProps) {
   // Prevent hydration mismatch by ensuring animations only run client-side
   const [isClient, setIsClient] = useState(false);
+  const { trackEvent, trackPageView } = useAnalytics();
 
   useEffect(() => {
     setIsClient(true);
-  }, []);
+    
+    // Track section view
+    trackPageView('blog_section_viewed', {
+      section: 'recent_blog_section',
+      total_posts: posts?.length || 0,
+      has_posts: !!(posts && posts.length > 0)
+    });
+  }, [trackPageView, posts]);
+
+  // Handle "View All Posts" button click
+  const handleViewAllClick = () => {
+    trackEvent('blog_post_clicked', {
+      action: 'view_all_posts',
+      element: 'blog_section_cta',
+      destination: '/blog',
+      section: 'recent_blog',
+      current_page: typeof window !== 'undefined' ? window.location.pathname : 'unknown'
+    });
+  };
+
+  // Handle individual blog post clicks
+  const handleBlogPostClick = (post: PublishedPostPreviewType) => {
+    trackEvent('blog_post_clicked', {
+      action: 'post_click',
+      post_id: post.id,
+      post_title: post.title,
+      post_slug: post.slug || 'unknown',
+      section: 'recent_blog',
+      current_page: typeof window !== 'undefined' ? window.location.pathname : 'unknown'
+    });
+  };
 
   if (!posts || posts.length === 0) {
     return null;
@@ -183,6 +215,7 @@ export default function RecentBlogSection({ posts }: RecentBlogSectionProps) {
                 <Button
                    component={Link}
                    href="/blog"
+                   onClick={handleViewAllClick}
                    variant="outline"
                    color="gray"
                    rightSection={<IconArrowRight size={16} />}
@@ -198,32 +231,26 @@ export default function RecentBlogSection({ posts }: RecentBlogSectionProps) {
 
             <motion.div variants={itemVariants}>
               <SimpleGrid 
-                cols={{ base: 1, sm: 2, md: 3 }} 
-                spacing="xl"
-                verticalSpacing={{ base: "xl", sm: "xl", lg: "2xl" }}
-                style={{
-                  gap: 'clamp(1.5rem, 4vw, 2.5rem)',
-                }}
+                cols={{ base: 1, sm: 2, lg: 3 }}
+                spacing={{ base: "lg", sm: "xl" }}
+                verticalSpacing={{ base: "xl", sm: "xl" }}
               >
-                 {posts.map((post, index) => (
-                   <motion.div 
-                     key={post.id}
-                     variants={itemVariants}
-                     style={{
-                       height: '100%',
-                       willChange: 'transform, opacity',
-                       transform: 'translateZ(0)',
-                     }}
-                   >
-                     <BlogPostCard post={post} />
-                   </motion.div>
-                 ))}
+                {posts.map((post, index) => (
+                  <motion.div 
+                    key={post.id} 
+                    variants={itemVariants}
+                    onClick={() => handleBlogPostClick(post)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <BlogPostCard post={post} />
+                  </motion.div>
+                ))}
               </SimpleGrid>
             </motion.div>
           </motion.div>
         ) : (
           // Static version for server-side rendering
-          <div style={{ opacity: 1 }}>
+          <div>
             <Group justify="space-between" mb="xl">
               <Title 
                 order={2} 
@@ -243,6 +270,7 @@ export default function RecentBlogSection({ posts }: RecentBlogSectionProps) {
               <Button
                  component={Link}
                  href="/blog"
+                 onClick={handleViewAllClick}
                  variant="outline"
                  color="gray"
                  rightSection={<IconArrowRight size={16} />}
@@ -256,23 +284,19 @@ export default function RecentBlogSection({ posts }: RecentBlogSectionProps) {
             </Group>
 
             <SimpleGrid 
-              cols={{ base: 1, sm: 2, md: 3 }} 
-              spacing="xl"
-              verticalSpacing={{ base: "xl", sm: "xl", lg: "2xl" }}
-              style={{
-                gap: 'clamp(1.5rem, 4vw, 2.5rem)',
-              }}
+              cols={{ base: 1, sm: 2, lg: 3 }}
+              spacing={{ base: "lg", sm: "xl" }}
+              verticalSpacing={{ base: "xl", sm: "xl" }}
             >
-               {posts.map((post) => (
-                 <div 
-                   key={post.id}
-                   style={{
-                     height: '100%',
-                   }}
-                 >
-                   <BlogPostCard post={post} />
-                 </div>
-               ))}
+              {posts.map((post) => (
+                <div 
+                  key={post.id}
+                  onClick={() => handleBlogPostClick(post)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <BlogPostCard post={post} />
+                </div>
+              ))}
             </SimpleGrid>
           </div>
         )}

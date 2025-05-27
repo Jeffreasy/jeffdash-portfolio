@@ -1,10 +1,11 @@
 'use client';
 
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useEffect } from 'react';
 import { SimpleGrid, Container, Stack, Title, Text } from '@mantine/core';
 import { motion } from 'framer-motion';
 import ProjectCard from '../projects/ProjectCard';
 import type { FeaturedProjectType } from '@/lib/actions/projects';
+import { useAnalytics } from '@/hooks/useAnalytics';
 import PageErrorBoundary from '../shared/PageErrorBoundary';
 import ProgressiveLoader from '../shared/ProgressiveLoader';
 
@@ -55,7 +56,8 @@ const ProjectGridContent = memo<{
   title?: string;
   description?: string;
   showTitle?: boolean;
-}>(({ projects, title = "Featured Projects", description, showTitle = true }) => (
+  onProjectView?: (project: FeaturedProjectType) => void;
+}>(({ projects, title = "Featured Projects", description, showTitle = true, onProjectView }) => (
   <motion.div
     variants={containerVariants}
     initial="hidden"
@@ -102,6 +104,7 @@ const ProjectGridContent = memo<{
         <motion.div 
           key={project.id} 
           variants={itemVariants}
+          onHoverStart={() => onProjectView?.(project)}
           style={{
             height: '100%',
             // Hardware acceleration without 3D transforms
@@ -130,6 +133,28 @@ const AnimatedProjectGrid = memo<AnimatedProjectGridProps>(({
   description,
   showTitle = true,
 }) => {
+  const { trackEvent, trackPageView } = useAnalytics();
+
+  // Track section view
+  useEffect(() => {
+    trackPageView('featured_projects_section', {
+      total_projects: projects.length,
+      section_title: title || 'Featured Projects',
+      has_description: !!description
+    });
+  }, [projects.length, title, description, trackPageView]);
+
+  // Handle project view tracking
+  const handleProjectView = useCallback((project: FeaturedProjectType) => {
+    trackEvent('project_viewed', {
+      project_id: project.id,
+      project_title: project.title,
+      project_slug: project.slug || 'unknown',
+      is_featured: true, // All projects in this grid are featured
+      view_context: 'featured_grid'
+    });
+  }, [trackEvent]);
+
   // Input validation with clear error messaging
   const validateProjects = useCallback((projects: unknown): projects is FeaturedProjectType[] => {
     if (!Array.isArray(projects)) {
@@ -248,6 +273,7 @@ const AnimatedProjectGrid = memo<AnimatedProjectGridProps>(({
               title={title}
               description={description}
               showTitle={showTitle}
+              onProjectView={handleProjectView}
             />
           </ProgressiveLoader>
         </Container>

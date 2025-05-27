@@ -1,12 +1,13 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Container, Title, Text, Paper, Group, Button, Stack, Box } from '@mantine/core';
 import { IconBrandLinkedin, IconBrandGithub, IconArrowRight, IconMail } from '@tabler/icons-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import PageErrorBoundary from '../shared/PageErrorBoundary';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 // Animation variants
 const containerVariants = {
@@ -52,6 +53,8 @@ interface AboutContentProps {
 }
 
 export default function AboutContent({ content }: AboutContentProps) {
+  const { trackEvent, trackPageView } = useAnalytics();
+  
   const pageTitle = content.about_title || 'Over Mij';
   const introText = content.about_intro || 'Introductietekst niet gevonden.';
   const focusText = content.about_focus || '';
@@ -61,6 +64,64 @@ export default function AboutContent({ content }: AboutContentProps) {
   const githubUrl = content.github_url || '#';
   const profileImageUrl = content.profileImageUrl;
   const profileImageAlt = content.profileImageAlt || 'Profielfoto';
+
+  // Track page view
+  useEffect(() => {
+    trackPageView('page_load_complete', {
+      page: 'about',
+      page_title: pageTitle,
+      has_profile_image: !!profileImageUrl,
+      has_linkedin: linkedInUrl !== '#',
+      has_github: githubUrl !== '#',
+      has_intro_section: !!introText,
+      has_focus_section: !!focusText,
+      has_projects_section: !!projectsText,
+      has_contact_section: !!contactText
+    });
+  }, [trackPageView, pageTitle, profileImageUrl, linkedInUrl, githubUrl, introText, focusText, projectsText, contactText]);
+
+  // Handle profile image click
+  const handleProfileImageClick = () => {
+    trackEvent('navigation_clicked', {
+      action: 'profile_image_click',
+      element: 'about_profile_image',
+      section: 'about_page',
+      page: 'about'
+    });
+  };
+
+  // Handle LinkedIn button click
+  const handleLinkedInClick = () => {
+    trackEvent('social_link_clicked', {
+      platform: 'linkedin',
+      element: 'about_linkedin_button',
+      destination: linkedInUrl,
+      section: 'about_page',
+      page: 'about'
+    });
+  };
+
+  // Handle GitHub button click
+  const handleGitHubClick = () => {
+    trackEvent('social_link_clicked', {
+      platform: 'github',
+      element: 'about_github_button',
+      destination: githubUrl,
+      section: 'about_page',
+      page: 'about'
+    });
+  };
+
+  // Handle contact button click
+  const handleContactClick = () => {
+    trackEvent('navigation_clicked', {
+      action: 'contact_cta_click',
+      element: 'about_contact_button',
+      destination: '/contact',
+      section: 'about_page',
+      page: 'about'
+    });
+  };
 
   return (
     <PageErrorBoundary>
@@ -183,10 +244,12 @@ export default function AboutContent({ content }: AboutContentProps) {
                         <motion.div
                           whileHover={{ scale: 1.05 }}
                           transition={{ duration: 0.3 }}
+                          onClick={handleProfileImageClick}
                           style={{
                             borderRadius: '50%',
                             padding: '4px',
                             background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(6, 182, 212, 0.3))',
+                            cursor: 'pointer',
                           }}
                         >
                           <div style={{
@@ -293,6 +356,7 @@ export default function AboutContent({ content }: AboutContentProps) {
                           href={linkedInUrl}
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={handleLinkedInClick}
                           variant="gradient"
                           gradient={{ from: 'blue.6', to: 'cyan.5' }}
                           leftSection={<IconBrandLinkedin size={18} />}
@@ -364,6 +428,7 @@ export default function AboutContent({ content }: AboutContentProps) {
                           href={githubUrl}
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={handleGitHubClick}
                           variant="outline"
                           color="gray"
                           leftSection={<IconBrandGithub size={18} />}
@@ -432,6 +497,7 @@ export default function AboutContent({ content }: AboutContentProps) {
                         <Button
                           component={Link}
                           href="/contact"
+                          onClick={handleContactClick}
                           variant="outline"
                           color="gray"
                           leftSection={<IconMail size={18} />}

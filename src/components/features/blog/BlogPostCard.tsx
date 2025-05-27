@@ -1,6 +1,6 @@
 'use client'; // Image, Link etc. vereisen client-side
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { Card, Image, Text, Stack, Badge, Group, Button, AspectRatio } from '@mantine/core';
 import { IconArrowRight } from '@tabler/icons-react';
@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 import type { PublishedPostPreviewType } from '@/lib/actions/blog';
 import { formatDate } from '@/lib/utils'; // Utility functie om datum te formatteren (moet mogelijk aangemaakt worden)
 import BlogErrorBoundary from './BlogErrorBoundary';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 type BlogPostCardProps = {
   post: PublishedPostPreviewType;
@@ -28,6 +29,8 @@ const isValidUrl = (url: string | null | undefined): boolean => {
 };
 
 export default function BlogPostCard({ post }: BlogPostCardProps) {
+  const { trackEvent } = useAnalytics();
+  
   // Valideer post object
   if (!post || typeof post !== 'object') {
     throw new Error('Invalid post data');
@@ -35,6 +38,20 @@ export default function BlogPostCard({ post }: BlogPostCardProps) {
 
   const fallbackImage = 'https://via.placeholder.com/400x200/1f2937/9ca3af.png?text=Blog+Post';
   
+  // Track card view on mount
+  useEffect(() => {
+    trackEvent('project_viewed', {
+      action: 'blog_card_viewed',
+      post_id: post.id,
+      post_title: post.title,
+      post_slug: post.slug || 'unknown',
+      post_category: post.category || 'uncategorized',
+      has_featured_image: !!post.featuredImageUrl,
+      has_excerpt: !!post.excerpt,
+      tag_count: post.tags?.length || 0
+    });
+  }, [trackEvent, post]);
+
   // Validate and determine the image source
   const getImageSrc = (): string => {
     const featuredImageUrl = post.featuredImageUrl;
@@ -58,6 +75,14 @@ export default function BlogPostCard({ post }: BlogPostCardProps) {
     const target = event.currentTarget;
     const postId = post.id;
     
+    // Track image load error
+    trackEvent('image_load_error', {
+      post_id: postId,
+      original_src: post.featuredImageUrl || 'none',
+      attempted_src: target.src,
+      fallback_src: fallbackImage
+    });
+    
     // Log detailed error information
     console.warn(`Failed to load image for blog post ${postId}:`, {
       originalSrc: post.featuredImageUrl,
@@ -70,6 +95,61 @@ export default function BlogPostCard({ post }: BlogPostCardProps) {
     if (target.src !== fallbackImage) {
       target.src = fallbackImage;
     }
+  };
+
+  // Handle card click (entire card)
+  const handleCardClick = () => {
+    trackEvent('blog_post_clicked', {
+      action: 'card_click',
+      post_id: post.id,
+      post_title: post.title,
+      post_slug: post.slug || 'unknown',
+      click_area: 'card_body'
+    });
+  };
+
+  // Handle title click
+  const handleTitleClick = () => {
+    trackEvent('blog_post_clicked', {
+      action: 'title_click',
+      post_id: post.id,
+      post_title: post.title,
+      post_slug: post.slug || 'unknown',
+      click_area: 'title'
+    });
+  };
+
+  // Handle image click
+  const handleImageClick = () => {
+    trackEvent('blog_post_clicked', {
+      action: 'image_click',
+      post_id: post.id,
+      post_title: post.title,
+      post_slug: post.slug || 'unknown',
+      click_area: 'featured_image'
+    });
+  };
+
+  // Handle read more button click
+  const handleReadMoreClick = () => {
+    trackEvent('blog_post_clicked', {
+      action: 'read_more_click',
+      post_id: post.id,
+      post_title: post.title,
+      post_slug: post.slug || 'unknown',
+      click_area: 'read_more_button'
+    });
+  };
+
+  // Handle tag click
+  const handleTagClick = (tag: string) => {
+    trackEvent('navigation_clicked', {
+      action: 'tag_click',
+      element: 'blog_tag',
+      tag_name: tag,
+      post_id: post.id,
+      post_title: post.title
+    });
   };
 
   return (
@@ -95,6 +175,7 @@ export default function BlogPostCard({ post }: BlogPostCardProps) {
           padding="lg" 
           radius="lg" 
           h="100%"
+          onClick={handleCardClick}
           style={{ 
             background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
             backdropFilter: 'blur(10px)',
@@ -122,6 +203,7 @@ export default function BlogPostCard({ post }: BlogPostCardProps) {
               }}
               whileHover={{ scale: 1.02 }}
               transition={{ duration: 0.3 }}
+              onClick={handleImageClick}
             >
               <AspectRatio ratio={16 / 9}>
                 <div style={{
@@ -206,6 +288,7 @@ export default function BlogPostCard({ post }: BlogPostCardProps) {
               lineClamp={2} 
               component={Link} 
               href={`/blog/${post.slug}`} 
+              onClick={handleTitleClick}
               td="none"
               style={{
                 lineHeight: 1.3,
@@ -246,9 +329,14 @@ export default function BlogPostCard({ post }: BlogPostCardProps) {
                   key={tag} 
                   size="sm" 
                   variant="outline"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleTagClick(tag);
+                  }}
                   style={{
                     borderColor: 'rgba(255, 255, 255, 0.3)',
                     color: 'var(--mantine-color-gray-4)',
+                    cursor: 'pointer',
                   }}
                 >
                   {tag}
@@ -283,6 +371,10 @@ export default function BlogPostCard({ post }: BlogPostCardProps) {
             <Button
               component={Link}
               href={`/blog/${post.slug}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleReadMoreClick();
+              }}
               variant="gradient"
               gradient={{ from: 'blue.6', to: 'cyan.5' }}
               fullWidth

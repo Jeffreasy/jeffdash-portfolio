@@ -25,6 +25,7 @@ import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import LayoutErrorBoundary from './LayoutErrorBoundary';
 import { ContactModal, useContactModal } from '@/components/features/contact';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 // Navigation links
 const mainLinks = [
@@ -77,10 +78,58 @@ export default function Header() {
   const [opened, { toggle, close }] = useDisclosure(false);
   const pathname = usePathname();
   const contactModal = useContactModal();
+  const { trackEvent, trackUserInteraction } = useAnalytics();
 
   if (!pathname) {
     throw new Error('Pathname is required for navigation');
   }
+
+  // Handle navigation clicks
+  const handleNavClick = (linkLabel: string, linkPath: string) => {
+    trackUserInteraction('navigation_click', `header_nav_${linkLabel.toLowerCase()}`, {
+      destination: linkPath,
+      current_page: pathname,
+      navigation_type: 'main_menu'
+    });
+  };
+
+  // Handle logo click
+  const handleLogoClick = () => {
+    trackUserInteraction('navigation_click', 'header_logo', {
+      destination: '/',
+      current_page: pathname,
+      navigation_type: 'logo'
+    });
+  };
+
+  // Handle social media clicks
+  const handleSocialClick = (platform: string, url: string) => {
+    trackEvent('social_link_clicked', {
+      platform: platform.toLowerCase(),
+      url: url,
+      source: 'header',
+      current_page: pathname
+    });
+  };
+
+  // Handle CTA button clicks
+  const handleCtaClick = (source: 'desktop' | 'mobile') => {
+    trackEvent('hero_cta_clicked', {
+      button_type: 'contact',
+      button_text: 'Neem Contact Op',
+      section: 'header',
+      device_type: source,
+      current_page: pathname
+    });
+  };
+
+  // Handle mobile menu toggle
+  const handleMobileMenuToggle = () => {
+    trackUserInteraction('navigation_click', 'mobile_menu_toggle', {
+      action: opened ? 'close' : 'open',
+      current_page: pathname
+    });
+  };
 
   const mainItems = mainLinks.map((link) => {
     const isActive = pathname === link.link || (link.link !== '/' && pathname.startsWith(link.link));
@@ -91,7 +140,10 @@ export default function Header() {
           href={link.link}
           underline="never"
           fw={isActive ? 600 : 500}
-          onClick={close}
+          onClick={() => {
+            handleNavClick(link.label, link.link);
+            close();
+          }}
           style={{
             color: isActive 
               ? 'var(--mantine-color-blue-4)' 
@@ -130,7 +182,10 @@ export default function Header() {
         variant="subtle"
         color="gray"
         aria-label={social.label}
-        onClick={close}
+        onClick={() => {
+          handleSocialClick(social.label, social.href);
+          close();
+        }}
         style={{
           background: 'rgba(255, 255, 255, 0.05)',
           border: '1px solid rgba(255, 255, 255, 0.1)',
@@ -147,6 +202,7 @@ export default function Header() {
     <motion.div variants={linkVariants} whileHover="hover" whileTap="tap">
       <Button 
         onClick={() => {
+          handleCtaClick('desktop');
           close();
           contactModal.openModal();
         }}
@@ -176,7 +232,7 @@ export default function Header() {
           style={{
             position: 'sticky',
             top: 0,
-            zIndex: 600, // Verhoogd naar 600 om boven drawer overlay te komen
+            zIndex: 600,
             background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%)',
             backdropFilter: 'blur(10px)',
             borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
@@ -192,6 +248,7 @@ export default function Header() {
                   href="/" 
                   fw={700} 
                   underline="never"
+                  onClick={handleLogoClick}
                   style={{
                     background: 'linear-gradient(135deg, var(--mantine-color-blue-4), var(--mantine-color-cyan-4))',
                     backgroundClip: 'text',
@@ -217,19 +274,22 @@ export default function Header() {
               <motion.div variants={linkVariants} whileHover="hover" whileTap="tap">
                 <Burger 
                   opened={opened} 
-                  onClick={toggle} 
+                  onClick={() => {
+                    handleMobileMenuToggle();
+                    toggle();
+                  }}
                   hiddenFrom="sm" 
                   size="sm"
                   color="var(--mantine-color-gray-3)"
                   style={{
-                    zIndex: 700, // Zorg dat burger button boven alles staat
+                    zIndex: 700,
                   }}
                 />
               </motion.div>
             </Group>
           </Container>
           
-          {/* Mobile Drawer met aangepaste z-index */}
+          {/* Mobile Drawer */}
           <Drawer
             opened={opened}
             onClose={close}
@@ -238,7 +298,7 @@ export default function Header() {
             size="xs"
             hiddenFrom="sm"
             position="right"
-            zIndex={550} // Lager dan header maar hoger dan content
+            zIndex={550}
             overlayProps={{
               backgroundOpacity: 0.5,
               blur: 2,
@@ -286,7 +346,10 @@ export default function Header() {
                         key={`mobile-${link.label}`}
                         component={Link}
                         href={link.link}
-                        onClick={close}
+                        onClick={() => {
+                          handleNavClick(link.label, link.link);
+                          close();
+                        }}
                         style={{
                           display: 'block',
                           padding: rem(16),
@@ -323,6 +386,7 @@ export default function Header() {
                 </Text>
                 <Button 
                   onClick={() => {
+                    handleCtaClick('mobile');
                     close();
                     contactModal.openModal();
                   }}
@@ -358,7 +422,10 @@ export default function Header() {
                       variant="subtle"
                       size="xl"
                       aria-label={social.label}
-                      onClick={close}
+                      onClick={() => {
+                        handleSocialClick(social.label, social.href);
+                        close();
+                      }}
                       style={{
                         background: 'rgba(255, 255, 255, 0.05)',
                         border: '1px solid rgba(255, 255, 255, 0.15)',

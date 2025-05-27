@@ -6,6 +6,7 @@ import { IconArrowRight, IconCode, IconSparkles } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
 import PageErrorBoundary from '../shared/PageErrorBoundary';
 import { ContactModal, useContactModal } from '@/components/features/contact';
+import { useAnalytics } from '@/hooks/useAnalytics';
 // Optioneel: importeer een CSS-module voor meer geavanceerde stijlen of animaties
 // import classes from './HeroSection.module.css';
 
@@ -79,10 +80,28 @@ const useTypingEffect = (text: string, speed: number = 100) => {
 const HeroSection: React.FC = () => {
   const titleId = "hero-title";
   const contactModal = useContactModal();
+  const { trackEvent, trackPageView } = useAnalytics();
   
   // Typing effect voor de naam
   const typedName = useTypingEffect("Jeffrey", 150);
   
+  // Track hero section view
+  useEffect(() => {
+    trackPageView('hero_section', {
+      section: 'landing_page',
+      typing_effect: 'enabled'
+    });
+  }, [trackPageView]);
+
+  // Handle CTA button clicks
+  const handleCtaClick = (buttonType: 'primary' | 'secondary') => {
+    trackEvent('hero_cta_clicked', {
+      button_type: buttonType,
+      button_text: buttonType === 'primary' ? 'Bekijk Mijn Werk' : 'Neem Contact Op',
+      section: 'hero'
+    });
+  };
+
   return (
     <PageErrorBoundary>
       <Box
@@ -246,7 +265,10 @@ const HeroSection: React.FC = () => {
                     }}
                   >
                     <Button
-                      onClick={() => contactModal.openModal()}
+                      onClick={() => {
+                        handleCtaClick('primary');
+                        contactModal.openModal();
+                      }}
                       size="xl"
                       radius="md"
                       variant="gradient"
@@ -313,7 +335,10 @@ const HeroSection: React.FC = () => {
                     }}
                   >
                     <Button
-                      onClick={() => contactModal.openModal()}
+                      onClick={() => {
+                        handleCtaClick('secondary');
+                        contactModal.openModal();
+                      }}
                       size="xl"
                       radius="md"
                       variant="outline"

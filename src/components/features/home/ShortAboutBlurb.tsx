@@ -1,12 +1,13 @@
 'use client'; // Markeer als Client Component
 
-import React, { memo } from 'react';
+import React, { memo, useEffect } from 'react';
 import { Text, Button, Container, Title, Group, Grid, Paper, Stack, Box } from '@mantine/core';
 import Link from 'next/link'; // Gebruik Next.js Link voor navigatie
 import NextImage from 'next/image'; // Importeer next/image
 import { motion } from 'framer-motion';
 import { IconArrowRight, IconUser } from '@tabler/icons-react';
 import PageErrorBoundary from '../shared/PageErrorBoundary';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 // Definieer de props interface
 interface ShortAboutBlurbProps {
@@ -66,235 +67,270 @@ const imageVariants = {
 const ShortAboutContent = memo<{
   profileImageUrl?: string;
   profileImageAlt?: string;
-}>(({ profileImageUrl, profileImageAlt }) => (
-  <motion.div
-    variants={containerVariants}
-    initial="hidden"
-    whileInView="visible"
-    viewport={{ once: true, amount: 0.2 }}
-  >
-    <Container size="lg" py={{ base: "xl", md: "3xl" }}>
-      {/* Titel sectie */}
-      <motion.div variants={itemVariants} style={{ textAlign: 'center', marginBottom: 'var(--mantine-spacing-3xl)' }}>
-        <Title 
-          order={2} 
-          size="h1"
-          style={{
-            background: 'linear-gradient(135deg, var(--mantine-color-blue-4), var(--mantine-color-cyan-4))',
-            backgroundClip: 'text',
-            WebkitBackgroundClip: 'text',
-            color: 'transparent',
-            marginBottom: 'var(--mantine-spacing-md)',
-            fontWeight: 700,
-          }}
-        >
-          Over Mij
-        </Title>
-        <Text size="lg" c="gray.4" maw={600} mx="auto">
-          Een korte kennismaking met mijn passie voor development
-        </Text>
-      </motion.div>
+}>(({ profileImageUrl, profileImageAlt }) => {
+  const { trackEvent, trackPageView } = useAnalytics();
 
-      {/* Content Grid */}
-      <Grid gutter="3xl" align="center">
-        {/* Afbeelding Kolom */}
-        {profileImageUrl && (
-          <Grid.Col span={{ base: 12, md: 5 }}>
-            <motion.div variants={itemVariants}>
-              <Box 
-                style={{ 
-                  position: 'relative',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-              >
-                {/* Decoratieve achtergrond */}
-                <motion.div
-                  style={{
-                    position: 'absolute',
-                    width: '280px',
-                    height: '280px',
-                    background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(6, 182, 212, 0.1))',
-                    borderRadius: '50%',
-                    zIndex: 0,
-                  }}
-                  animate={{
-                    rotate: 360,
-                  }}
-                  transition={{
-                    duration: 20,
-                    repeat: Infinity,
-                    ease: "linear",
-                  }}
-                />
-                
-                {/* Profiel afbeelding */}
-                <motion.div
-                  variants={imageVariants}
-                  whileHover="hover"
-                  style={{
+  // Track section view
+  useEffect(() => {
+    trackPageView('about_section_viewed', {
+      section: 'short_about_blurb',
+      has_profile_image: !!profileImageUrl,
+      section_type: 'home_page_about'
+    });
+  }, [trackPageView, profileImageUrl]);
+
+  // Handle profile image click
+  const handleProfileImageClick = () => {
+    trackEvent('navigation_clicked', {
+      action: 'profile_image_click',
+      element: 'about_profile_image',
+      section: 'about_blurb'
+    });
+  };
+
+  // Handle CTA button click
+  const handleAboutCtaClick = () => {
+    trackEvent('navigation_clicked', {
+      action: 'about_cta_click',
+      element: 'about_page_button',
+      destination: '/about',
+      section: 'about_blurb',
+      current_page: typeof window !== 'undefined' ? window.location.pathname : 'unknown'
+    });
+  };
+
+  return (
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.2 }}
+    >
+      <Container size="lg" py={{ base: "xl", md: "3xl" }}>
+        {/* Titel sectie */}
+        <motion.div variants={itemVariants} style={{ textAlign: 'center', marginBottom: 'var(--mantine-spacing-3xl)' }}>
+          <Title 
+            order={2} 
+            size="h1"
+            style={{
+              background: 'linear-gradient(135deg, var(--mantine-color-blue-4), var(--mantine-color-cyan-4))',
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              color: 'transparent',
+              marginBottom: 'var(--mantine-spacing-md)',
+              fontWeight: 700,
+            }}
+          >
+            Over Mij
+          </Title>
+          <Text size="lg" c="gray.4" maw={600} mx="auto">
+            Een korte kennismaking met mijn passie voor development
+          </Text>
+        </motion.div>
+
+        {/* Content Grid */}
+        <Grid gutter="3xl" align="center">
+          {/* Afbeelding Kolom */}
+          {profileImageUrl && (
+            <Grid.Col span={{ base: 12, md: 5 }}>
+              <motion.div variants={itemVariants}>
+                <Box 
+                  style={{ 
                     position: 'relative',
-                    zIndex: 1,
-                    borderRadius: '50%',
-                    overflow: 'hidden',
-                    border: '4px solid rgba(255, 255, 255, 0.1)',
-                    background: 'var(--mantine-color-dark-6)',
-                    cursor: 'pointer',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
                   }}
                 >
-                  <NextImage
-                    src={profileImageUrl}
-                    alt={profileImageAlt || 'Profielfoto van Jeffrey'}
-                    width={200}
-                    height={200}
-                    quality={90}
-                    loading="lazy"
-                    sizes="(max-width: 768px) 150px, 200px"
+                  {/* Decoratieve achtergrond */}
+                  <motion.div
                     style={{
-                      objectFit: 'cover',
-                      display: 'block',
+                      position: 'absolute',
+                      width: '280px',
+                      height: '280px',
+                      background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(6, 182, 212, 0.1))',
+                      borderRadius: '50%',
+                      zIndex: 0,
+                    }}
+                    animate={{
+                      rotate: 360,
+                    }}
+                    transition={{
+                      duration: 20,
+                      repeat: Infinity,
+                      ease: "linear",
                     }}
                   />
-                </motion.div>
-              </Box>
+                  
+                  {/* Profiel afbeelding */}
+                  <motion.div
+                    variants={imageVariants}
+                    whileHover="hover"
+                    onClick={handleProfileImageClick}
+                    style={{
+                      position: 'relative',
+                      zIndex: 1,
+                      borderRadius: '50%',
+                      overflow: 'hidden',
+                      border: '4px solid rgba(255, 255, 255, 0.1)',
+                      background: 'var(--mantine-color-dark-6)',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <NextImage
+                      src={profileImageUrl}
+                      alt={profileImageAlt || 'Profielfoto van Jeffrey'}
+                      width={200}
+                      height={200}
+                      quality={90}
+                      loading="lazy"
+                      sizes="(max-width: 768px) 150px, 200px"
+                      style={{
+                        objectFit: 'cover',
+                        display: 'block',
+                      }}
+                    />
+                  </motion.div>
+                </Box>
+              </motion.div>
+            </Grid.Col>
+          )}
+
+          {/* Tekst Kolom */}
+          <Grid.Col span={{ base: 12, md: profileImageUrl ? 7 : 12 }}>
+            <motion.div variants={itemVariants}>
+              <Paper
+                p="xl"
+                radius="lg"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.05))',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  backdropFilter: 'blur(10px)',
+                }}
+              >
+                <Stack gap="lg">
+                  <motion.div variants={itemVariants}>
+                    <Text 
+                      size="lg" 
+                      lh={1.6}
+                      style={{
+                        fontSize: 'clamp(1.1rem, 2.5vw, 1.25rem)',
+                        color: 'var(--mantine-color-gray-2)',
+                      }}
+                    >
+                      Naast mijn werk in de <Text component="span" fw={600} c="blue.4">zorg als begeleider</Text>, 
+                      duik ik in mijn vrije tijd vol passie in de wereld van{' '}
+                      <Text component="span" fw={600} c="cyan.4">web development</Text>. 
+                      Ik focus op het volledige full-stack proces, vaak met hulp van AI-tools, 
+                      om moderne applicaties te bouwen.
+                    </Text>
+                  </motion.div>
+
+                  {/* Highlight items */}
+                  <motion.div variants={itemVariants}>
+                    <Group gap="md" wrap="wrap">
+                      {['React & Next.js', 'TypeScript', 'Full-Stack', 'AI Integration'].map((skill) => (
+                        <motion.div
+                          key={skill}
+                          whileHover={{ scale: 1.05 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <Box
+                            style={{
+                              padding: 'var(--mantine-spacing-xs) var(--mantine-spacing-sm)',
+                              background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(6, 182, 212, 0.1))',
+                              border: '1px solid rgba(59, 130, 246, 0.2)',
+                              borderRadius: 'var(--mantine-radius-md)',
+                            }}
+                          >
+                            <Text size="sm" fw={500} c="blue.3">
+                              {skill}
+                            </Text>
+                          </Box>
+                        </motion.div>
+                      ))}
+                    </Group>
+                  </motion.div>
+
+                  {/* CTA */}
+                  <motion.div
+                    whileHover={{ 
+                      scale: 1.02,
+                      transition: { duration: 0.2, ease: "easeOut" }
+                    }}
+                    whileTap={{ 
+                      scale: 0.98,
+                      transition: { duration: 0.1 }
+                    }}
+                  >
+                    <Button
+                      component={Link}
+                      href="/about"
+                      onClick={handleAboutCtaClick}
+                      variant="gradient"
+                      gradient={{ from: 'blue.6', to: 'cyan.5' }}
+                      size="lg"
+                      radius="md"
+                      rightSection={
+                        <motion.div
+                          animate={{ x: 0 }}
+                          whileHover={{ x: 4 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <IconArrowRight size={18} />
+                        </motion.div>
+                      }
+                      style={{
+                        boxShadow: '0 8px 32px rgba(59, 130, 246, 0.3)',
+                        border: '1px solid rgba(59, 130, 246, 0.2)',
+                        marginTop: 'var(--mantine-spacing-md)',
+                        fontWeight: 600,
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        position: 'relative',
+                        overflow: 'hidden',
+                      }}
+                      styles={{
+                        root: {
+                          '&:hover': {
+                            boxShadow: '0 12px 40px rgba(59, 130, 246, 0.5)',
+                            transform: 'translateY(-2px)',
+                            background: 'linear-gradient(135deg, #3b82f6, #06b6d4, #8b5cf6)',
+                            backgroundSize: '200% 200%',
+                            animation: 'gradient-shift 2s ease infinite',
+                            border: '1px solid rgba(139, 92, 246, 0.4)',
+                          },
+                          '&:active': {
+                            transform: 'translateY(0px)',
+                            boxShadow: '0 4px 16px rgba(59, 130, 246, 0.3)',
+                          },
+                          '&::before': {
+                            content: '""',
+                            position: 'absolute',
+                            top: 0,
+                            left: '-100%',
+                            width: '100%',
+                            height: '100%',
+                            background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent)',
+                            transition: 'left 0.5s ease',
+                          },
+                          '&:hover::before': {
+                            left: '100%',
+                          }
+                        }
+                      }}
+                    >
+                      Meer Over Mij
+                    </Button>
+                  </motion.div>
+                </Stack>
+              </Paper>
             </motion.div>
           </Grid.Col>
-        )}
-
-        {/* Tekst Kolom */}
-        <Grid.Col span={{ base: 12, md: profileImageUrl ? 7 : 12 }}>
-          <motion.div variants={itemVariants}>
-            <Paper
-              p="xl"
-              radius="lg"
-              style={{
-                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.05))',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                backdropFilter: 'blur(10px)',
-              }}
-            >
-              <Stack gap="lg">
-                <motion.div variants={itemVariants}>
-                  <Text 
-                    size="lg" 
-                    lh={1.6}
-                    style={{
-                      fontSize: 'clamp(1.1rem, 2.5vw, 1.25rem)',
-                      color: 'var(--mantine-color-gray-2)',
-                    }}
-                  >
-                    Naast mijn werk in de <Text component="span" fw={600} c="blue.4">zorg als begeleider</Text>, 
-                    duik ik in mijn vrije tijd vol passie in de wereld van{' '}
-                    <Text component="span" fw={600} c="cyan.4">web development</Text>. 
-                    Ik focus op het volledige full-stack proces, vaak met hulp van AI-tools, 
-                    om moderne applicaties te bouwen.
-                  </Text>
-                </motion.div>
-
-                {/* Highlight items */}
-                <motion.div variants={itemVariants}>
-                  <Group gap="md" wrap="wrap">
-                    {['React & Next.js', 'TypeScript', 'Full-Stack', 'AI Integration'].map((skill) => (
-                      <motion.div
-                        key={skill}
-                        whileHover={{ scale: 1.05 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        <Box
-                          style={{
-                            padding: 'var(--mantine-spacing-xs) var(--mantine-spacing-sm)',
-                            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(6, 182, 212, 0.1))',
-                            border: '1px solid rgba(59, 130, 246, 0.2)',
-                            borderRadius: 'var(--mantine-radius-md)',
-                          }}
-                        >
-                          <Text size="sm" fw={500} c="blue.3">
-                            {skill}
-                          </Text>
-                        </Box>
-                      </motion.div>
-                    ))}
-                  </Group>
-                </motion.div>
-
-                {/* CTA */}
-                <motion.div
-                  whileHover={{ 
-                    scale: 1.02,
-                    transition: { duration: 0.2, ease: "easeOut" }
-                  }}
-                  whileTap={{ 
-                    scale: 0.98,
-                    transition: { duration: 0.1 }
-                  }}
-                >
-                  <Button
-                    component={Link}
-                    href="/about"
-                    variant="gradient"
-                    gradient={{ from: 'blue.6', to: 'cyan.5' }}
-                    size="lg"
-                    radius="md"
-                    rightSection={
-                      <motion.div
-                        animate={{ x: 0 }}
-                        whileHover={{ x: 4 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        <IconArrowRight size={18} />
-                      </motion.div>
-                    }
-                    style={{
-                      boxShadow: '0 8px 32px rgba(59, 130, 246, 0.3)',
-                      border: '1px solid rgba(59, 130, 246, 0.2)',
-                      marginTop: 'var(--mantine-spacing-md)',
-                      fontWeight: 600,
-                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                      position: 'relative',
-                      overflow: 'hidden',
-                    }}
-                    styles={{
-                      root: {
-                        '&:hover': {
-                          boxShadow: '0 12px 40px rgba(59, 130, 246, 0.5)',
-                          transform: 'translateY(-2px)',
-                          background: 'linear-gradient(135deg, #3b82f6, #06b6d4, #8b5cf6)',
-                          backgroundSize: '200% 200%',
-                          animation: 'gradient-shift 2s ease infinite',
-                          border: '1px solid rgba(139, 92, 246, 0.4)',
-                        },
-                        '&:active': {
-                          transform: 'translateY(0px)',
-                          boxShadow: '0 4px 16px rgba(59, 130, 246, 0.3)',
-                        },
-                        '&::before': {
-                          content: '""',
-                          position: 'absolute',
-                          top: 0,
-                          left: '-100%',
-                          width: '100%',
-                          height: '100%',
-                          background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent)',
-                          transition: 'left 0.5s ease',
-                        },
-                        '&:hover::before': {
-                          left: '100%',
-                        }
-                      }
-                    }}
-                  >
-                    Meer Over Mij
-                  </Button>
-                </motion.div>
-              </Stack>
-            </Paper>
-          </motion.div>
-        </Grid.Col>
-      </Grid>
-    </Container>
-  </motion.div>
-));
+        </Grid>
+      </Container>
+    </motion.div>
+  );
+});
 
 ShortAboutContent.displayName = 'ShortAboutContent';
 

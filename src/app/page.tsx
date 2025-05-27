@@ -13,6 +13,9 @@ import RecentBlogSection from '@/components/features/home/RecentBlogSection';
 // Importeer blog-gerelateerde zaken
 import { getPublishedPosts } from '@/lib/actions/blog';
 
+// Importeer project-gerelateerde zaken
+import { getFeaturedProjects } from '@/lib/actions/projects';
+
 // Importeer profielfoto action
 import { getProfilePicture } from '@/lib/actions/content';
 
@@ -50,9 +53,10 @@ export const metadata: Metadata = {
 // Pagina wordt async vanwege data fetching
 export default async function HomePage() {
   // Haal data parallel op
-  const [recentPosts, profilePicture] = await Promise.all([
+  const [recentPosts, profilePicture, projectsData] = await Promise.all([
     getPublishedPosts(3),
-    getProfilePicture()
+    getProfilePicture(),
+    getFeaturedProjects()
   ]);
 
   return (
@@ -69,7 +73,10 @@ export default async function HomePage() {
 
       {/* 2. Featured Projects */}
       <section aria-labelledby="featured-projects-title">
-        <FeaturedProjects />
+        <FeaturedProjects 
+          featuredProjects={projectsData.featuredProjects}
+          totalProjectCount={projectsData.totalProjectCount}
+        />
       </section>
 
       {/* 3. Pricing Section - RE-ENABLED */}

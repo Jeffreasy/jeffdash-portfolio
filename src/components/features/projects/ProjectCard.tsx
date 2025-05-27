@@ -1,6 +1,6 @@
 "use client"; // Image component requires client-side rendering
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
 import NextImage from 'next/image';
 import { Card, Text, Stack, Badge, Group, Button, Paper } from '@mantine/core';
@@ -8,6 +8,7 @@ import { IconArrowRight } from '@tabler/icons-react';
 import type { FeaturedProjectType, ProjectPreviewType } from '@/lib/actions/projects';
 import { motion } from 'framer-motion';
 import PageErrorBoundary from '../shared/PageErrorBoundary';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 interface ProjectCardProps {
   project: FeaturedProjectType | ProjectPreviewType;
@@ -20,10 +21,87 @@ interface ProjectCardProps {
  * Accepts both FeaturedProjectType and ProjectPreviewType
  */
 function ProjectCard({ project }: ProjectCardProps) {
+  const { trackEvent } = useAnalytics();
+  
   // Validate project prop
   if (!project || typeof project !== 'object') {
     throw new Error('Invalid project data provided to ProjectCard');
   }
+
+  // Track card view on mount
+  useEffect(() => {
+    trackEvent('project_viewed', {
+      action: 'project_card_viewed',
+      project_id: project.id,
+      project_title: project.title,
+      project_slug: project.slug || 'unknown',
+      has_featured_image: !!project.featuredImageUrl,
+      has_description: !!project.shortDescription,
+      technology_count: project.technologies?.length || 0,
+      card_type: 'project_card'
+    });
+  }, [trackEvent, project]);
+
+  // Handle card click (entire card)
+  const handleCardClick = () => {
+    trackEvent('project_viewed', {
+      action: 'project_card_click',
+      project_id: project.id,
+      project_title: project.title,
+      project_slug: project.slug || 'unknown',
+      click_area: 'card_body'
+    });
+  };
+
+  // Handle image click
+  const handleImageClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    trackEvent('project_viewed', {
+      action: 'project_image_click',
+      project_id: project.id,
+      project_title: project.title,
+      project_slug: project.slug || 'unknown',
+      click_area: 'featured_image'
+    });
+  };
+
+  // Handle technology tag click
+  const handleTechnologyClick = (technology: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    trackEvent('navigation_clicked', {
+      action: 'technology_tag_click',
+      element: 'project_technology',
+      technology_name: technology,
+      project_id: project.id,
+      project_title: project.title
+    });
+  };
+
+  // Handle CTA button click
+  const handleCtaClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    trackEvent('project_viewed', {
+      action: 'project_cta_click',
+      project_id: project.id,
+      project_title: project.title,
+      project_slug: project.slug || 'unknown',
+      click_area: 'cta_button',
+      button_text: 'Bekijk Project'
+    });
+  };
+
+  // Handle image error
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    trackEvent('image_load_error', {
+      project_id: project.id,
+      original_src: project.featuredImageUrl || 'none',
+      attempted_src: e.currentTarget.src,
+      fallback_src: 'https://via.placeholder.com/800x500/1f2937/9ca3af.png?text=Image+Error'
+    });
+    
+    console.error('Error loading project image:', e);
+    e.currentTarget.src = 'https://via.placeholder.com/800x500/1f2937/9ca3af.png?text=Image+Error';
+  };
 
   return (
     <PageErrorBoundary>
@@ -49,6 +127,7 @@ function ProjectCard({ project }: ProjectCardProps) {
           radius="lg" 
           withBorder 
           h="100%"
+          onClick={handleCardClick}
           style={{ 
             background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
             backdropFilter: 'blur(10px)',
@@ -77,6 +156,7 @@ function ProjectCard({ project }: ProjectCardProps) {
               }}
               whileHover={{ scale: 1.02 }}
               transition={{ duration: 0.3 }}
+              onClick={handleImageClick}
             >
               <Paper 
                 radius="md" 
@@ -102,10 +182,7 @@ function ProjectCard({ project }: ProjectCardProps) {
                     objectPosition: 'center',
                     transition: 'transform 0.3s ease',
                   }}
-                  onError={(e) => {
-                    console.error('Error loading project image:', e);
-                    e.currentTarget.src = 'https://via.placeholder.com/800x500/1f2937/9ca3af.png?text=Image+Error';
-                  }}
+                  onError={handleImageError}
                 />
                 
                 {/* Subtle gradient overlay */}
@@ -185,11 +262,13 @@ function ProjectCard({ project }: ProjectCardProps) {
                     key={tag} 
                     size="sm" 
                     variant="light"
+                    onClick={(e) => handleTechnologyClick(tag, e)}
                     style={{
                       background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(6, 182, 212, 0.15))',
                       border: '1px solid rgba(59, 130, 246, 0.3)',
                       color: 'var(--mantine-color-blue-3)',
                       fontWeight: 500,
+                      cursor: 'pointer',
                     }}
                   >
                     {tag}
@@ -228,6 +307,7 @@ function ProjectCard({ project }: ProjectCardProps) {
               <Button
                 component={Link}
                 href={`/projects/${project.slug}`}
+                onClick={handleCtaClick}
                 variant="gradient"
                 gradient={{ from: 'blue.6', to: 'cyan.5' }}
                 fullWidth
@@ -304,57 +384,3 @@ function ProjectCard({ project }: ProjectCardProps) {
 }
 
 export default ProjectCard;
-
-/*
-// --- OORSPRONKELIJKE CODE HIERONDER (UITGECOMMENTEERD) ---
-import Link from 'next/link';
-import { Card, Image, Text, Badge, Group, Button, Stack } from '@mantine/core';
-import type { FeaturedProjectType } from '@/lib/actions/projects';
-
-type ProjectCardProps = {
-  project: FeaturedProjectType;
-};
-
-export default function ProjectCard({ project }: ProjectCardProps) {
-  return (
-    <Card shadow="sm" padding="lg" radius="md" withBorder h="100%">
-      <Card.Section>
-        <Image
-          src={project.featuredImageUrl || 'https://via.placeholder.com/400x200/dee2e6/868e96.png?text=No+Image'}
-          height={180}
-          alt={project.featuredImageAlt || project.title}
-        />
-      </Card.Section>
-      <Stack mt="md" mb="xs" gap="xs" style={{ flexGrow: 1 }}>
-        <Text fw={600} size="lg" lineClamp={2}>{project.title}</Text>
-        {project.shortDescription && (
-          <Text size="sm" c="dimmed" lineClamp={3}>
-            {project.shortDescription}
-          </Text>
-        )}
-        <Group gap="xs" mt="auto">
-          {project.technologies?.slice(0, 3).map((tag) => (
-            <Badge key={tag} size="sm" variant="light">
-              {tag}
-            </Badge>
-          ))}
-          {project.technologies && project.technologies.length > 3 && (
-             <Badge size="sm" variant="outline">+{project.technologies.length - 3}</Badge>
-          )}
-        </Group>
-      </Stack>
-      <Button
-        component={Link}
-        href={`/projects/${project.slug}`}
-        variant="light"
-        color="blue"
-        fullWidth
-        mt="md"
-        radius="md"
-      >
-        Bekijk Details
-      </Button>
-    </Card>
-  );
-}
-*/ 

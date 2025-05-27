@@ -1,12 +1,13 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Modal, Title, Text, Stack, Box, Group, ThemeIcon, List, Badge, Paper } from '@mantine/core';
 import { IconCheck, IconStar } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
 import ContactForm from './ContactForm';
 import ContactErrorBoundary from './ContactErrorBoundary';
 import { PricingPlan } from '../home/PricingSection/data';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 interface ContactModalProps {
   opened: boolean;
@@ -54,7 +55,21 @@ interface PlanDetailsProps {
 }
 
 function PlanDetails({ plan }: PlanDetailsProps) {
+  const { trackEvent } = useAnalytics();
   const colorRGB = getColorRGB(plan.color);
+  
+  // Track plan details view
+  useEffect(() => {
+    trackEvent('plan_viewed', {
+      plan_id: plan.id,
+      plan_name: plan.name,
+      plan_price: plan.price,
+      plan_color: plan.color,
+      is_popular: plan.popular || false,
+      view_context: 'contact_modal',
+      features_count: plan.features?.length || 0
+    });
+  }, [plan, trackEvent]);
   
   return (
     <motion.div
@@ -195,10 +210,39 @@ export default function ContactModal({
   title = "Neem Contact Op",
   description = "Vertel ons over je project en we nemen zo snel mogelijk contact met je op.",
 }: ContactModalProps) {
+  const { trackEvent } = useAnalytics();
+
+  // Track modal open/close events
+  useEffect(() => {
+    if (opened) {
+      trackEvent('navigation_clicked', {
+        action: 'modal_opened',
+        element: 'contact_modal',
+        modal_type: selectedPlan ? 'plan_contact_modal' : 'general_contact_modal',
+        has_plan: !!selectedPlan,
+        plan_name: selectedPlan?.name || 'none',
+        plan_id: selectedPlan?.id || 'none'
+      });
+    }
+  }, [opened, selectedPlan, trackEvent]);
+
+  // Handle modal close with analytics
+  const handleClose = () => {
+    trackEvent('navigation_clicked', {
+      action: 'modal_closed',
+      element: 'contact_modal',
+      modal_type: selectedPlan ? 'plan_contact_modal' : 'general_contact_modal',
+      has_plan: !!selectedPlan,
+      plan_name: selectedPlan?.name || 'none',
+      close_method: 'close_button'
+    });
+    onClose();
+  };
+
   return (
     <Modal
       opened={opened}
-      onClose={onClose}
+      onClose={handleClose}
       title={null} // We'll handle the title ourselves for better styling
       size={selectedPlan ? "xl" : "lg"}
       centered
@@ -322,6 +366,19 @@ interface ContactFormWrapperProps {
 }
 
 function ContactFormWrapper({ selectedPlan }: ContactFormWrapperProps) {
+  const { trackEvent } = useAnalytics();
+
+  // Track form wrapper initialization
+  useEffect(() => {
+    trackEvent('contact_form_started', {
+      has_plan: !!selectedPlan,
+      plan_name: selectedPlan?.name || 'none',
+      plan_price: selectedPlan?.price || 'none',
+      form_source: 'contact_modal',
+      modal_context: true
+    });
+  }, [selectedPlan, trackEvent]);
+
   // Create a mock URLSearchParams if a plan is selected
   React.useEffect(() => {
     if (selectedPlan && typeof window !== 'undefined') {

@@ -1,14 +1,47 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Container, Paper, Title, Text, Group, Button } from '@mantine/core';
 import { IconMail, IconEye } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
 import PageErrorBoundary from '../shared/PageErrorBoundary';
 import { ContactModal, useContactModal } from '@/components/features/contact';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 const CallToActionBlock: React.FC = () => {
   const contactModal = useContactModal();
+  const { trackEvent, trackPageView } = useAnalytics();
+
+  // Track section view
+  useEffect(() => {
+    trackPageView('cta_section', {
+      section: 'call_to_action_block',
+      cta_type: 'bottom_page'
+    });
+  }, [trackPageView]);
+
+  // Handle CTA button clicks
+  const handleContactClick = () => {
+    trackEvent('hero_cta_clicked', {
+      button_type: 'contact',
+      button_text: 'Neem Contact Op',
+      section: 'cta_block',
+      cta_position: 'primary',
+      current_page: typeof window !== 'undefined' ? window.location.pathname : 'unknown'
+    });
+    contactModal.openModal();
+  };
+
+  const handleWorkClick = () => {
+    trackEvent('hero_cta_clicked', {
+      button_type: 'external_link',
+      button_text: 'Bekijk Mijn Werk',
+      section: 'cta_block',
+      cta_position: 'secondary',
+      destination: 'https://github.com/Jeffreasy',
+      current_page: typeof window !== 'undefined' ? window.location.pathname : 'unknown'
+    });
+  };
 
   return (
     <PageErrorBoundary>
@@ -144,7 +177,7 @@ const CallToActionBlock: React.FC = () => {
                     transition={{ duration: 0.2 }}
                   >
                     <Button
-                      onClick={() => contactModal.openModal()}
+                      onClick={handleContactClick}
                       size="lg"
                       variant="gradient"
                       gradient={{ from: 'blue.6', to: 'cyan.5' }}
@@ -170,6 +203,7 @@ const CallToActionBlock: React.FC = () => {
                       href="https://github.com/Jeffreasy"
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={handleWorkClick}
                       size="lg"
                       variant="outline"
                       color="gray"

@@ -1,11 +1,12 @@
 'use client';
 
-import React, { memo } from 'react';
+import React, { memo, useEffect } from 'react';
 import { SimpleGrid, Container, Title, Text, Box } from '@mantine/core';
 import { motion } from 'framer-motion';
 import ProjectCard from './ProjectCard';
 import type { ProjectPreviewType } from '@/lib/actions/projects';
 import PageErrorBoundary from '../shared/PageErrorBoundary';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 // Animation variants for the container
 const containerVariants = {
@@ -57,10 +58,25 @@ const ProjectList = memo<ProjectListProps>(({
   description,
   showTitle = true
 }) => {
+  const { trackEvent, trackPageView } = useAnalytics();
+  
   // Validate projects prop
   if (!Array.isArray(projects)) {
     throw new Error('Projects must be an array');
   }
+
+  // Track project list view
+  useEffect(() => {
+    trackPageView('page_load_complete', {
+      section: 'project_list',
+      total_projects: projects?.length || 0,
+      has_projects: !!(projects && projects.length > 0),
+      page_type: 'project_listing',
+      list_title: title,
+      has_description: !!description,
+      show_title: showTitle
+    });
+  }, [trackPageView, projects, title, description, showTitle]);
 
   if (!projects || projects.length === 0) {
     return (

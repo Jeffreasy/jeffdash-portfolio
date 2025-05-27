@@ -5,6 +5,7 @@ import { Container, Text, Group, Anchor, Box } from '@mantine/core';
 import { IconBrandLinkedin, IconBrandGithub } from '@/components/icons';
 import { motion } from 'framer-motion';
 import LayoutErrorBoundary from './LayoutErrorBoundary';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 const socialLinks = [
   { href: 'https://linkedin.com/in/jeffrey-lavente-026a41330', label: 'LinkedIn', Icon: IconBrandLinkedin },
@@ -35,11 +36,33 @@ const socialVariants = {
 
 export default function Footer() {
   const [currentYear, setCurrentYear] = useState(2025); // Static fallback for SSR
+  const { trackEvent, trackPageView } = useAnalytics();
   
   // Update year on client mount to avoid hydration mismatch
   useEffect(() => {
     setCurrentYear(new Date().getFullYear());
   }, []);
+
+  // Track footer section view
+  useEffect(() => {
+    trackPageView('page_load_complete', {
+      section: 'footer',
+      current_year: currentYear,
+      social_links_count: socialLinks.length,
+      social_platforms: socialLinks.map(link => link.label).join(',')
+    });
+  }, [trackPageView, currentYear]);
+
+  // Handle social link clicks
+  const handleSocialClick = (social: typeof socialLinks[0]) => {
+    trackEvent('social_link_clicked', {
+      platform: social.label.toLowerCase(),
+      url: social.href,
+      element: 'footer_social_link',
+      section: 'footer',
+      link_position: socialLinks.findIndex(link => link.label === social.label) + 1
+    });
+  };
 
   try {
     const socialItems = socialLinks.map((social) => {
@@ -50,6 +73,7 @@ export default function Footer() {
               href={social.href}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => handleSocialClick(social)}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -80,6 +104,12 @@ export default function Footer() {
         );
       } catch (err) {
         console.error('Error rendering social link:', err);
+        trackEvent('navigation_clicked', {
+          action: 'footer_social_render_error',
+          element: 'footer_social_link',
+          platform: social.label.toLowerCase(),
+          error_message: err instanceof Error ? err.message : 'unknown_error'
+        });
         return null;
       }
     }).filter(Boolean);
@@ -160,6 +190,11 @@ export default function Footer() {
     );
   } catch (err) {
     console.error('Error in Footer component:', err);
+    trackEvent('navigation_clicked', {
+      action: 'footer_render_error',
+      element: 'footer',
+      error_message: err instanceof Error ? err.message : 'unknown_error'
+    });
     throw err; // Let the error boundary handle it
   }
 } 

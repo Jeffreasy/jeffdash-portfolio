@@ -5,6 +5,7 @@ import { ActionIcon, Tooltip } from '@mantine/core';
 import { IconSettings, IconShield } from '@tabler/icons-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter, usePathname } from 'next/navigation';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 const AdminButton: React.FC = () => {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -12,6 +13,7 @@ const AdminButton: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
+  const { trackEvent } = useAnalytics();
 
   // Check admin status using multiple methods
   useEffect(() => {
@@ -102,9 +104,26 @@ const AdminButton: React.FC = () => {
           pathname
         });
 
+        // Track admin status detection
+        if (adminDetected !== isAdmin) {
+          trackEvent('navigation_clicked', {
+            action: 'admin_status_detected',
+            element: 'admin_button',
+            admin_status: adminDetected,
+            detection_method: isInAdminArea ? 'admin_area_path' : hasSupabaseSession ? 'supabase_session' : 'supabase_cookie',
+            current_path: pathname || 'unknown'
+          });
+        }
+
         setIsAdmin(adminDetected);
       } catch (error) {
         console.error('Error checking admin status:', error);
+        trackEvent('navigation_clicked', {
+          action: 'admin_status_error',
+          element: 'admin_button',
+          error_message: error instanceof Error ? error.message : 'unknown_error',
+          current_path: pathname || 'unknown'
+        });
         setIsAdmin(false);
       } finally {
         setIsLoading(false);
@@ -116,6 +135,13 @@ const AdminButton: React.FC = () => {
     // Listen for storage changes (login/logout)
     const handleStorageChange = (e: StorageEvent) => {
       console.log('AdminButton Debug - Storage change detected:', e.key, e.newValue);
+      trackEvent('navigation_clicked', {
+        action: 'admin_storage_change',
+        element: 'admin_button',
+        storage_key: e.key || 'unknown',
+        has_new_value: !!e.newValue,
+        current_path: pathname || 'unknown'
+      });
       checkAdminStatus();
     };
 
@@ -126,6 +152,11 @@ const AdminButton: React.FC = () => {
         const currentCookies = document.cookie;
         if (currentCookies !== lastCookies) {
           console.log('AdminButton Debug - Cookie change detected');
+          trackEvent('navigation_clicked', {
+            action: 'admin_cookie_change',
+            element: 'admin_button',
+            current_path: pathname || 'unknown'
+          });
           lastCookies = currentCookies;
           checkAdminStatus();
         }
@@ -142,24 +173,43 @@ const AdminButton: React.FC = () => {
       clearInterval(statusCheckInterval);
       clearInterval(cookieCheckInterval);
     };
-  }, [pathname]);
+  }, [pathname, isAdmin, trackEvent]);
 
   // Show button when page is scrolled down (same logic as ScrollToTopButton)
   useEffect(() => {
     const toggleVisibility = () => {
-      if (window.pageYOffset > 300) {
-        setIsVisible(true);
-      } else {
-        setIsVisible(false);
+      const scrollPosition = window.pageYOffset;
+      const shouldBeVisible = scrollPosition > 300;
+      
+      if (shouldBeVisible !== isVisible) {
+        if (shouldBeVisible && isAdmin) {
+          trackEvent('navigation_clicked', {
+            action: 'admin_button_appeared',
+            element: 'admin_button',
+            scroll_position: scrollPosition,
+            current_path: pathname || 'unknown'
+          });
+        }
+        setIsVisible(shouldBeVisible);
       }
     };
 
     window.addEventListener('scroll', toggleVisibility);
     return () => window.removeEventListener('scroll', toggleVisibility);
-  }, []);
+  }, [isVisible, isAdmin, pathname, trackEvent]);
 
   const handleAdminClick = () => {
     console.log('AdminButton Debug - Admin button clicked, navigating to dashboard');
+    
+    trackEvent('navigation_clicked', {
+      action: 'admin_button_clicked',
+      element: 'admin_button',
+      destination: '/admin_area/dashboard',
+      current_path: pathname || 'unknown',
+      scroll_position: window.pageYOffset || 0,
+      admin_access_method: 'floating_button'
+    });
+    
     router.push('/admin_area/dashboard');
   };
 

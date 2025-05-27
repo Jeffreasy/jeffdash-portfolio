@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Container, Title, Text, Paper, Group, Badge, Stack, AspectRatio, Image as MantineImage, Button, Box } from '@mantine/core';
 import Link from 'next/link';
 import { IconCalendar, IconTag, IconCategory, IconArrowLeft } from '@tabler/icons-react';
@@ -9,6 +9,7 @@ import type { FullPostType } from '@/lib/actions/blog'; // Import het volledige 
 import { formatDate } from '@/lib/utils';
 import MarkdownRenderer from '@/components/shared/MarkdownRenderer'; // Importeer de renderer
 import BlogErrorBoundary from './BlogErrorBoundary';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 interface BlogPostDetailViewProps {
   post: FullPostType | null; // Accepteer ook null voor niet gevonden posts
@@ -44,10 +45,95 @@ const itemVariants = {
 } as const;
 
 export default function BlogPostDetailView({ post }: BlogPostDetailViewProps) {
+  const { trackEvent, trackPageView } = useAnalytics();
+  const contentRef = useRef<HTMLDivElement>(null);
+  const startTimeRef = useRef<number>(Date.now());
+  
   // Valideer post object als het niet null is
   if (post && typeof post !== 'object') {
     throw new Error('Invalid post data');
   }
+
+  // Track page view and post details
+  useEffect(() => {
+    if (post) {
+      trackPageView('page_load_complete', {
+        page: 'blog_post_detail',
+        post_id: post.id,
+        post_title: post.title,
+        post_slug: post.slug || 'unknown',
+        post_category: post.category || 'uncategorized',
+        has_featured_image: !!post.featuredImageUrl,
+        has_tags: !!(post.tags && post.tags.length > 0),
+        tag_count: post.tags?.length || 0,
+        content_length: post.content?.length || 0,
+        estimated_read_time: Math.ceil((post.content?.length || 0) / 200) // ~200 words per minute
+      });
+    }
+  }, [trackPageView, post]);
+
+  // Track reading time when component unmounts
+  useEffect(() => {
+    return () => {
+      if (post) {
+        const readingTime = Math.round((Date.now() - startTimeRef.current) / 1000);
+        trackEvent('blog_post_clicked', {
+          action: 'reading_session_complete',
+          post_id: post.id,
+          post_title: post.title,
+          reading_time_seconds: readingTime,
+          estimated_read_time: Math.ceil((post.content?.length || 0) / 200)
+        });
+      }
+    };
+  }, [trackEvent, post]);
+
+  // Handle back to blog navigation
+  const handleBackToBlog = () => {
+    trackEvent('navigation_clicked', {
+      action: 'back_to_blog',
+      element: 'back_button',
+      destination: '/blog',
+      section: 'blog_post_detail',
+      post_id: post?.id || 'unknown'
+    });
+  };
+
+  // Handle more blog posts navigation
+  const handleMoreBlogPosts = () => {
+    trackEvent('navigation_clicked', {
+      action: 'more_blog_posts',
+      element: 'more_posts_button',
+      destination: '/blog',
+      section: 'blog_post_detail',
+      post_id: post?.id || 'unknown'
+    });
+  };
+
+  // Handle featured image interaction
+  const handleImageInteraction = () => {
+    if (post) {
+      trackEvent('blog_post_clicked', {
+        action: 'featured_image_click',
+        post_id: post.id,
+        post_title: post.title,
+        click_area: 'featured_image'
+      });
+    }
+  };
+
+  // Handle tag click
+  const handleTagClick = (tag: string) => {
+    if (post) {
+      trackEvent('navigation_clicked', {
+        action: 'tag_click',
+        element: 'blog_detail_tag',
+        tag_name: tag,
+        post_id: post.id,
+        post_title: post.title
+      });
+    }
+  };
 
   // Toon bericht als post niet gevonden is
   if (!post) {
@@ -88,6 +174,7 @@ export default function BlogPostDetailView({ post }: BlogPostDetailViewProps) {
                 <Button 
                   component={Link} 
                   href="/blog"
+                  onClick={handleBackToBlog}
                   variant="gradient"
                   gradient={{ from: 'blue.6', to: 'cyan.5' }}
                   leftSection={<IconArrowLeft size={18} />}
@@ -175,6 +262,7 @@ export default function BlogPostDetailView({ post }: BlogPostDetailViewProps) {
               <Button
                 component={Link}
                 href="/blog"
+                onClick={handleBackToBlog}
                 variant="outline"
                 color="gray"
                 leftSection={<IconArrowLeft size={16} />}
@@ -260,7 +348,9 @@ export default function BlogPostDetailView({ post }: BlogPostDetailViewProps) {
                       background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.05))',
                       border: '1px solid rgba(255, 255, 255, 0.1)',
                       backdropFilter: 'blur(10px)',
+                      cursor: 'pointer',
                     }}
+                    onClick={handleImageInteraction}
                   >
                     <AspectRatio ratio={16 / 9}>
                       <MantineImage
@@ -269,6 +359,11 @@ export default function BlogPostDetailView({ post }: BlogPostDetailViewProps) {
                         fallbackSrc={fallbackImage}
                         onError={(e) => {
                           console.error(`Error loading featured image for post ${post.id}:`, e);
+                          trackEvent('image_load_error', {
+                            post_id: post.id,
+                            original_src: post.featuredImageUrl || 'none',
+                            fallback_src: fallbackImage
+                          });
                         }}
                         style={{
                           objectFit: 'cover',
@@ -301,9 +396,11 @@ export default function BlogPostDetailView({ post }: BlogPostDetailViewProps) {
                           key={tag} 
                           variant="outline"
                           size="md"
+                          onClick={() => handleTagClick(tag)}
                           style={{
                             borderColor: 'rgba(255, 255, 255, 0.3)',
                             color: 'var(--mantine-color-gray-4)',
+                            cursor: 'pointer',
                           }}
                         >
                           {tag}
@@ -327,6 +424,7 @@ export default function BlogPostDetailView({ post }: BlogPostDetailViewProps) {
                     }}
                   >
                     <Box 
+                      ref={contentRef}
                       style={{ 
                         color: 'var(--mantine-color-gray-2)',
                         lineHeight: 1.7,
@@ -357,6 +455,7 @@ export default function BlogPostDetailView({ post }: BlogPostDetailViewProps) {
                   <Button
                     component={Link}
                     href="/blog"
+                    onClick={handleMoreBlogPosts}
                     variant="gradient"
                     gradient={{ from: 'blue.6', to: 'cyan.5' }}
                     leftSection={<IconArrowLeft size={18} />}

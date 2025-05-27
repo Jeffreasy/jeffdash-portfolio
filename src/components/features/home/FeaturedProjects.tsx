@@ -1,22 +1,59 @@
-// Dit is nu een Server Component
-import React from 'react';
-// Verwijder ProjectCard import hier, wordt nu gebruikt in AnimatedProjectGrid
+'use client';
+
+import React, { useEffect } from 'react';
 import { Container, Title, Button, Group, Text, Box } from '@mantine/core';
 import { IconArrowRight, IconBrandGithub, IconEye } from '@tabler/icons-react';
-import { getFeaturedProjects, FeaturedProjectType } from '@/lib/actions/projects';
-// Verwijder motion import
-// Importeer de nieuwe client component voor de animatie
+import { FeaturedProjectType } from '@/lib/actions/projects';
 import AnimatedProjectGrid from './AnimatedProjectGrid';
 import PageErrorBoundary from '../shared/PageErrorBoundary';
+import { useAnalytics } from '@/hooks/useAnalytics';
+
+interface FeaturedProjectsProps {
+  featuredProjects: FeaturedProjectType[];
+  totalProjectCount: number;
+}
 
 /**
  * FeaturedProjects Component
- * Server Component that fetches and displays featured projects
+ * Client Component that displays featured projects with analytics tracking
  * Uses AnimatedProjectGrid for client-side animations
  */
-export default async function FeaturedProjects() {
-  // Fetch featured projects data on the server
-  const { featuredProjects, totalProjectCount } = await getFeaturedProjects();
+export default function FeaturedProjects({ featuredProjects, totalProjectCount }: FeaturedProjectsProps) {
+  const { trackEvent, trackPageView } = useAnalytics();
+
+  // Track featured projects section view
+  useEffect(() => {
+    trackPageView('page_load_complete', {
+      section: 'featured_projects',
+      featured_count: featuredProjects?.length || 0,
+      total_project_count: totalProjectCount || 0,
+      has_featured_projects: !!(featuredProjects && featuredProjects.length > 0),
+      show_view_all_cta: totalProjectCount > (featuredProjects?.length || 0)
+    });
+  }, [trackPageView, featuredProjects, totalProjectCount]);
+
+  // Handle "View All Projects" CTA click
+  const handleViewAllProjectsClick = () => {
+    trackEvent('hero_cta_clicked', {
+      action: 'view_all_projects_click',
+      element: 'view_all_projects_button',
+      destination: '/projects',
+      section: 'featured_projects',
+      featured_count: featuredProjects?.length || 0,
+      total_count: totalProjectCount || 0
+    });
+  };
+
+  // Handle "Ask About Projects" CTA click
+  const handleAskAboutProjectsClick = () => {
+    trackEvent('hero_cta_clicked', {
+      action: 'ask_about_projects_click',
+      element: 'ask_about_projects_button',
+      destination: 'mailto',
+      section: 'featured_projects',
+      contact_type: 'project_inquiry'
+    });
+  };
 
   // Handle empty state
   if (!featuredProjects || featuredProjects.length === 0) {
@@ -105,6 +142,7 @@ export default async function FeaturedProjects() {
                 <Button
                   component="a"
                   href="/projects"
+                  onClick={handleViewAllProjectsClick}
                   variant="gradient"
                   gradient={{ from: 'blue.6', to: 'cyan.5' }}
                   size="lg"
@@ -121,6 +159,7 @@ export default async function FeaturedProjects() {
                 <Button
                   component="a"
                   href="mailto:jeffrey@jeffdash.nl?subject=Project Portfolio Interesse&body=Hallo Jeffrey,%0D%0A%0D%0AIk ben geïnteresseerd in je projecten en zou graag meer willen weten over je werk.%0D%0A%0D%0AMet vriendelijke groet"
+                  onClick={handleAskAboutProjectsClick}
                   variant="outline"
                   color="gray"
                   size="lg"

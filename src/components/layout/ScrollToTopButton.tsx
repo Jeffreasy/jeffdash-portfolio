@@ -4,15 +4,26 @@ import React, { useState, useEffect } from 'react';
 import { ActionIcon, Transition } from '@mantine/core';
 import { IconArrowUp } from '@tabler/icons-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 const ScrollToTopButton: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [isScrolling, setIsScrolling] = useState(false);
+  const { trackEvent } = useAnalytics();
 
   // Show button when page is scrolled down
   useEffect(() => {
     const toggleVisibility = () => {
-      if (window.pageYOffset > 300) {
+      const scrollPosition = window.pageYOffset;
+      if (scrollPosition > 300) {
+        if (!isVisible) {
+          // Track when scroll-to-top button becomes visible
+          trackEvent('scroll_to_top_used', {
+            action: 'button_appeared',
+            scroll_position: scrollPosition,
+            page: typeof window !== 'undefined' ? window.location.pathname : 'unknown'
+          });
+        }
         setIsVisible(true);
       } else {
         setIsVisible(false);
@@ -21,9 +32,19 @@ const ScrollToTopButton: React.FC = () => {
 
     window.addEventListener('scroll', toggleVisibility);
     return () => window.removeEventListener('scroll', toggleVisibility);
-  }, []);
+  }, [isVisible, trackEvent]);
 
   const scrollToTop = () => {
+    const currentScrollPosition = window.pageYOffset;
+    
+    // Track scroll-to-top usage
+    trackEvent('scroll_to_top_used', {
+      action: 'button_clicked',
+      scroll_position: currentScrollPosition,
+      page: typeof window !== 'undefined' ? window.location.pathname : 'unknown',
+      scroll_distance: currentScrollPosition
+    });
+
     setIsScrolling(true);
     window.scrollTo({
       top: 0,

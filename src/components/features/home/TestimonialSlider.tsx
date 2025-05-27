@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Container, Paper, Text, Group, Avatar, Button, Stack, Box } from '@mantine/core';
 import { IconChevronLeft, IconChevronRight, IconQuote, IconStar } from '@tabler/icons-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PageErrorBoundary from '@/components/features/shared/PageErrorBoundary';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 interface Testimonial {
   id: string;
@@ -73,11 +74,24 @@ export default function TestimonialSlider({
   autoPlayInterval = 8000 
 }: TestimonialSliderProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const { trackEvent, trackPageView } = useAnalytics();
 
   // Validate testimonials prop
   if (!Array.isArray(testimonials)) {
     throw new Error('Testimonials must be an array');
   }
+
+  // Track section view
+  useEffect(() => {
+    if (testimonials && testimonials.length > 0) {
+      trackPageView('testimonial_section_viewed', {
+        section: 'testimonial_slider',
+        total_testimonials: testimonials.length,
+        auto_play_enabled: autoPlay,
+        auto_play_interval: autoPlayInterval
+      });
+    }
+  }, [testimonials, autoPlay, autoPlayInterval, trackPageView]);
 
   if (!testimonials || testimonials.length === 0) {
     return (
@@ -121,35 +135,97 @@ export default function TestimonialSlider({
   }
 
   const handlePrevious = useCallback(() => {
-    setCurrentIndex((prev) => (prev === 0 ? testimonials.length - 1 : prev - 1));
-  }, [testimonials.length]);
+    const newIndex = currentIndex === 0 ? testimonials.length - 1 : currentIndex - 1;
+    setCurrentIndex(newIndex);
+    
+    // Track navigation
+    trackEvent('navigation_clicked', {
+      action: 'testimonial_navigation',
+      element: 'previous_button',
+      section: 'testimonial_slider',
+      from_index: currentIndex,
+      to_index: newIndex,
+      navigation_type: 'manual'
+    });
+  }, [testimonials.length, currentIndex, trackEvent]);
 
   const handleNext = useCallback(() => {
-    setCurrentIndex((prev) => (prev === testimonials.length - 1 ? 0 : prev + 1));
-  }, [testimonials.length]);
+    const newIndex = currentIndex === testimonials.length - 1 ? 0 : currentIndex + 1;
+    setCurrentIndex(newIndex);
+    
+    // Track navigation
+    trackEvent('navigation_clicked', {
+      action: 'testimonial_navigation',
+      element: 'next_button',
+      section: 'testimonial_slider',
+      from_index: currentIndex,
+      to_index: newIndex,
+      navigation_type: 'manual'
+    });
+  }, [testimonials.length, currentIndex, trackEvent]);
 
   const goToSlide = useCallback((index: number) => {
     setCurrentIndex(index);
-  }, []);
+    
+    // Track direct navigation
+    trackEvent('navigation_clicked', {
+      action: 'testimonial_navigation',
+      element: 'indicator_dot',
+      section: 'testimonial_slider',
+      from_index: currentIndex,
+      to_index: index,
+      navigation_type: 'direct'
+    });
+  }, [currentIndex, trackEvent]);
 
   // Auto-play functionality
   React.useEffect(() => {
     if (!autoPlay || testimonials.length <= 1) return;
 
-    const interval = setInterval(handleNext, autoPlayInterval);
+    const interval = setInterval(() => {
+      const newIndex = currentIndex === testimonials.length - 1 ? 0 : currentIndex + 1;
+      setCurrentIndex(newIndex);
+      
+      // Track auto-play navigation
+      trackEvent('navigation_clicked', {
+        action: 'testimonial_navigation',
+        element: 'auto_play',
+        section: 'testimonial_slider',
+        from_index: currentIndex,
+        to_index: newIndex,
+        navigation_type: 'auto'
+      });
+    }, autoPlayInterval);
+    
     return () => clearInterval(interval);
-  }, [autoPlay, autoPlayInterval, handleNext, testimonials.length]);
+  }, [autoPlay, autoPlayInterval, currentIndex, testimonials.length, trackEvent]);
 
   // Keyboard navigation
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'ArrowLeft') handlePrevious();
-      if (event.key === 'ArrowRight') handleNext();
+      if (event.key === 'ArrowLeft') {
+        handlePrevious();
+        trackEvent('navigation_clicked', {
+          action: 'testimonial_navigation',
+          element: 'keyboard_arrow_left',
+          section: 'testimonial_slider',
+          navigation_type: 'keyboard'
+        });
+      }
+      if (event.key === 'ArrowRight') {
+        handleNext();
+        trackEvent('navigation_clicked', {
+          action: 'testimonial_navigation',
+          element: 'keyboard_arrow_right',
+          section: 'testimonial_slider',
+          navigation_type: 'keyboard'
+        });
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handlePrevious, handleNext]);
+  }, [handlePrevious, handleNext, trackEvent]);
 
   const currentTestimonial = testimonials[currentIndex];
 

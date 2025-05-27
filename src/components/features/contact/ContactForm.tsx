@@ -7,6 +7,7 @@ import { TextInput, Textarea, Button, Stack, Group, Alert, LoadingOverlay, Paper
 import { IconCheck, IconAlertCircle, IconSend, IconStar } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
 import { submitContactForm, type ContactFormState } from '@/lib/actions/contact';
+import { useAnalytics } from '@/hooks/useAnalytics';
 import ContactErrorBoundary from './ContactErrorBoundary';
 import { pricingPlans } from '../home/PricingSection/data';
 
@@ -61,9 +62,39 @@ export default function ContactForm() {
   const searchParams = useSearchParams();
   const planId = searchParams.get('plan');
   const selectedPlan = planId ? pricingPlans.find(plan => plan.id === planId) : null;
+  const { trackEvent } = useAnalytics();
 
   const initialState: ContactFormState = { message: undefined, errors: {}, success: false };
   const [state, formAction] = useActionState(submitContactForm, initialState);
+
+  // Track form initialization
+  useEffect(() => {
+    trackEvent('contact_form_started', {
+      has_plan: !!selectedPlan,
+      plan_name: selectedPlan?.name || 'none',
+      plan_price: selectedPlan?.price || 'none',
+      form_source: 'contact_page'
+    });
+  }, [selectedPlan, trackEvent]);
+
+  // Track form submission results
+  useEffect(() => {
+    if (state.success) {
+      trackEvent('contact_form_submitted', {
+        has_plan: !!selectedPlan,
+        plan_name: selectedPlan?.name || 'general_inquiry',
+        plan_price: selectedPlan?.price || 'none',
+        submission_successful: true
+      });
+    } else if (state.errors && Object.keys(state.errors).length > 0) {
+      trackEvent('contact_form_error', {
+        has_plan: !!selectedPlan,
+        plan_name: selectedPlan?.name || 'general_inquiry',
+        error_type: 'validation',
+        error_fields: Object.keys(state.errors).join(',')
+      });
+    }
+  }, [state, selectedPlan, trackEvent]);
 
   // Optioneel: Reset formulier na succes
   const formRef = React.useRef<HTMLFormElement>(null);
@@ -72,6 +103,15 @@ export default function ContactForm() {
       formRef.current?.reset();
     }
   }, [state.success]);
+
+  // Track field interactions
+  const handleFieldFocus = (fieldName: string) => {
+    trackEvent('navigation_clicked', {
+      action: 'field_focus',
+      element: `contact_form_${fieldName}`,
+      has_plan: !!selectedPlan
+    });
+  };
 
   // Valideer form state
   if (state && typeof state !== 'object') {
@@ -149,9 +189,20 @@ export default function ContactForm() {
             const formData = new FormData(e.currentTarget);
             if (!formData.get('name') || !formData.get('email') || !formData.get('message')) {
               e.preventDefault();
+              trackEvent('contact_form_error', {
+                error_type: 'client_validation',
+                has_plan: !!selectedPlan
+              });
               console.error('Alle velden zijn verplicht');
               return;
             }
+            
+            // Track form submission attempt
+            trackEvent('contact_form_submitted', {
+              has_plan: !!selectedPlan,
+              plan_name: selectedPlan?.name || 'general_inquiry',
+              submission_attempt: true
+            });
           }}
         >
           {/* Hidden field for plan information */}
@@ -227,6 +278,7 @@ export default function ContactForm() {
                 required
                 error={state.errors?.name?.join(', ')}
                 size="md"
+                onFocus={() => handleFieldFocus('name')}
                 styles={{
                   label: {
                     color: 'var(--mantine-color-gray-2)',
@@ -252,7 +304,6 @@ export default function ContactForm() {
                     color: 'var(--mantine-color-red-4)',
                   }
                 }}
-
               />
             </motion.div>
 
@@ -265,6 +316,7 @@ export default function ContactForm() {
                 required
                 error={state.errors?.email?.join(', ')}
                 size="md"
+                onFocus={() => handleFieldFocus('email')}
                 styles={{
                   label: {
                     color: 'var(--mantine-color-gray-2)',
@@ -290,7 +342,6 @@ export default function ContactForm() {
                     color: 'var(--mantine-color-red-4)',
                   }
                 }}
-
               />
             </motion.div>
 
@@ -306,6 +357,7 @@ export default function ContactForm() {
                 rows={5}
                 error={state.errors?.message?.join(', ')}
                 size="md"
+                onFocus={() => handleFieldFocus('message')}
                 styles={{
                   label: {
                     color: 'var(--mantine-color-gray-2)',
@@ -333,7 +385,6 @@ export default function ContactForm() {
                     color: 'var(--mantine-color-red-4)',
                   }
                 }}
-
               />
             </motion.div>
 

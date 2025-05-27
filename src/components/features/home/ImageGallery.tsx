@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Container, Group, Button, Text, Stack, Box, Paper } from '@mantine/core';
 import { IconChevronLeft, IconChevronRight, IconPhoto, IconX } from '@tabler/icons-react';
 import NextImage from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import PageErrorBoundary from '@/components/features/shared/PageErrorBoundary';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 interface ImageGalleryProps {
   images: Array<{
@@ -68,13 +69,174 @@ export default function ImageGallery({
   autoPlay = false,
   autoPlayInterval = 5000 
 }: ImageGalleryProps) {
+  const { trackEvent, trackPageView } = useAnalytics();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const startTimeRef = useRef<number>(Date.now());
+  const autoPlayIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Validate images prop
   if (!Array.isArray(images)) {
     throw new Error('Images must be an array');
   }
+
+  // Track gallery view on mount
+  useEffect(() => {
+    trackPageView('page_load_complete', {
+      section: 'image_gallery',
+      total_images: images?.length || 0,
+      has_images: !!(images && images.length > 0),
+      gallery_title: title,
+      auto_play_enabled: autoPlay,
+      auto_play_interval: autoPlayInterval
+    });
+  }, [trackPageView, images, title, autoPlay, autoPlayInterval]);
+
+  // Track session completion on unmount
+  useEffect(() => {
+    return () => {
+      const sessionTime = Math.round((Date.now() - startTimeRef.current) / 1000);
+      trackEvent('page_load_complete', {
+        action: 'gallery_session_complete',
+        section: 'image_gallery',
+        session_time_seconds: sessionTime,
+        images_viewed: currentIndex + 1,
+        total_images: images?.length || 0
+      });
+    };
+  }, [trackEvent, currentIndex, images]);
+
+  const handlePrevious = useCallback(() => {
+    const newIndex = currentIndex === 0 ? images.length - 1 : currentIndex - 1;
+    setCurrentIndex(newIndex);
+    
+    trackEvent('navigation_clicked', {
+      action: 'gallery_navigation',
+      element: 'previous_button',
+      direction: 'previous',
+      from_index: currentIndex,
+      to_index: newIndex,
+      total_images: images.length
+    });
+  }, [images.length, currentIndex, trackEvent]);
+
+  const handleNext = useCallback(() => {
+    const newIndex = currentIndex === images.length - 1 ? 0 : currentIndex + 1;
+    setCurrentIndex(newIndex);
+    
+    trackEvent('navigation_clicked', {
+      action: 'gallery_navigation',
+      element: 'next_button',
+      direction: 'next',
+      from_index: currentIndex,
+      to_index: newIndex,
+      total_images: images.length
+    });
+  }, [images.length, currentIndex, trackEvent]);
+
+  const goToSlide = useCallback((index: number) => {
+    if (index !== currentIndex) {
+      trackEvent('navigation_clicked', {
+        action: 'gallery_navigation',
+        element: 'thumbnail_click',
+        direction: index > currentIndex ? 'forward' : 'backward',
+        from_index: currentIndex,
+        to_index: index,
+        total_images: images.length
+      });
+      setCurrentIndex(index);
+    }
+  }, [currentIndex, images.length, trackEvent]);
+
+  // Handle fullscreen toggle
+  const handleFullscreenOpen = useCallback(() => {
+    setIsFullscreen(true);
+    trackEvent('navigation_clicked', {
+      action: 'fullscreen_toggle',
+      element: 'main_image',
+      fullscreen_state: 'opened',
+      current_image_index: currentIndex,
+      total_images: images.length
+    });
+  }, [currentIndex, images.length, trackEvent]);
+
+  const handleFullscreenClose = useCallback(() => {
+    setIsFullscreen(false);
+    trackEvent('navigation_clicked', {
+      action: 'fullscreen_toggle',
+      element: 'close_button',
+      fullscreen_state: 'closed',
+      current_image_index: currentIndex,
+      total_images: images.length
+    });
+  }, [currentIndex, images.length, trackEvent]);
+
+  // Auto-play functionality with tracking
+  useEffect(() => {
+    if (!autoPlay || images.length <= 1) return;
+
+    autoPlayIntervalRef.current = setInterval(() => {
+      setCurrentIndex((prev) => {
+        const newIndex = prev === images.length - 1 ? 0 : prev + 1;
+        trackEvent('navigation_clicked', {
+          action: 'gallery_navigation',
+          element: 'auto_play',
+          direction: 'next',
+          from_index: prev,
+          to_index: newIndex,
+          total_images: images.length,
+          auto_play: true
+        });
+        return newIndex;
+      });
+    }, autoPlayInterval);
+
+    return () => {
+      if (autoPlayIntervalRef.current) {
+        clearInterval(autoPlayIntervalRef.current);
+      }
+    };
+  }, [autoPlay, autoPlayInterval, images.length, trackEvent]);
+
+  // Keyboard navigation with tracking
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'ArrowLeft') {
+        handlePrevious();
+        trackEvent('navigation_clicked', {
+          action: 'keyboard_navigation',
+          element: 'arrow_left',
+          direction: 'previous',
+          current_index: currentIndex,
+          total_images: images.length
+        });
+      }
+      if (event.key === 'ArrowRight') {
+        handleNext();
+        trackEvent('navigation_clicked', {
+          action: 'keyboard_navigation',
+          element: 'arrow_right',
+          direction: 'next',
+          current_index: currentIndex,
+          total_images: images.length
+        });
+      }
+      if (event.key === 'Escape') {
+        if (isFullscreen) {
+          handleFullscreenClose();
+          trackEvent('navigation_clicked', {
+            action: 'keyboard_navigation',
+            element: 'escape_key',
+            fullscreen_state: 'closed',
+            current_index: currentIndex
+          });
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handlePrevious, handleNext, handleFullscreenClose, isFullscreen, currentIndex, images.length, trackEvent]);
 
   if (!images || images.length === 0) {
     return (
@@ -116,38 +278,6 @@ export default function ImageGallery({
       </PageErrorBoundary>
     );
   }
-
-  const handlePrevious = useCallback(() => {
-    setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
-  }, [images.length]);
-
-  const handleNext = useCallback(() => {
-    setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
-  }, [images.length]);
-
-  const goToSlide = useCallback((index: number) => {
-    setCurrentIndex(index);
-  }, []);
-
-  // Auto-play functionality
-  React.useEffect(() => {
-    if (!autoPlay || images.length <= 1) return;
-
-    const interval = setInterval(handleNext, autoPlayInterval);
-    return () => clearInterval(interval);
-  }, [autoPlay, autoPlayInterval, handleNext, images.length]);
-
-  // Keyboard navigation
-  React.useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'ArrowLeft') handlePrevious();
-      if (event.key === 'ArrowRight') handleNext();
-      if (event.key === 'Escape') setIsFullscreen(false);
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handlePrevious, handleNext]);
 
   const currentImage = images[currentIndex];
 
@@ -268,7 +398,7 @@ export default function ImageGallery({
                       height: '100%',
                       cursor: 'pointer',
                     }}
-                    onClick={() => setIsFullscreen(true)}
+                    onClick={handleFullscreenOpen}
                   >
                     <NextImage
                       src={currentImage.url}
@@ -399,7 +529,7 @@ export default function ImageGallery({
                 justifyContent: 'center',
                 backdropFilter: 'blur(10px)',
               }}
-              onClick={() => setIsFullscreen(false)}
+              onClick={handleFullscreenClose}
             >
               <Button
                 variant="filled"
@@ -414,7 +544,7 @@ export default function ImageGallery({
                   backdropFilter: 'blur(10px)',
                   border: '1px solid rgba(255, 255, 255, 0.1)',
                 }}
-                onClick={() => setIsFullscreen(false)}
+                onClick={handleFullscreenClose}
               >
                 <IconX size={20} />
               </Button>
