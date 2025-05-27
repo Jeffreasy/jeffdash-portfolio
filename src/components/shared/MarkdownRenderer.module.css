@@ -1,102 +1,264 @@
 /* src/components/shared/MarkdownRenderer.module.css */
-
-/* Voeg hier je eigen styling toe voor markdown elementen */
-/* Dit zijn basisvoorbeelden, pas aan naar je eigen thema/design */
+/* Enhanced styling for markdown content in dark theme */
 
 .markdownContent {
   line-height: 1.7;
-  color: var(--mantine-color-text); /* Gebruik Mantine's text kleur */
+  color: var(--mantine-color-gray-2);
+  font-size: 1rem;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
+/* Headings */
 .markdownContent h1,
 .markdownContent h2,
 .markdownContent h3,
 .markdownContent h4,
 .markdownContent h5,
 .markdownContent h6 {
-  margin-top: 1.5em;
-  margin-bottom: 0.8em;
+  margin-top: 2em;
+  margin-bottom: 1em;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--mantine-color-gray-1);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.markdownContent h1:first-child,
+.markdownContent h2:first-child,
+.markdownContent h3:first-child,
+.markdownContent h4:first-child,
+.markdownContent h5:first-child,
+.markdownContent h6:first-child {
+  margin-top: 0;
+}
+
+.markdownContent h1 { 
+  font-size: 2.25em; 
+  background: linear-gradient(135deg, var(--mantine-color-blue-4), var(--mantine-color-cyan-4));
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.markdownContent h2 { 
+  font-size: 1.75em; 
+  border-bottom: 2px solid rgba(59, 130, 246, 0.3);
+  padding-bottom: 0.5em;
+  color: var(--mantine-color-blue-3);
+}
+
+.markdownContent h3 { 
+  font-size: 1.4em; 
+  color: var(--mantine-color-cyan-3);
+}
+
+.markdownContent h4 { 
+  font-size: 1.2em; 
+  color: var(--mantine-color-gray-1);
+}
+
+.markdownContent h5 { 
+  font-size: 1.1em; 
+  color: var(--mantine-color-gray-2);
+}
+
+.markdownContent h6 { 
+  font-size: 1em; 
+  color: var(--mantine-color-gray-3);
   font-weight: 600;
 }
 
-.markdownContent h1 { font-size: 2em; }
-.markdownContent h2 { font-size: 1.6em; border-bottom: 1px solid var(--mantine-color-gray-3); padding-bottom: 0.3em; }
-.markdownContent h3 { font-size: 1.3em; }
-.markdownContent h4 { font-size: 1.1em; }
-
+/* Paragraphs */
 .markdownContent p {
-  margin-bottom: 1em;
+  margin-bottom: 1.5em;
+  line-height: 1.7;
 }
 
+/* Links */
 .markdownContent a {
-  color: var(--mantine-color-blue-filled); /* Mantine's link kleur */
+  color: var(--mantine-color-blue-4);
   text-decoration: none;
+  border-bottom: 1px solid rgba(59, 130, 246, 0.3);
+  transition: all 0.2s ease;
 }
 
 .markdownContent a:hover {
-  text-decoration: underline;
+  color: var(--mantine-color-blue-3);
+  border-bottom-color: var(--mantine-color-blue-4);
 }
 
+/* Lists */
 .markdownContent ul,
 .markdownContent ol {
   margin-left: 1.5em;
-  margin-bottom: 1em;
+  margin-bottom: 1.5em;
+  padding-left: 0.5em;
+}
+
+.markdownContent li {
+  margin-bottom: 0.5em;
+  line-height: 1.6;
 }
 
 .markdownContent li > p {
-    margin-bottom: 0.2em; /* Minder ruimte onder paragrafen in lijstitems */
+  margin-bottom: 0.5em;
 }
 
+.markdownContent ul li::marker {
+  color: var(--mantine-color-blue-4);
+}
+
+.markdownContent ol li::marker {
+  color: var(--mantine-color-cyan-4);
+  font-weight: 600;
+}
+
+/* Blockquotes */
 .markdownContent blockquote {
-  border-left: 4px solid var(--mantine-color-gray-3);
-  padding-left: 1em;
-  margin-left: 0;
-  margin-bottom: 1em;
-  color: var(--mantine-color-dimmed);
+  border-left: 4px solid var(--mantine-color-blue-4);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(6, 182, 212, 0.05));
+  padding: 1.5em;
+  margin: 2em 0;
+  border-radius: 0 8px 8px 0;
+  color: var(--mantine-color-gray-3);
+  font-style: italic;
+  position: relative;
 }
 
+.markdownContent blockquote::before {
+  content: '"';
+  font-size: 4em;
+  color: rgba(59, 130, 246, 0.2);
+  position: absolute;
+  top: -0.5em;
+  left: 0.5em;
+  font-family: serif;
+}
+
+.markdownContent blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+/* Code */
 .markdownContent pre,
 .markdownContent code {
-  font-family: var(--mantine-font-family-monospace);
+  font-family: 'Fira Code', 'Monaco', 'Cascadia Code', 'Roboto Mono', monospace;
   font-size: 0.9em;
 }
 
 .markdownContent pre {
-  background-color: var(--mantine-color-dark-6); /* Aanpassen voor light/dark theme */
-  color: var(--mantine-color-gray-0);
-  padding: 1em;
-  border-radius: var(--mantine-radius-sm);
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.6), rgba(15, 23, 42, 0.6));
+  color: var(--mantine-color-gray-1);
+  padding: 1.5em;
+  border-radius: 12px;
   overflow-x: auto;
-  margin-bottom: 1em;
+  margin: 2em 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  position: relative;
+}
+
+.markdownContent pre::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.5), transparent);
 }
 
 .markdownContent code:not(pre > code) {
-  background-color: var(--mantine-color-gray-1);
-  padding: 0.2em 0.4em;
-  border-radius: var(--mantine-radius-xs);
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--mantine-color-blue-3);
+  padding: 0.3em 0.6em;
+  border-radius: 6px;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  font-weight: 500;
 }
 
+/* Tables */
 .markdownContent table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 1em;
+  margin: 2em 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.05));
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .markdownContent th,
 .markdownContent td {
-  border: 1px solid var(--mantine-color-gray-3);
-  padding: 0.6em;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1em;
+  text-align: left;
 }
 
 .markdownContent th {
   font-weight: 600;
-  background-color: var(--mantine-color-gray-0);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(6, 182, 212, 0.1));
+  color: var(--mantine-color-blue-3);
 }
 
+.markdownContent tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.markdownContent tr:hover {
+  background: rgba(59, 130, 246, 0.05);
+}
+
+/* Images */
 .markdownContent img {
-    max-width: 100%;
-    height: auto;
-    display: block;
-    margin-top: 1em;
-    margin-bottom: 1em;
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 2em auto;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Horizontal Rules */
+.markdownContent hr {
+  border: none;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.5), transparent);
+  margin: 3em 0;
+}
+
+/* Strong and Emphasis */
+.markdownContent strong {
+  font-weight: 700;
+  color: var(--mantine-color-gray-1);
+}
+
+.markdownContent em {
+  font-style: italic;
+  color: var(--mantine-color-gray-2);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .markdownContent {
+    font-size: 0.95rem;
+  }
+  
+  .markdownContent h1 { font-size: 1.8em; }
+  .markdownContent h2 { font-size: 1.5em; }
+  .markdownContent h3 { font-size: 1.3em; }
+  
+  .markdownContent pre {
+    padding: 1em;
+    margin: 1.5em 0;
+  }
+  
+  .markdownContent blockquote {
+    padding: 1em;
+    margin: 1.5em 0;
+  }
 } 

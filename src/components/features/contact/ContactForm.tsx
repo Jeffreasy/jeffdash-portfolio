@@ -143,13 +143,14 @@ export default function ContactForm() {
 
         <form 
           ref={formRef} 
-          action={formAction as any}
+          action={formAction}
           onSubmit={(e) => {
             // Voeg extra validatie toe indien nodig
             const formData = new FormData(e.currentTarget);
             if (!formData.get('name') || !formData.get('email') || !formData.get('message')) {
               e.preventDefault();
-              throw new Error('Alle velden zijn verplicht');
+              console.error('Alle velden zijn verplicht');
+              return;
             }
           }}
         >
@@ -251,9 +252,7 @@ export default function ContactForm() {
                     color: 'var(--mantine-color-red-4)',
                   }
                 }}
-                onError={(e) => {
-                  console.error('Error in name field:', e);
-                }}
+
               />
             </motion.div>
 
@@ -291,9 +290,7 @@ export default function ContactForm() {
                     color: 'var(--mantine-color-red-4)',
                   }
                 }}
-                onError={(e) => {
-                  console.error('Error in email field:', e);
-                }}
+
               />
             </motion.div>
 
@@ -336,9 +333,7 @@ export default function ContactForm() {
                     color: 'var(--mantine-color-red-4)',
                   }
                 }}
-                onError={(e) => {
-                  console.error('Error in message field:', e);
-                }}
+
               />
             </motion.div>
 

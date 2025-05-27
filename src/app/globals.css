@@ -2,72 +2,155 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Globale optimalisaties voor text rendering en prestaties */
+/* ===== GLOBAL OPTIMIZATIONS ===== */
 * {
-  /* Optimale text rendering */
+  box-sizing: border-box;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  
-  /* Voorkomen van layout shifts */
-  box-sizing: border-box;
 }
 
 html {
-  /* Betere font rendering */
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  
-  /* Hardware acceleration voor betere prestaties */
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
 }
 
 body {
-  /* Zorgen voor consistente rendering */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  
-  /* Voorkomen van scroll issues */
   overflow-x: hidden;
 }
 
-/* Optimalisaties voor animatie prestaties */
+/* ===== ANIMATION OPTIMIZATIONS ===== */
 [data-framer-motion] {
-  /* Forceer GPU acceleration maar behoud text quality */
   will-change: transform, opacity;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  -webkit-perspective: 1000px;
-  perspective: 1000px;
 }
 
-/* Extra optimalisatie voor text in geanimeerde elementen */
+/* Text clarity during animations */
 .mantine-Text-root,
 .mantine-Title-root,
 .mantine-Button-root {
-  /* Behoud scherpe text tijdens animaties */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  
-  /* Voorkomen van text blur tijdens transforms */
   -webkit-transform-style: flat;
   transform-style: flat;
 }
 
-/* Specificieke optimalisaties voor Mantine components */
+/* Card optimizations */
 .mantine-Card-root {
-  /* Optimale rendering voor cards */
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  
-  /* Zorgen dat borders scherp blijven */
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
 }
 
-/* Voeg hier eventuele andere custom styles toe */
+/* ===== Z-INDEX SYSTEM ===== */
+:root {
+  --z-index-base: 1;
+  --z-index-dropdown: 100;
+  --z-index-sticky: 200;
+  --z-index-fixed: 300;
+  --z-index-modal-backdrop: 400;
+  --z-index-modal: 500;
+  --z-index-drawer: 550;
+  --z-index-header: 600;
+  --z-index-burger: 700;
+  --z-index-popover: 800;
+  --z-index-tooltip: 900;
+  --z-index-notification: 1000;
+  --z-index-max: 9999;
+}
 
-/* Voeg hier eventuele globale custom styles toe */ 
+/* ===== LAYOUT COMPONENTS ===== */
+header {
+  z-index: var(--z-index-header);
+}
+
+.mantine-Notifications-root {
+  z-index: var(--z-index-notification);
+}
+
+/* ===== MODAL SYSTEM (CLEAN) ===== */
+.mantine-Modal-root {
+  z-index: var(--z-index-modal);
+}
+
+.mantine-Modal-overlay {
+  z-index: var(--z-index-modal-backdrop);
+  backdrop-filter: blur(4px);
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.mantine-Modal-content {
+  background-color: var(--mantine-color-dark-7);
+  border: 1px solid var(--mantine-color-dark-4);
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.mantine-Modal-title {
+  color: var(--mantine-color-gray-1);
+  font-weight: 600;
+}
+
+.mantine-Modal-header {
+  background-color: transparent;
+  border-bottom: 1px solid var(--mantine-color-dark-4);
+}
+
+.mantine-Modal-body {
+  background-color: transparent;
+  color: var(--mantine-color-gray-3);
+}
+
+.mantine-Modal-close {
+  color: var(--mantine-color-gray-4);
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mantine-Modal-close:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--mantine-color-gray-2);
+}
+
+/* ===== DRAWER SYSTEM ===== */
+.mantine-Drawer-root {
+  z-index: var(--z-index-drawer);
+}
+
+.mantine-Drawer-overlay {
+  z-index: calc(var(--z-index-drawer) - 10);
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(2px) !important;
+}
+
+.mantine-Drawer-content {
+  z-index: var(--z-index-drawer);
+}
+
+/* ===== BURGER MENU ===== */
+.mantine-Burger-root {
+  z-index: var(--z-index-burger) !important;
+}
+
+/* ===== UTILITY CLASSES ===== */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ===== CUSTOM STYLES ===== */
+/* Add your custom styles here */ 

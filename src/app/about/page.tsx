@@ -1,44 +1,40 @@
 import React from 'react';
 import { Metadata } from 'next';
 import { SITE_CONFIG } from '@/lib/config';
+import AboutContent from '@/components/features/about/AboutContent';
+import { getAboutContent } from '@/lib/actions/content';
 
-// Import the construction component
-import UnderConstruction from '../underconstruction/construction';
+// Force dynamic rendering to avoid static generation issues with Supabase
+export const dynamic = 'force-dynamic';
 
-// --- SEO Metadata --- //
 export const metadata: Metadata = {
-  title: `${SITE_CONFIG.name} - Onder Constructie`,
-  description: 'Jeffrey Lavente Portfolio - Momenteel onder constructie. Ik werk hard aan iets geweldigs voor je! Kom binnenkort terug voor mijn volledige portfolio.',
-  keywords: ['Jeffrey Lavente', 'webontwikkelaar', 'portfolio', 'onder constructie', 'Next.js', 'React', 'TypeScript', 'webontwikkeling'],
+  title: 'Over Mij',
+  description: 'Leer meer over Jeffrey Lavente - Full-Stack Developer & AI Explorer',
   alternates: {
-    canonical: `${SITE_CONFIG.url}/about`,
+    canonical: '/about',
   },
   openGraph: {
-    title: `${SITE_CONFIG.name} - Onder Constructie`,
-    description: 'Jeffrey Lavente Portfolio - Momenteel onder constructie. Kom binnenkort terug voor mijn volledige portfolio.',
-    url: `${SITE_CONFIG.url}/about`,
+    title: 'Over Mij',
+    description: 'Leer meer over Jeffrey Lavente - Full-Stack Developer & AI Explorer',
+    url: '/about',
     siteName: SITE_CONFIG.name,
     type: 'website',
     locale: 'nl_NL',
   },
   twitter: {
     card: 'summary_large_image',
-    title: `${SITE_CONFIG.name} - Onder Constructie`,
-    description: 'Jeffrey Lavente Portfolio - Momenteel onder constructie. Kom binnenkort terug!',
+    title: 'Over Mij',
+    description: 'Leer meer over Jeffrey Lavente - Full-Stack Developer & AI Explorer',
   },
   robots: {
-    index: false, // Don't index while under construction
-    follow: false,
-    noarchive: true,
-    nosnippet: true,
+    index: true,
+    follow: true,
   },
-  category: 'technology',
 };
 
-// Mark the page as static since construction page doesn't need data fetching
-export const dynamic = 'force-static';
+export default async function AboutPage() {
+  // Haal about content op
+  const aboutContent = await getAboutContent();
 
-// Simple page that shows construction component
-export default function AboutPage() {
-  return <UnderConstruction />;
+  return <AboutContent content={aboutContent} />;
 } 

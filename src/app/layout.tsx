@@ -1,4 +1,4 @@
-// src/app/layout.tsx - OORSPRONKELIJKE STAAT HERSTELD
+// src/app/layout.tsx - CLEAN VERSION
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import '@mantine/core/styles.css';
@@ -9,13 +9,14 @@ import { GoogleAnalytics } from '@next/third-parties/google';
 import { Notifications } from '@mantine/notifications';
 import { ModalsProvider } from '@mantine/modals';
 import { SITE_CONFIG } from '@/lib/config';
+import { theme } from '@/lib/theme';
 
 // Import layout wrapper
 import LayoutWrapper from '@/components/layout/LayoutWrapper';
 
 const inter = Inter({ 
   subsets: ["latin"],
-  display: 'swap', // Improved font loading
+  display: 'swap',
   variable: '--font-inter',
 });
 
@@ -82,13 +83,13 @@ export default function RootLayout({
   return (
     <html lang="nl" {...mantineHtmlProps} className={inter.variable}>
       <head>
-        <ColorSchemeScript />
+        <ColorSchemeScript defaultColorScheme="dark" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body className={inter.className} suppressHydrationWarning={true}>
-        <MantineProvider defaultColorScheme="dark">
+        <MantineProvider theme={theme}>
           <ModalsProvider>
-            <Notifications position="top-right" zIndex={1000} limit={5} />
+            <Notifications />
             
             <LayoutWrapper>
               {children}

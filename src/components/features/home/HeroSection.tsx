@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { Title, Text, Button, Container, Box, Group, Stack } from '@mantine/core';
 import { IconArrowRight, IconCode, IconSparkles } from '@tabler/icons-react';
-import Link from 'next/link';
 import { motion } from 'framer-motion';
 import PageErrorBoundary from '../shared/PageErrorBoundary';
 // Optioneel: importeer een CSS-module voor meer geavanceerde stijlen of animaties
@@ -231,8 +230,8 @@ const HeroSection: React.FC = () => {
                     whileTap="tap"
                   >
                     <Button
-                      component={Link}
-                      href="/projects"
+                      component="a"
+                      href="mailto:jeffrey@jeffdash.nl?subject=Portfolio Interesse&body=Hallo Jeffrey,%0D%0A%0D%0AIk ben geïnteresseerd in je werk en zou graag meer willen weten over je projecten.%0D%0A%0D%0AMet vriendelijke groet"
                       size="xl"
                       radius="md"
                       variant="gradient"
@@ -253,8 +252,8 @@ const HeroSection: React.FC = () => {
                     whileTap="tap"
                   >
                     <Button
-                      component={Link}
-                      href="/contact"
+                      component="a"
+                      href="mailto:jeffrey@jeffdash.nl?subject=Contact Aanvraag&body=Hallo Jeffrey,%0D%0A%0D%0AIk zou graag contact met je opnemen.%0D%0A%0D%0AMet vriendelijke groet"
                       size="xl"
                       radius="md"
                       variant="outline"

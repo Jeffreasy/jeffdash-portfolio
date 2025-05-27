@@ -2,7 +2,6 @@
 import React from 'react';
 // Verwijder ProjectCard import hier, wordt nu gebruikt in AnimatedProjectGrid
 import { Container, Title, Button, Group, Text, Box } from '@mantine/core';
-import Link from 'next/link';
 import { IconArrowRight, IconBrandGithub } from '@tabler/icons-react';
 import { getFeaturedProjects, FeaturedProjectType } from '@/lib/actions/projects';
 // Verwijder motion import
@@ -93,8 +92,8 @@ export default async function FeaturedProjects() {
               
               <Group justify="center" gap="md">
                 <Button
-                  component={Link}
-                  href="/projects"
+                  component="a"
+                  href="mailto:jeffrey@jeffdash.nl?subject=Project Portfolio Interesse&body=Hallo Jeffrey,%0D%0A%0D%0AIk ben geïnteresseerd in je projecten en zou graag meer willen weten over je werk.%0D%0A%0D%0AMet vriendelijke groet"
                   variant="gradient"
                   gradient={{ from: 'blue.6', to: 'cyan.5' }}
                   size="lg"
@@ -105,7 +104,7 @@ export default async function FeaturedProjects() {
                     border: '1px solid rgba(59, 130, 246, 0.2)',
                   }}
                 >
-                  Alle Projecten
+                  Vraag Over Projecten
                 </Button>
                 
                 <Button

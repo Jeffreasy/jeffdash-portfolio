@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
 import { Container, Paper, Title, Text, Group, Button } from '@mantine/core';
 import { IconMail, IconEye } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
@@ -131,8 +130,8 @@ const CallToActionBlock: React.FC = () => {
                     transition={{ duration: 0.2 }}
                   >
                     <Button
-                      component={Link}
-                      href="/contact"
+                      component="a"
+                      href="mailto:jeffrey@jeffdash.nl?subject=Samenwerking Aanvraag&body=Hallo Jeffrey,%0D%0A%0D%0AIk ben geïnteresseerd in samenwerking en zou graag willen bespreken hoe je kunt helpen met mijn project.%0D%0A%0D%0AMet vriendelijke groet"
                       size="lg"
                       variant="gradient"
                       gradient={{ from: 'blue.6', to: 'cyan.5' }}
@@ -154,8 +153,10 @@ const CallToActionBlock: React.FC = () => {
                     transition={{ duration: 0.2 }}
                   >
                     <Button
-                      component={Link}
-                      href="/projects"
+                      component="a"
+                      href="https://github.com/Jeffreasy"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       size="lg"
                       variant="outline"
                       color="gray"

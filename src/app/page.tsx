@@ -72,16 +72,18 @@ export default async function HomePage() {
         <FeaturedProjects />
       </section>
 
-      {/* 3. Pricing Section */}
+      {/* 3. Pricing Section - RE-ENABLED */}
       <section aria-labelledby="pricing-title">
+        <h2 id="pricing-title" className="sr-only">Pricing Section</h2>
         <PricingSection />
       </section>
 
-      {/* 4. Recent Blog Posts (NIEUW) - Nu als client component */}
+      {/* 4. Recent Blog Posts */}
       <RecentBlogSection posts={recentPosts} />
 
-      {/* 5. Short About Blurb - Nu met image props */}
+      {/* 5. Short About Blurb */}
       <section aria-labelledby="about-blurb-title">
+        <h2 id="about-blurb-title" className="sr-only">About Section</h2>
         <ShortAboutBlurb 
           profileImageUrl={profilePicture.url} 
           profileImageAlt={profilePicture.alt}

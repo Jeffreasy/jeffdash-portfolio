@@ -1,4 +1,5 @@
-export { default } from '../PricingSection';
-export { default as PricingCard } from './PricingCard';
-export { default as PricingDetailModal } from './PricingDetailModal';
+// Main PricingSection component export
+export { default } from './PricingSection';
+
+// Export data types and constants for external use
 export * from './data'; 

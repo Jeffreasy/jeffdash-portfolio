@@ -20,8 +20,8 @@ const containerVariants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.2,
+      staggerChildren: 0.15,
+      delayChildren: 0.1,
       duration: 0.6,
       ease: [0.25, 0.46, 0.45, 0.94],
     },
@@ -37,10 +37,8 @@ const itemVariants = {
     y: 0,
     opacity: 1,
     transition: {
-      type: 'spring',
-      stiffness: 100,
-      damping: 15,
       duration: 0.6,
+      ease: [0.25, 0.46, 0.45, 0.94],
     },
   },
 } as const;
@@ -62,6 +60,8 @@ export default function BlogPostDetailView({ post }: BlogPostDetailViewProps) {
           minHeight: '100vh',
           display: 'flex',
           alignItems: 'center',
+          paddingTop: 'var(--mantine-spacing-xl)',
+          paddingBottom: 'var(--mantine-spacing-xl)',
         }}>
           <Container size="md" py="xl">
             <motion.div
@@ -115,6 +115,8 @@ export default function BlogPostDetailView({ post }: BlogPostDetailViewProps) {
         overflow: 'hidden',
         background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%)',
         minHeight: '100vh',
+        paddingTop: 'var(--mantine-spacing-xl)',
+        paddingBottom: 'var(--mantine-spacing-xl)',
       }}>
         {/* Animated background elements */}
         <motion.div
@@ -162,7 +164,7 @@ export default function BlogPostDetailView({ post }: BlogPostDetailViewProps) {
           }}
         />
 
-        <Container size="md" py="xl" style={{ position: 'relative', zIndex: 1 }}>
+        <Container size="lg" py={{ base: 'xl', md: '3xl' }} style={{ position: 'relative', zIndex: 1 }}>
           <motion.div
             variants={containerVariants}
             initial="hidden"
@@ -186,8 +188,68 @@ export default function BlogPostDetailView({ post }: BlogPostDetailViewProps) {
               </Button>
             </motion.div>
 
-            <Stack gap="xl">
-              {/* Optionele hoofdafbeelding bovenaan */}
+            <Stack gap="2xl">
+              {/* Post Header */}
+              <motion.div variants={itemVariants}>
+                <Paper 
+                  p={{ base: 'lg', md: 'xl' }}
+                  radius="lg"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.05))',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    backdropFilter: 'blur(10px)',
+                  }}
+                >
+                  <Stack gap="lg">
+                    {/* Titel */}
+                    <Title 
+                      order={1}
+                      size="h1"
+                      style={{
+                        background: 'linear-gradient(135deg, var(--mantine-color-blue-4), var(--mantine-color-cyan-4))',
+                        backgroundClip: 'text',
+                        WebkitBackgroundClip: 'text',
+                        color: 'transparent',
+                        WebkitFontSmoothing: 'antialiased',
+                        MozOsxFontSmoothing: 'grayscale',
+                        textRendering: 'optimizeLegibility',
+                        fontSize: 'clamp(1.75rem, 4vw, 2.5rem)',
+                        lineHeight: 1.2,
+                      }}
+                    >
+                      {post.title}
+                    </Title>
+
+                    {/* Metadata: Datum, Categorie */}
+                    <Group gap="lg" wrap="wrap">
+                      {post.publishedAt && (
+                        <Group gap="xs">
+                          <IconCalendar size={16} stroke={1.5} style={{ color: 'var(--mantine-color-gray-4)' }} />
+                          <Text size="sm" c="gray.4" fw={500}>{formatDate(post.publishedAt)}</Text>
+                        </Group>
+                      )}
+                      {post.category && (
+                         <Group gap="xs">
+                          <IconCategory size={16} stroke={1.5} style={{ color: 'var(--mantine-color-gray-4)' }} />
+                          <Badge 
+                            variant="light"
+                            size="md"
+                            style={{
+                              background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(6, 182, 212, 0.15))',
+                              border: '1px solid rgba(59, 130, 246, 0.3)',
+                              color: 'var(--mantine-color-blue-3)',
+                            }}
+                          >
+                            {post.category}
+                          </Badge>
+                        </Group>
+                      )}
+                    </Group>
+                  </Stack>
+                </Paper>
+              </motion.div>
+
+              {/* Featured Image */}
               {post.featuredImageUrl && (
                 <motion.div variants={itemVariants}>
                   <Paper 
@@ -217,52 +279,6 @@ export default function BlogPostDetailView({ post }: BlogPostDetailViewProps) {
                 </motion.div>
               )}
 
-              {/* Post Header */}
-              <motion.div variants={itemVariants}>
-                <Stack gap="md">
-                  {/* Titel */}
-                  <Title 
-                    order={1}
-                    style={{
-                      background: 'linear-gradient(135deg, var(--mantine-color-blue-4), var(--mantine-color-cyan-4))',
-                      backgroundClip: 'text',
-                      WebkitBackgroundClip: 'text',
-                      color: 'transparent',
-                      WebkitFontSmoothing: 'antialiased',
-                      MozOsxFontSmoothing: 'grayscale',
-                      textRendering: 'optimizeLegibility',
-                    }}
-                  >
-                    {post.title}
-                  </Title>
-
-                  {/* Metadata: Datum, Categorie */}
-                  <Group gap="lg" wrap="wrap">
-                    {post.publishedAt && (
-                      <Group gap="xs">
-                        <IconCalendar size={16} stroke={1.5} style={{ color: 'var(--mantine-color-gray-4)' }} />
-                        <Text size="sm" c="gray.4">{formatDate(post.publishedAt)}</Text>
-                      </Group>
-                    )}
-                    {post.category && (
-                       <Group gap="xs">
-                        <IconCategory size={16} stroke={1.5} style={{ color: 'var(--mantine-color-gray-4)' }} />
-                        <Badge 
-                          variant="light"
-                          style={{
-                            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(6, 182, 212, 0.15))',
-                            border: '1px solid rgba(59, 130, 246, 0.3)',
-                            color: 'var(--mantine-color-blue-3)',
-                          }}
-                        >
-                          {post.category}
-                        </Badge>
-                      </Group>
-                    )}
-                  </Group>
-                </Stack>
-              </motion.div>
-
               {/* Tags */}
               {post.tags && post.tags.length > 0 && (
                 <motion.div variants={itemVariants}>
@@ -275,15 +291,16 @@ export default function BlogPostDetailView({ post }: BlogPostDetailViewProps) {
                       backdropFilter: 'blur(10px)',
                     }}
                   >
-                    <Group gap="xs" mb="sm">
+                    <Group gap="xs" mb="md">
                       <IconTag size={16} stroke={1.5} style={{ color: 'var(--mantine-color-gray-4)' }} />
-                      <Text size="sm" c="gray.3" fw={500}>Tags</Text>
+                      <Text size="sm" c="gray.3" fw={600}>Tags</Text>
                     </Group>
                     <Group gap="xs">
                       {post.tags.map((tag) => (
                         <Badge 
                           key={tag} 
                           variant="outline"
+                          size="md"
                           style={{
                             borderColor: 'rgba(255, 255, 255, 0.3)',
                             color: 'var(--mantine-color-gray-4)',
@@ -297,11 +314,11 @@ export default function BlogPostDetailView({ post }: BlogPostDetailViewProps) {
                 </motion.div>
               )}
 
-              {/* Inhoud van de blogpost */}
+              {/* Blog Content */}
               {post.content && (
                 <motion.div variants={itemVariants}>
                   <Paper 
-                    p="lg" 
+                    p={{ base: 'lg', md: 'xl' }}
                     radius="lg"
                     style={{
                       background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.05))',
@@ -309,12 +326,49 @@ export default function BlogPostDetailView({ post }: BlogPostDetailViewProps) {
                       backdropFilter: 'blur(10px)',
                     }}
                   >
-                    <Box style={{ color: 'var(--mantine-color-gray-3)' }}>
+                    <Box 
+                      style={{ 
+                        color: 'var(--mantine-color-gray-2)',
+                        lineHeight: 1.7,
+                        fontSize: 'clamp(1rem, 2.5vw, 1.125rem)',
+                      }}
+                    >
                       <MarkdownRenderer>{post.content}</MarkdownRenderer>
                     </Box>
                   </Paper>
                 </motion.div>
               )}
+
+              {/* Back to Blog CTA */}
+              <motion.div variants={itemVariants}>
+                <Paper
+                  p="lg"
+                  radius="lg"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.05))',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    backdropFilter: 'blur(10px)',
+                    textAlign: 'center',
+                  }}
+                >
+                  <Text c="gray.4" mb="md">
+                    Bedankt voor het lezen!
+                  </Text>
+                  <Button
+                    component={Link}
+                    href="/blog"
+                    variant="gradient"
+                    gradient={{ from: 'blue.6', to: 'cyan.5' }}
+                    leftSection={<IconArrowLeft size={18} />}
+                    style={{
+                      boxShadow: '0 8px 32px rgba(59, 130, 246, 0.3)',
+                      border: '1px solid rgba(59, 130, 246, 0.2)',
+                    }}
+                  >
+                    Meer blog posts
+                  </Button>
+                </Paper>
+              </motion.div>
             </Stack>
           </motion.div>
         </Container>

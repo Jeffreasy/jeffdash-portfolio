@@ -1,44 +1,47 @@
 import React from 'react';
 import { Metadata } from 'next';
 import { SITE_CONFIG } from '@/lib/config';
+import ProjectList from '@/components/features/projects/ProjectList';
+import { getProjects } from '@/lib/actions/projects';
 
-// Import the construction component
-import UnderConstruction from '../underconstruction/construction';
+// Force dynamic rendering to avoid static generation issues with Supabase
+export const dynamic = 'force-dynamic';
 
-// --- SEO Metadata --- //
 export const metadata: Metadata = {
-  title: `${SITE_CONFIG.name} - Onder Constructie`,
-  description: 'Jeffrey Lavente Portfolio - Momenteel onder constructie. Ik werk hard aan iets geweldigs voor je! Kom binnenkort terug voor mijn volledige portfolio.',
-  keywords: ['Jeffrey Lavente', 'webontwikkelaar', 'portfolio', 'onder constructie', 'Next.js', 'React', 'TypeScript', 'webontwikkeling'],
+  title: 'Projects',
+  description: 'Bekijk mijn portfolio van webontwikkeling projecten',
   alternates: {
-    canonical: `${SITE_CONFIG.url}/projects`,
+    canonical: '/projects',
   },
   openGraph: {
-    title: `${SITE_CONFIG.name} - Onder Constructie`,
-    description: 'Jeffrey Lavente Portfolio - Momenteel onder constructie. Kom binnenkort terug voor mijn volledige portfolio.',
-    url: `${SITE_CONFIG.url}/projects`,
+    title: 'Projects',
+    description: 'Bekijk mijn portfolio van webontwikkeling projecten',
+    url: '/projects',
     siteName: SITE_CONFIG.name,
     type: 'website',
     locale: 'nl_NL',
   },
   twitter: {
     card: 'summary_large_image',
-    title: `${SITE_CONFIG.name} - Onder Constructie`,
-    description: 'Jeffrey Lavente Portfolio - Momenteel onder constructie. Kom binnenkort terug!',
+    title: 'Projects',
+    description: 'Bekijk mijn portfolio van webontwikkeling projecten',
   },
   robots: {
-    index: false, // Don't index while under construction
-    follow: false,
-    noarchive: true,
-    nosnippet: true,
+    index: true,
+    follow: true,
   },
-  category: 'technology',
 };
 
-// Mark the page as static since construction page doesn't need data fetching
-export const dynamic = 'force-static';
+export default async function ProjectsPage() {
+  // Haal alle projecten op
+  const projects = await getProjects();
 
-// Simple page that shows construction component
-export default function ProjectsPage() {
-  return <UnderConstruction />;
+  return (
+    <ProjectList 
+      projects={projects}
+      title="Mijn Projecten"
+      description="Een overzicht van alle projecten die ik heb gerealiseerd"
+      showTitle={true}
+    />
+  );
 } 

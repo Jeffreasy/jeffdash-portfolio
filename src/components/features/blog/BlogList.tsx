@@ -129,7 +129,7 @@ export default function BlogList({ posts }: BlogListProps) {
           }}
         />
 
-        <Container size="lg" py={{ base: 'xl', sm: 'calc(var(--mantine-spacing-xl) * 2)' }} style={{ position: 'relative', zIndex: 1 }}>
+        <Container size="lg" py={{ base: 'xl', md: '3xl' }} style={{ position: 'relative', zIndex: 1 }}>
           <motion.div
             variants={containerVariants}
             initial="hidden"
@@ -158,7 +158,7 @@ export default function BlogList({ posts }: BlogListProps) {
                   textRendering: 'optimizeLegibility',
                 }}
               >
-                Recente Blog Posts
+                Blog Posts
               </Title>
               
               <Text size="sm" c="gray.5">
