@@ -6,6 +6,8 @@ import '@mantine/notifications/styles.css';
 import "./globals.css";
 import { MantineProvider, ColorSchemeScript, mantineHtmlProps } from '@mantine/core';
 import { GoogleAnalytics } from '@next/third-parties/google';
+import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Notifications } from '@mantine/notifications';
 import { ModalsProvider } from '@mantine/modals';
 import { SITE_CONFIG } from '@/lib/config';
@@ -74,6 +76,7 @@ export const metadata: Metadata = {
 };
 
 // const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
 export default function RootLayout({
   children,
@@ -97,7 +100,13 @@ export default function RootLayout({
             
           </ModalsProvider>
         </MantineProvider>
-        {/* {gaId && <GoogleAnalytics gaId={gaId} />} */}
+        
+        {/* Vercel Analytics & Speed Insights */}
+        <Analytics />
+        <SpeedInsights />
+        
+        {/* Google Analytics */}
+        {gaId && <GoogleAnalytics gaId={gaId} />}
       </body>
     </html>
   );
