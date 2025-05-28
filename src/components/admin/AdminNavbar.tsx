@@ -102,18 +102,19 @@ export default function AdminNavbar({ onNavigate }: AdminNavbarProps) {
                 size="sm" 
                 c="gray.4" 
                 tt="uppercase" 
-                fw={600} 
-                mb="md"
+                fw={600}
                 style={{
                   letterSpacing: '0.5px',
                   WebkitFontSmoothing: 'antialiased',
+                  fontSize: 'clamp(0.7rem, 1.8vw, 0.8rem)',
+                  marginBottom: 'clamp(8px, 2vw, 12px)',
                 }}
               >
                 Navigatie
               </Text>
             </motion.div>
             
-            <Stack gap="xs">
+            <Stack style={{ gap: 'clamp(4px, 1vw, 8px)' }}>
               {navLinks.map((link) => {
                 const isActive = pathname.startsWith(link.href);
                 return (
@@ -125,9 +126,10 @@ export default function AdminNavbar({ onNavigate }: AdminNavbarProps) {
                       component={Link}
                       href={link.href}
                       style={{
-                        display: 'block',
-                        padding: '12px 16px',
-                        borderRadius: '8px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        padding: 'clamp(10px, 2.5vw, 12px) clamp(12px, 3vw, 16px)',
+                        borderRadius: 'clamp(6px, 1.5vw, 8px)',
                         textDecoration: 'none',
                         background: isActive 
                           ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(6, 182, 212, 0.15) 100%)'
@@ -138,6 +140,7 @@ export default function AdminNavbar({ onNavigate }: AdminNavbarProps) {
                         transition: 'all 0.2s ease',
                         position: 'relative',
                         overflow: 'hidden',
+                        minHeight: 'clamp(44px, 8vw, 48px)', // Touch target
                       }}
                       onClick={(e) => {
                         if (!link.href) {
@@ -160,20 +163,21 @@ export default function AdminNavbar({ onNavigate }: AdminNavbarProps) {
                         }
                       }}
                     >
-                      <Group gap="md" wrap="nowrap">
+                      <Group gap="md" wrap="nowrap" style={{ gap: 'clamp(8px, 2vw, 12px)' }}>
                         <Box
                           style={{
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            width: '32px',
-                            height: '32px',
-                            borderRadius: '6px',
+                            width: 'clamp(28px, 6vw, 32px)',
+                            height: 'clamp(28px, 6vw, 32px)',
+                            borderRadius: 'clamp(4px, 1vw, 6px)',
                             background: isActive 
                               ? 'linear-gradient(135deg, var(--mantine-color-blue-5), var(--mantine-color-cyan-5))'
                               : 'rgba(255, 255, 255, 0.05)',
                             color: isActive ? 'white' : 'var(--mantine-color-gray-4)',
                             transition: 'all 0.2s ease',
+                            flexShrink: 0,
                           }}
                         >
                           <link.icon size={16} stroke={1.5} />
@@ -185,6 +189,10 @@ export default function AdminNavbar({ onNavigate }: AdminNavbarProps) {
                           style={{
                             transition: 'color 0.2s ease',
                             WebkitFontSmoothing: 'antialiased',
+                            fontSize: 'clamp(0.8rem, 2.2vw, 0.875rem)',
+                            lineHeight: 1.4,
+                            flex: 1,
+                            minWidth: 0,
                           }}
                         >
                           {link.label}
@@ -196,13 +204,13 @@ export default function AdminNavbar({ onNavigate }: AdminNavbarProps) {
                         <Box
                           style={{
                             position: 'absolute',
-                            right: '8px',
+                            right: 'clamp(6px, 1.5vw, 8px)',
                             top: '50%',
                             transform: 'translateY(-50%)',
-                            width: '3px',
-                            height: '20px',
+                            width: 'clamp(2px, 0.5vw, 3px)',
+                            height: 'clamp(16px, 4vw, 20px)',
                             background: 'linear-gradient(135deg, var(--mantine-color-blue-4), var(--mantine-color-cyan-4))',
-                            borderRadius: '2px',
+                            borderRadius: 'clamp(1px, 0.25vw, 2px)',
                           }}
                         />
                       )}
@@ -220,11 +228,12 @@ export default function AdminNavbar({ onNavigate }: AdminNavbarProps) {
                 size="sm" 
                 c="gray.4" 
                 tt="uppercase" 
-                fw={600} 
-                mb="md"
+                fw={600}
                 style={{
                   letterSpacing: '0.5px',
                   WebkitFontSmoothing: 'antialiased',
+                  fontSize: 'clamp(0.7rem, 1.8vw, 0.8rem)',
+                  marginBottom: 'clamp(8px, 2vw, 12px)',
                 }}
               >
                 Account
@@ -248,6 +257,10 @@ export default function AdminNavbar({ onNavigate }: AdminNavbarProps) {
                     border: '1px solid rgba(239, 68, 68, 0.2)',
                     fontWeight: 500,
                     transition: 'all 0.2s ease',
+                    minHeight: 'clamp(44px, 8vw, 48px)',
+                    fontSize: 'clamp(0.875rem, 2.5vw, 1rem)',
+                    borderRadius: 'clamp(6px, 1.5vw, 8px)',
+                    padding: 'clamp(8px, 2vw, 12px) clamp(16px, 4vw, 20px)',
                   }}
                   styles={{
                     root: {

@@ -88,7 +88,10 @@ function SubmitButton({ label }: { label: string }) {
           boxShadow: '0 8px 32px rgba(59, 130, 246, 0.3)',
           border: '1px solid rgba(59, 130, 246, 0.2)',
           fontWeight: 600,
-          fontSize: '1rem',
+          fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
+          minHeight: '48px',
+          borderRadius: 'clamp(8px, 2vw, 12px)',
+          padding: 'clamp(12px, 3vw, 16px)',
         }}
         styles={{
           root: {
@@ -186,7 +189,14 @@ export default function ProjectForm({
               background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(21, 128, 61, 0.1) 100%)',
               border: '1px solid rgba(34, 197, 94, 0.2)',
               backdropFilter: 'blur(10px)',
+              maxWidth: 'clamp(280px, 85vw, 400px)',
             },
+            title: {
+              fontSize: 'clamp(0.875rem, 2.5vw, 1rem)',
+            },
+            description: {
+              fontSize: 'clamp(0.8rem, 2.2vw, 0.9rem)',
+            }
           },
         });
       } else if (state?.success === false && state.message) {
@@ -200,7 +210,14 @@ export default function ProjectForm({
               background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%)',
               border: '1px solid rgba(239, 68, 68, 0.2)',
               backdropFilter: 'blur(10px)',
+              maxWidth: 'clamp(280px, 85vw, 400px)',
             },
+            title: {
+              fontSize: 'clamp(0.875rem, 2.5vw, 1rem)',
+            },
+            description: {
+              fontSize: 'clamp(0.8rem, 2.2vw, 0.9rem)',
+            }
           },
         });
       }
@@ -294,36 +311,41 @@ export default function ProjectForm({
   // anders de initiële project slug.
   const currentSlug = state?.projectSlug ?? project?.slug;
 
+  // Mobile-optimized input styles
   const inputStyles = {
     label: {
       color: 'var(--mantine-color-gray-2)',
       fontWeight: 600,
-      marginBottom: '8px',
+      marginBottom: 'clamp(6px, 1.5vw, 8px)',
       WebkitFontSmoothing: 'antialiased',
       MozOsxFontSmoothing: 'grayscale',
-      fontSize: '0.875rem',
+      fontSize: 'clamp(0.875rem, 2.5vw, 1rem)',
     },
     input: {
       background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
       border: '1px solid rgba(255, 255, 255, 0.1)',
       color: 'var(--mantine-color-gray-1)',
       backdropFilter: 'blur(10px)',
-      borderRadius: '8px',
+      borderRadius: 'clamp(6px, 1.5vw, 8px)',
+      fontSize: 'clamp(0.875rem, 2.5vw, 1rem)',
+      padding: 'clamp(10px, 2.5vw, 12px)',
       '&:focus': {
         borderColor: 'rgba(59, 130, 246, 0.5)',
         boxShadow: '0 0 0 2px rgba(59, 130, 246, 0.2)',
       },
       '&::placeholder': {
         color: 'var(--mantine-color-gray-5)',
+        fontSize: 'clamp(0.8rem, 2.2vw, 0.9rem)',
       }
     },
     error: {
       color: 'var(--mantine-color-red-4)',
-      fontSize: '0.8rem',
+      fontSize: 'clamp(0.75rem, 2vw, 0.8rem)',
     },
     description: {
       color: 'var(--mantine-color-gray-4)',
-      fontSize: '0.8rem',
+      fontSize: 'clamp(0.75rem, 2vw, 0.8rem)',
+      lineHeight: 1.4,
     }
   };
 
@@ -333,6 +355,9 @@ export default function ProjectForm({
         style={{
           position: 'relative',
           overflow: 'hidden',
+          width: '100%',
+          maxWidth: '100%',
+          padding: 'clamp(12px, 3vw, 24px)',
         }}
       >
         {/* Decorative background elements */}
@@ -340,8 +365,8 @@ export default function ProjectForm({
           position: 'absolute',
           top: '10%',
           left: '5%',
-          width: '200px',
-          height: '200px',
+          width: 'clamp(150px, 25vw, 200px)',
+          height: 'clamp(150px, 25vw, 200px)',
           background: 'radial-gradient(circle, rgba(59, 130, 246, 0.05) 0%, transparent 70%)',
           borderRadius: '50%',
           filter: 'blur(40px)',
@@ -353,8 +378,8 @@ export default function ProjectForm({
           position: 'absolute',
           bottom: '20%',
           right: '10%',
-          width: '150px',
-          height: '150px',
+          width: 'clamp(100px, 20vw, 150px)',
+          height: 'clamp(100px, 20vw, 150px)',
           background: 'radial-gradient(circle, rgba(6, 182, 212, 0.05) 0%, transparent 70%)',
           borderRadius: '50%',
           filter: 'blur(30px)',
@@ -367,11 +392,13 @@ export default function ProjectForm({
             background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
             backdropFilter: 'blur(10px)',
             border: '1px solid rgba(255, 255, 255, 0.1)',
-            borderRadius: '16px',
-            padding: 'var(--mantine-spacing-xl)',
+            borderRadius: 'clamp(12px, 3vw, 16px)',
+            padding: 'clamp(16px, 4vw, 24px)',
             position: 'relative',
             zIndex: 1,
             overflow: 'hidden',
+            width: '100%',
+            maxWidth: '100%',
           }}
         >
           {/* Inner decorative element */}
@@ -379,8 +406,8 @@ export default function ProjectForm({
             position: 'absolute',
             top: '-30px',
             right: '-30px',
-            width: '120px',
-            height: '120px',
+            width: 'clamp(80px, 15vw, 120px)',
+            height: 'clamp(80px, 15vw, 120px)',
             background: 'radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%)',
             borderRadius: '50%',
             filter: 'blur(25px)',
@@ -418,21 +445,26 @@ export default function ProjectForm({
                     style={{
                       background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(6, 182, 212, 0.05) 100%)',
                       border: '1px solid rgba(59, 130, 246, 0.1)',
-                      borderRadius: '12px',
-                      padding: 'var(--mantine-spacing-lg)',
-                      marginBottom: 'var(--mantine-spacing-md)',
+                      borderRadius: 'clamp(8px, 2vw, 12px)',
+                      padding: 'clamp(16px, 4vw, 24px)',
+                      marginBottom: 'clamp(12px, 3vw, 16px)',
                     }}
                   >
-                    <Group gap="md" align="center">
+                    <Group gap="md" align="center" wrap="nowrap">
                       <ThemeIcon
                         size="xl"
                         radius="md"
                         variant="gradient"
                         gradient={{ from: 'blue.6', to: 'cyan.5' }}
+                        style={{
+                          width: 'clamp(48px, 8vw, 64px)',
+                          height: 'clamp(48px, 8vw, 64px)',
+                          flexShrink: 0,
+                        }}
                       >
                         <IconFolder size={24} />
                       </ThemeIcon>
-                      <Box style={{ flex: 1 }}>
+                      <Box style={{ flex: 1, minWidth: 0 }}>
                         <Title 
                           order={2}
                           style={{
@@ -440,14 +472,23 @@ export default function ProjectForm({
                             backgroundClip: 'text',
                             WebkitBackgroundClip: 'text',
                             color: 'transparent',
-                            fontSize: '1.75rem',
+                            fontSize: 'clamp(1.25rem, 4vw, 1.75rem)',
                             fontWeight: 800,
-                            marginBottom: '0.25rem',
+                            marginBottom: 'clamp(4px, 1vw, 8px)',
+                            lineHeight: 1.2,
+                            wordBreak: 'break-word',
                           }}
                         >
                           {project ? 'Project Bewerken' : 'Nieuw Project Aanmaken'}
                         </Title>
-                        <Text c="gray.4" size="sm">
+                        <Text 
+                          c="gray.4" 
+                          size="sm"
+                          style={{
+                            fontSize: 'clamp(0.8rem, 2.2vw, 0.9rem)',
+                            lineHeight: 1.4,
+                          }}
+                        >
                           {project ? 'Wijzig de projectdetails en sla de wijzigingen op' : 'Vul alle vereiste velden in om een nieuw project toe te voegen'}
                         </Text>
                       </Box>
@@ -467,6 +508,9 @@ export default function ProjectForm({
                               ? 'var(--mantine-color-blue-4)' 
                               : 'var(--mantine-color-gray-4)',
                             fontWeight: 600,
+                            fontSize: 'clamp(0.75rem, 2vw, 0.8rem)',
+                            padding: 'clamp(4px, 1vw, 8px) clamp(8px, 2vw, 12px)',
+                            flexShrink: 0,
                           }}
                         >
                           {project.isFeatured ? '⭐ Featured' : 'Standaard'}
@@ -487,15 +531,18 @@ export default function ProjectForm({
                         background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%)',
                         border: '1px solid rgba(239, 68, 68, 0.2)',
                         backdropFilter: 'blur(10px)',
-                        borderRadius: '12px',
+                        borderRadius: 'clamp(8px, 2vw, 12px)',
+                        padding: 'clamp(12px, 3vw, 16px)',
                       }}
                       styles={{
                         title: {
                           color: 'var(--mantine-color-red-4)',
                           fontWeight: 600,
+                          fontSize: 'clamp(0.875rem, 2.5vw, 1rem)',
                         },
                         message: {
                           color: 'var(--mantine-color-red-3)',
+                          fontSize: 'clamp(0.8rem, 2.2vw, 0.9rem)',
                         }
                       }}
                     >
@@ -511,15 +558,17 @@ export default function ProjectForm({
                       background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
                       border: '1px solid rgba(255, 255, 255, 0.1)',
                       backdropFilter: 'blur(10px)',
-                      borderRadius: '12px',
+                      borderRadius: 'clamp(8px, 2vw, 12px)',
+                      padding: 'clamp(16px, 4vw, 24px)',
                     }}
                   >
-                    <Group gap="md" mb="lg">
+                    <Group gap="md" mb="lg" wrap="nowrap">
                       <ThemeIcon
                         size="md"
                         radius="md"
                         variant="gradient"
                         gradient={{ from: 'green.6', to: 'teal.5' }}
+                        style={{ flexShrink: 0 }}
                       >
                         <IconFolder size={16} />
                       </ThemeIcon>
@@ -529,6 +578,7 @@ export default function ProjectForm({
                         style={{ 
                           color: 'var(--mantine-color-gray-1)',
                           WebkitFontSmoothing: 'antialiased',
+                          fontSize: 'clamp(1rem, 3vw, 1.25rem)',
                         }}
                       >
                         Basis Informatie
@@ -545,7 +595,15 @@ export default function ProjectForm({
                           error={state.errors?.title?.join(', ')}
                           defaultValue={project?.title}
                           size="md"
-                          styles={inputStyles}
+                          styles={{
+                            label: inputStyles.label,
+                            input: {
+                              ...inputStyles.input,
+                              minHeight: '44px',
+                            },
+                            error: inputStyles.error,
+                            description: inputStyles.description,
+                          }}
                         />
 
                         <TextInput
@@ -556,7 +614,15 @@ export default function ProjectForm({
                           error={state.errors?.slug?.join(', ')}
                           defaultValue={project?.slug}
                           size="md"
-                          styles={inputStyles}
+                          styles={{
+                            label: inputStyles.label,
+                            input: {
+                              ...inputStyles.input,
+                              minHeight: '44px',
+                            },
+                            error: inputStyles.error,
+                            description: inputStyles.description,
+                          }}
                           description="URL-vriendelijke versie van de titel (alleen letters, cijfers en koppeltekens)"
                         />
                       </SimpleGrid>
@@ -570,6 +636,7 @@ export default function ProjectForm({
                         defaultValue={project?.shortDescription || ''}
                         minRows={3}
                         maxRows={5}
+                        autosize
                         size="md"
                         styles={inputStyles}
                         description="Deze beschrijving wordt getoond in projectoverzichten"
@@ -582,7 +649,15 @@ export default function ProjectForm({
                         error={state.errors?.category?.join(', ')}
                         defaultValue={project?.category || ''}
                         size="md"
-                        styles={inputStyles}
+                        styles={{
+                          label: inputStyles.label,
+                          input: {
+                            ...inputStyles.input,
+                            minHeight: '44px',
+                          },
+                          error: inputStyles.error,
+                          description: inputStyles.description,
+                        }}
                         description="Categoriseer je project voor betere organisatie"
                       />
                     </Stack>
@@ -596,15 +671,17 @@ export default function ProjectForm({
                       background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
                       border: '1px solid rgba(255, 255, 255, 0.1)',
                       backdropFilter: 'blur(10px)',
-                      borderRadius: '12px',
+                      borderRadius: 'clamp(8px, 2vw, 12px)',
+                      padding: 'clamp(16px, 4vw, 24px)',
                     }}
                   >
-                    <Group gap="md" mb="lg">
+                    <Group gap="md" mb="lg" wrap="nowrap">
                       <ThemeIcon
                         size="md"
                         radius="md"
                         variant="gradient"
                         gradient={{ from: 'violet.6', to: 'purple.5' }}
+                        style={{ flexShrink: 0 }}
                       >
                         <IconPhoto size={16} />
                       </ThemeIcon>
@@ -614,16 +691,18 @@ export default function ProjectForm({
                         style={{ 
                           color: 'var(--mantine-color-gray-1)',
                           WebkitFontSmoothing: 'antialiased',
+                          fontSize: 'clamp(1rem, 3vw, 1.25rem)',
                         }}
                       >
                         Gedetailleerde Inhoud
                       </Text>
                     </Group>
 
-                    <Textarea
-                      label="Uitgebreide Projectbeschrijving"
-                      name="detailedContent"
-                      placeholder="Beschrijf het project uitgebreid. Je kunt Markdown gebruiken voor opmaak:
+                    <Stack gap="lg">
+                      <Textarea
+                        label="Uitgebreide Projectbeschrijving"
+                        name="detailedContent"
+                        placeholder="Beschrijf het project uitgebreid. Je kunt Markdown gebruiken voor opmaak:
 
 ## Overzicht
 Een korte introductie van het project...
@@ -635,28 +714,31 @@ Een korte introductie van het project...
 
 ## Technische Details
 Beschrijf de technische aspecten..."
-                      required
-                      error={state.errors?.detailedContent?.join(', ')}
-                      defaultValue={project?.detailedContent || ''}
-                      minRows={8}
-                      maxRows={15}
-                      size="md"
-                      styles={inputStyles}
-                      description="Gebruik Markdown voor opmaak (## voor headers, - voor lijsten, **bold**, *italic*)"
-                    />
+                        required
+                        error={state.errors?.detailedContent?.join(', ')}
+                        defaultValue={project?.detailedContent || ''}
+                        minRows={8}
+                        maxRows={15}
+                        autosize
+                        size="md"
+                        styles={inputStyles}
+                        description="Gebruik Markdown voor opmaak (## voor headers, - voor lijsten, **bold**, *italic*)"
+                      />
 
-                    <Textarea
-                      label="Gebruikte Technologieën"
-                      name="technologies"
-                      placeholder="React, Next.js, TypeScript, Tailwind CSS, Supabase, Vercel"
-                      error={state.errors?.technologies?.join(', ')}
-                      defaultValue={project?.technologies || ''}
-                      minRows={2}
-                      maxRows={4}
-                      size="md"
-                      styles={inputStyles}
-                      description="Komma-gescheiden lijst van alle gebruikte technologieën en tools"
-                    />
+                      <Textarea
+                        label="Gebruikte Technologieën"
+                        name="technologies"
+                        placeholder="React, Next.js, TypeScript, Tailwind CSS, Supabase, Vercel"
+                        error={state.errors?.technologies?.join(', ')}
+                        defaultValue={project?.technologies || ''}
+                        minRows={2}
+                        maxRows={4}
+                        autosize
+                        size="md"
+                        styles={inputStyles}
+                        description="Komma-gescheiden lijst van alle gebruikte technologieën en tools"
+                      />
+                    </Stack>
                   </Card>
                 </motion.div>
 
@@ -667,15 +749,17 @@ Beschrijf de technische aspecten..."
                       background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
                       border: '1px solid rgba(255, 255, 255, 0.1)',
                       backdropFilter: 'blur(10px)',
-                      borderRadius: '12px',
+                      borderRadius: 'clamp(8px, 2vw, 12px)',
+                      padding: 'clamp(16px, 4vw, 24px)',
                     }}
                   >
-                    <Group gap="md" mb="lg">
+                    <Group gap="md" mb="lg" wrap="nowrap">
                       <ThemeIcon
                         size="md"
                         radius="md"
                         variant="gradient"
                         gradient={{ from: 'orange.6', to: 'red.5' }}
+                        style={{ flexShrink: 0 }}
                       >
                         <IconUpload size={16} />
                       </ThemeIcon>
@@ -685,6 +769,7 @@ Beschrijf de technische aspecten..."
                         style={{ 
                           color: 'var(--mantine-color-gray-1)',
                           WebkitFontSmoothing: 'antialiased',
+                          fontSize: 'clamp(1rem, 3vw, 1.25rem)',
                         }}
                       >
                         Project Links
@@ -699,7 +784,15 @@ Beschrijf de technische aspecten..."
                         error={state.errors?.githubUrl?.join(', ')}
                         defaultValue={project?.githubUrl || ''}
                         size="md"
-                        styles={inputStyles}
+                        styles={{
+                          label: inputStyles.label,
+                          input: {
+                            ...inputStyles.input,
+                            minHeight: '44px',
+                          },
+                          error: inputStyles.error,
+                          description: inputStyles.description,
+                        }}
                         description="Link naar de broncode (optioneel)"
                       />
 
@@ -710,7 +803,15 @@ Beschrijf de technische aspecten..."
                         error={state.errors?.liveUrl?.join(', ')}
                         defaultValue={project?.liveUrl || ''}
                         size="md"
-                        styles={inputStyles}
+                        styles={{
+                          label: inputStyles.label,
+                          input: {
+                            ...inputStyles.input,
+                            minHeight: '44px',
+                          },
+                          error: inputStyles.error,
+                          description: inputStyles.description,
+                        }}
                         description="Link naar de werkende versie (optioneel)"
                       />
                     </SimpleGrid>
@@ -724,15 +825,17 @@ Beschrijf de technische aspecten..."
                       background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
                       border: '1px solid rgba(255, 255, 255, 0.1)',
                       backdropFilter: 'blur(10px)',
-                      borderRadius: '12px',
+                      borderRadius: 'clamp(8px, 2vw, 12px)',
+                      padding: 'clamp(16px, 4vw, 24px)',
                     }}
                   >
-                    <Group gap="md" mb="lg">
+                    <Group gap="md" mb="lg" wrap="nowrap">
                       <ThemeIcon
                         size="md"
                         radius="md"
                         variant="gradient"
                         gradient={{ from: 'yellow.6', to: 'orange.5' }}
+                        style={{ flexShrink: 0 }}
                       >
                         <IconDeviceFloppy size={16} />
                       </ThemeIcon>
@@ -742,6 +845,7 @@ Beschrijf de technische aspecten..."
                         style={{ 
                           color: 'var(--mantine-color-gray-1)',
                           WebkitFontSmoothing: 'antialiased',
+                          fontSize: 'clamp(1rem, 3vw, 1.25rem)',
                         }}
                       >
                         Project Instellingen
@@ -752,8 +856,8 @@ Beschrijf de technische aspecten..."
                       style={{
                         background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(6, 182, 212, 0.05) 100%)',
                         border: '1px solid rgba(59, 130, 246, 0.1)',
-                        borderRadius: '8px',
-                        padding: 'var(--mantine-spacing-md)',
+                        borderRadius: 'clamp(6px, 1.5vw, 8px)',
+                        padding: 'clamp(12px, 3vw, 16px)',
                       }}
                     >
                       <Switch
@@ -766,16 +870,19 @@ Beschrijf de technische aspecten..."
                           label: {
                             color: 'var(--mantine-color-gray-2)',
                             fontWeight: 600,
-                            fontSize: '0.9rem',
+                            fontSize: 'clamp(0.875rem, 2.5vw, 1rem)',
                           },
                           description: {
                             color: 'var(--mantine-color-gray-4)',
-                            fontSize: '0.8rem',
-                            marginTop: '0.25rem',
+                            fontSize: 'clamp(0.75rem, 2vw, 0.8rem)',
+                            marginTop: 'clamp(4px, 1vw, 6px)',
+                            lineHeight: 1.4,
                           },
                           track: {
                             backgroundColor: 'rgba(255, 255, 255, 0.1)',
                             borderColor: 'rgba(255, 255, 255, 0.2)',
+                            minHeight: '24px',
+                            minWidth: '44px',
                           },
                           thumb: {
                             backgroundColor: 'var(--mantine-color-gray-1)',
@@ -795,15 +902,17 @@ Beschrijf de technische aspecten..."
                       background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
                       border: '1px solid rgba(255, 255, 255, 0.1)',
                       backdropFilter: 'blur(10px)',
-                      borderRadius: '12px',
+                      borderRadius: 'clamp(8px, 2vw, 12px)',
+                      padding: 'clamp(16px, 4vw, 24px)',
                     }}
                   >
-                    <Group gap="md" mb="lg">
+                    <Group gap="md" mb="lg" wrap="nowrap">
                       <ThemeIcon
                         size="md"
                         radius="md"
                         variant="gradient"
                         gradient={{ from: 'pink.6', to: 'violet.5' }}
+                        style={{ flexShrink: 0 }}
                       >
                         <IconPhoto size={16} />
                       </ThemeIcon>
@@ -813,6 +922,7 @@ Beschrijf de technische aspecten..."
                         style={{ 
                           color: 'var(--mantine-color-gray-1)',
                           WebkitFontSmoothing: 'antialiased',
+                          fontSize: 'clamp(1rem, 3vw, 1.25rem)',
                         }}
                       >
                         Project Afbeeldingen
@@ -834,7 +944,15 @@ Beschrijf de technische aspecten..."
                     {/* Bestaande afbeeldingen */}
                     {existingImagesData.length > 0 && (
                       <Box mt="xl">
-                        <Text size="sm" fw={600} mb="md" c="gray.2">
+                        <Text 
+                          size="sm" 
+                          fw={600} 
+                          mb="md" 
+                          c="gray.2"
+                          style={{
+                            fontSize: 'clamp(0.875rem, 2.5vw, 1rem)',
+                          }}
+                        >
                           Huidige afbeeldingen ({existingImagesData.length}):
                         </Text>
                         <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="md">
@@ -844,7 +962,8 @@ Beschrijf de technische aspecten..."
                               style={{
                                 background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
                                 border: '1px solid rgba(255, 255, 255, 0.1)',
-                                borderRadius: '8px',
+                                borderRadius: 'clamp(6px, 1.5vw, 8px)',
+                                padding: 'clamp(8px, 2vw, 12px)',
                               }}
                             >
                               <Image
@@ -863,7 +982,15 @@ Beschrijf de technische aspecten..."
                                 value={img.altText}
                                 onChange={(e) => handleExistingAltTextChange(index, e.target.value)}
                                 size="xs"
-                                styles={inputStyles}
+                                styles={{
+                                  label: inputStyles.label,
+                                  input: {
+                                    ...inputStyles.input,
+                                    minHeight: '36px',
+                                  },
+                                  error: inputStyles.error,
+                                  description: inputStyles.description,
+                                }}
                               />
                               <input type="hidden" name={`existingImages[${index}][id]`} value={img.id} />
                               <input type="hidden" name={`existingImages[${index}][altText]`} value={img.altText} />
@@ -876,7 +1003,15 @@ Beschrijf de technische aspecten..."
                     {/* Nieuwe afbeelding previews */}
                     {newImagePreviews.length > 0 && (
                       <Box mt="xl">
-                        <Text size="sm" fw={600} mb="md" c="gray.2">
+                        <Text 
+                          size="sm" 
+                          fw={600} 
+                          mb="md" 
+                          c="gray.2"
+                          style={{
+                            fontSize: 'clamp(0.875rem, 2.5vw, 1rem)',
+                          }}
+                        >
                           Nieuwe afbeeldingen ({newImagePreviews.length}):
                         </Text>
                         <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="md">
@@ -886,21 +1021,24 @@ Beschrijf de technische aspecten..."
                               style={{
                                 background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
                                 border: '1px solid rgba(255, 255, 255, 0.1)',
-                                borderRadius: '8px',
+                                borderRadius: 'clamp(6px, 1.5vw, 8px)',
                                 position: 'relative',
+                                padding: 'clamp(8px, 2vw, 12px)',
                               }}
                             >
                               <CloseButton
                                 onClick={() => removeNewImagePreview(index)}
                                 style={{
                                   position: 'absolute',
-                                  top: '8px',
-                                  right: '8px',
+                                  top: 'clamp(8px, 2vw, 12px)',
+                                  right: 'clamp(8px, 2vw, 12px)',
                                   zIndex: 2,
                                   background: 'rgba(0, 0, 0, 0.7)',
                                   color: 'white',
                                   backdropFilter: 'blur(10px)',
                                   border: '1px solid rgba(255, 255, 255, 0.2)',
+                                  minHeight: '32px',
+                                  minWidth: '32px',
                                 }}
                                 size="sm"
                               />
@@ -920,7 +1058,15 @@ Beschrijf de technische aspecten..."
                                 value={preview.altText}
                                 onChange={(e) => handleNewAltTextChange(index, e.target.value)}
                                 size="xs"
-                                styles={inputStyles}
+                                styles={{
+                                  label: inputStyles.label,
+                                  input: {
+                                    ...inputStyles.input,
+                                    minHeight: '36px',
+                                  },
+                                  error: inputStyles.error,
+                                  description: inputStyles.description,
+                                }}
                               />
                             </Card>
                           ))}
@@ -936,6 +1082,7 @@ Beschrijf de technische aspecten..."
                     my="xl" 
                     style={{ 
                       borderColor: 'rgba(255, 255, 255, 0.1)',
+                      margin: 'clamp(16px, 4vw, 24px) 0',
                     }} 
                   />
                   <SubmitButton label={submitButtonLabel} />

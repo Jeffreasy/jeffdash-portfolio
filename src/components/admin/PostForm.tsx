@@ -65,7 +65,7 @@ function SubmitButton({ isEditing }: { isEditing: boolean }) {
       <Button 
         type="submit" 
         loading={pending} 
-        leftSection={<IconDeviceFloppy size={16}/>}
+        leftSection={<IconDeviceFloppy size={18}/>}
         size="lg"
         variant="gradient"
         gradient={{ from: 'violet.6', to: 'purple.5' }}
@@ -74,6 +74,10 @@ function SubmitButton({ isEditing }: { isEditing: boolean }) {
           boxShadow: '0 8px 32px rgba(139, 92, 246, 0.3)',
           border: '1px solid rgba(139, 92, 246, 0.2)',
           fontWeight: 600,
+          fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
+          minHeight: '48px',
+          borderRadius: 'clamp(8px, 2vw, 12px)',
+          padding: 'clamp(12px, 3vw, 16px)',
         }}
         styles={{
           root: {
@@ -141,7 +145,14 @@ export default function PostForm({ action, initialData, formTitle }: PostFormPro
               background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(21, 128, 61, 0.1) 100%)',
               border: '1px solid rgba(34, 197, 94, 0.2)',
               backdropFilter: 'blur(10px)',
+              maxWidth: 'clamp(280px, 85vw, 400px)',
             },
+            title: {
+              fontSize: 'clamp(0.875rem, 2.5vw, 1rem)',
+            },
+            description: {
+              fontSize: 'clamp(0.8rem, 2.2vw, 0.9rem)',
+            }
           },
         });
         // Note: Redirect is handled by the server action itself
@@ -158,7 +169,14 @@ export default function PostForm({ action, initialData, formTitle }: PostFormPro
               background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%)',
               border: '1px solid rgba(239, 68, 68, 0.2)',
               backdropFilter: 'blur(10px)',
+              maxWidth: 'clamp(280px, 85vw, 400px)',
             },
+            title: {
+              fontSize: 'clamp(0.875rem, 2.5vw, 1rem)',
+            },
+            description: {
+              fontSize: 'clamp(0.8rem, 2.2vw, 0.9rem)',
+            }
           },
         });
       }
@@ -250,25 +268,36 @@ export default function PostForm({ action, initialData, formTitle }: PostFormPro
     label: {
       color: 'var(--mantine-color-gray-2)',
       fontWeight: 500,
-      marginBottom: '8px',
+      marginBottom: 'clamp(6px, 1.5vw, 8px)',
       WebkitFontSmoothing: 'antialiased',
       MozOsxFontSmoothing: 'grayscale',
+      fontSize: 'clamp(0.875rem, 2.5vw, 1rem)',
     },
     input: {
       background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
       border: '1px solid rgba(255, 255, 255, 0.1)',
       color: 'var(--mantine-color-gray-1)',
       backdropFilter: 'blur(10px)',
+      borderRadius: 'clamp(6px, 1.5vw, 8px)',
+      fontSize: 'clamp(0.875rem, 2.5vw, 1rem)',
+      padding: 'clamp(10px, 2.5vw, 12px)',
       '&:focus': {
         borderColor: 'rgba(139, 92, 246, 0.5)',
         boxShadow: '0 0 0 2px rgba(139, 92, 246, 0.2)',
       },
       '&::placeholder': {
         color: 'var(--mantine-color-gray-5)',
+        fontSize: 'clamp(0.8rem, 2.2vw, 0.9rem)',
       }
     },
     error: {
       color: 'var(--mantine-color-red-4)',
+      fontSize: 'clamp(0.75rem, 2vw, 0.8rem)',
+    },
+    description: {
+      color: 'var(--mantine-color-gray-4)',
+      fontSize: 'clamp(0.75rem, 2vw, 0.8rem)',
+      lineHeight: 1.4,
     }
   };
 
@@ -279,10 +308,12 @@ export default function PostForm({ action, initialData, formTitle }: PostFormPro
           background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
           backdropFilter: 'blur(10px)',
           border: '1px solid rgba(255, 255, 255, 0.1)',
-          borderRadius: '12px',
-          padding: 'var(--mantine-spacing-xl)',
+          borderRadius: 'clamp(8px, 2vw, 12px)',
+          padding: 'clamp(16px, 4vw, 24px)',
           position: 'relative',
           overflow: 'hidden',
+          width: '100%',
+          maxWidth: '100%',
         }}
       >
         {/* Decorative element */}
@@ -290,8 +321,8 @@ export default function PostForm({ action, initialData, formTitle }: PostFormPro
           position: 'absolute',
           top: '-20px',
           right: '-20px',
-          width: '100px',
-          height: '100px',
+          width: 'clamp(80px, 15vw, 100px)',
+          height: 'clamp(80px, 15vw, 100px)',
           background: 'radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%)',
           borderRadius: '50%',
           filter: 'blur(20px)',
@@ -326,12 +357,17 @@ export default function PostForm({ action, initialData, formTitle }: PostFormPro
             />
             <Stack gap="lg">
               <motion.div variants={inputVariants}>
-                <Group gap="md" mb="lg">
+                <Group gap="md" mb="lg" wrap="nowrap">
                   <ThemeIcon
                     size="lg"
                     radius="md"
                     variant="gradient"
                     gradient={{ from: 'violet.6', to: 'purple.5' }}
+                    style={{
+                      width: 'clamp(48px, 8vw, 64px)',
+                      height: 'clamp(48px, 8vw, 64px)',
+                      flexShrink: 0,
+                    }}
                   >
                     <IconFileText size={20} />
                   </ThemeIcon>
@@ -342,8 +378,12 @@ export default function PostForm({ action, initialData, formTitle }: PostFormPro
                       backgroundClip: 'text',
                       WebkitBackgroundClip: 'text',
                       color: 'transparent',
-                      fontSize: '1.5rem',
+                      fontSize: 'clamp(1.25rem, 4vw, 1.5rem)',
                       fontWeight: 700,
+                      lineHeight: 1.2,
+                      wordBreak: 'break-word',
+                      minWidth: 0,
+                      flex: 1,
                     }}
                   >
                     {formTitle}
@@ -367,13 +407,17 @@ export default function PostForm({ action, initialData, formTitle }: PostFormPro
                       background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%)',
                       border: '1px solid rgba(239, 68, 68, 0.2)',
                       backdropFilter: 'blur(10px)',
+                      borderRadius: 'clamp(6px, 1.5vw, 8px)',
+                      padding: 'clamp(12px, 3vw, 16px)',
                     }}
                     styles={{
                       title: {
                         color: 'var(--mantine-color-red-4)',
+                        fontSize: 'clamp(0.875rem, 2.5vw, 1rem)',
                       },
                       message: {
                         color: 'var(--mantine-color-red-3)',
+                        fontSize: 'clamp(0.8rem, 2.2vw, 0.9rem)',
                       }
                     }}
                   >
@@ -393,7 +437,15 @@ export default function PostForm({ action, initialData, formTitle }: PostFormPro
                   error={state?.errors?.title?.[0]}
                   required
                   size="md"
-                  styles={inputStyles}
+                  styles={{
+                    label: inputStyles.label,
+                    input: {
+                      ...inputStyles.input,
+                      minHeight: '44px',
+                    },
+                    error: inputStyles.error,
+                    description: inputStyles.description,
+                  }}
                 />
               </motion.div>
 
@@ -408,7 +460,15 @@ export default function PostForm({ action, initialData, formTitle }: PostFormPro
                   error={state?.errors?.slug?.[0]}
                   required
                   size="md"
-                  styles={inputStyles}
+                  styles={{
+                    label: inputStyles.label,
+                    input: {
+                      ...inputStyles.input,
+                      minHeight: '44px',
+                    },
+                    error: inputStyles.error,
+                    description: inputStyles.description,
+                  }}
                   description="De URL-vriendelijke versie van de titel. Wordt automatisch gegenereerd maar kan handmatig aangepast worden."
                 />
               </motion.div>
@@ -422,6 +482,8 @@ export default function PostForm({ action, initialData, formTitle }: PostFormPro
                   defaultValue={initialData?.excerpt || ''}
                   error={state?.errors?.excerpt?.[0]}
                   minRows={3}
+                  maxRows={6}
+                  autosize
                   size="md"
                   styles={inputStyles}
                   description="Een korte samenvatting die wordt getoond in overzichten."
@@ -437,7 +499,9 @@ export default function PostForm({ action, initialData, formTitle }: PostFormPro
                   defaultValue={initialData?.content || ''}
                   error={state?.errors?.content?.[0]}
                   required
-                  minRows={10}
+                  minRows={8}
+                  maxRows={20}
+                  autosize
                   size="md"
                   styles={inputStyles}
                   description="De volledige inhoud van je post in Markdown formaat."
@@ -460,7 +524,15 @@ export default function PostForm({ action, initialData, formTitle }: PostFormPro
                     { value: 'personal', label: 'Persoonlijk' },
                   ]}
                   size="md"
-                  styles={inputStyles}
+                  styles={{
+                    label: inputStyles.label,
+                    input: {
+                      ...inputStyles.input,
+                      minHeight: '44px',
+                    },
+                    error: inputStyles.error,
+                    description: inputStyles.description,
+                  }}
                   clearable
                 />
               </motion.div>
@@ -475,7 +547,15 @@ export default function PostForm({ action, initialData, formTitle }: PostFormPro
                   onChange={handleTagsChange}
                   error={state?.errors?.tags?.[0]}
                   size="md"
-                  styles={inputStyles}
+                  styles={{
+                    label: inputStyles.label,
+                    input: {
+                      ...inputStyles.input,
+                      minHeight: '44px',
+                    },
+                    error: inputStyles.error,
+                    description: inputStyles.description,
+                  }}
                   description="Druk op Enter om een tag toe te voegen."
                 />
                 {/* Hidden input to submit tags */}
@@ -493,12 +573,26 @@ export default function PostForm({ action, initialData, formTitle }: PostFormPro
                     label: {
                       color: 'var(--mantine-color-gray-2)',
                       fontWeight: 500,
+                      fontSize: 'clamp(0.875rem, 2.5vw, 1rem)',
+                      lineHeight: 1.4,
                     },
                     input: {
+                      minHeight: '20px',
+                      minWidth: '20px',
                       '&:checked': {
                         backgroundColor: 'var(--mantine-color-violet-6)',
                         borderColor: 'var(--mantine-color-violet-6)',
                       },
+                    },
+                    body: {
+                      alignItems: 'center',
+                      gap: 'clamp(8px, 2vw, 12px)',
+                    },
+                    description: {
+                      color: 'var(--mantine-color-gray-4)',
+                      fontSize: 'clamp(0.75rem, 2vw, 0.8rem)',
+                      lineHeight: 1.4,
+                      marginTop: 'clamp(4px, 1vw, 6px)',
                     },
                   }}
                   description="Vink aan om de post direct te publiceren."

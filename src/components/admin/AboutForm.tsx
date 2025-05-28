@@ -87,6 +87,7 @@ export default function AboutForm({ initialData }: AboutFormProps) {
     });
   };
 
+  // Clean input styles without media queries
   const inputStyles = {
     label: {
       color: 'var(--mantine-color-gray-2)',
@@ -94,22 +95,27 @@ export default function AboutForm({ initialData }: AboutFormProps) {
       marginBottom: '8px',
       WebkitFontSmoothing: 'antialiased',
       MozOsxFontSmoothing: 'grayscale',
+      fontSize: 'clamp(0.875rem, 2.5vw, 1rem)',
     },
     input: {
       background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
       border: '1px solid rgba(255, 255, 255, 0.1)',
       color: 'var(--mantine-color-gray-1)',
       backdropFilter: 'blur(10px)',
+      fontSize: 'clamp(0.875rem, 2.5vw, 1rem)',
+      padding: 'clamp(8px, 2vw, 12px)',
       '&:focus': {
         borderColor: 'rgba(59, 130, 246, 0.5)',
         boxShadow: '0 0 0 2px rgba(59, 130, 246, 0.2)',
       },
       '&::placeholder': {
         color: 'var(--mantine-color-gray-5)',
+        fontSize: 'clamp(0.8rem, 2.2vw, 0.9rem)',
       }
     },
     error: {
       color: 'var(--mantine-color-red-4)',
+      fontSize: 'clamp(0.75rem, 2vw, 0.875rem)',
     }
   };
 
@@ -124,6 +130,11 @@ export default function AboutForm({ initialData }: AboutFormProps) {
           },
         },
       }}
+      style={{
+        width: '100%',
+        maxWidth: '100%',
+        padding: 'clamp(12px, 3vw, 24px)',
+      }}
     >
       <form onSubmit={handleSubmit}>
         <Stack gap="lg">
@@ -137,13 +148,17 @@ export default function AboutForm({ initialData }: AboutFormProps) {
                   background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%)',
                   border: '1px solid rgba(239, 68, 68, 0.2)',
                   backdropFilter: 'blur(10px)',
+                  borderRadius: 'clamp(8px, 2vw, 12px)',
+                  padding: 'clamp(12px, 3vw, 16px)',
                 }}
                 styles={{
                   title: {
                     color: 'var(--mantine-color-red-4)',
+                    fontSize: 'clamp(0.875rem, 2.5vw, 1rem)',
                   },
                   message: {
                     color: 'var(--mantine-color-red-3)',
+                    fontSize: 'clamp(0.8rem, 2.2vw, 0.9rem)',
                   }
                 }}
               >
@@ -163,6 +178,9 @@ export default function AboutForm({ initialData }: AboutFormProps) {
               leftSection={<IconUser size={16} />}
               size="md"
               styles={inputStyles}
+              style={{
+                width: '100%',
+              }}
             />
           </motion.div>
 
@@ -174,9 +192,14 @@ export default function AboutForm({ initialData }: AboutFormProps) {
               onChange={(event) => handleInputChange('about_intro', event.currentTarget.value)}
               error={formState.errors?.about_intro?.[0]}
               minRows={3}
+              maxRows={6}
+              autosize
               required
               size="md"
               styles={inputStyles}
+              style={{
+                width: '100%',
+              }}
             />
           </motion.div>
 
@@ -188,9 +211,14 @@ export default function AboutForm({ initialData }: AboutFormProps) {
               onChange={(event) => handleInputChange('about_focus', event.currentTarget.value)}
               error={formState.errors?.about_focus?.[0]}
               minRows={4}
+              maxRows={8}
+              autosize
               required
               size="md"
               styles={inputStyles}
+              style={{
+                width: '100%',
+              }}
             />
           </motion.div>
 
@@ -202,9 +230,14 @@ export default function AboutForm({ initialData }: AboutFormProps) {
               onChange={(event) => handleInputChange('about_projects', event.currentTarget.value)}
               error={formState.errors?.about_projects?.[0]}
               minRows={3}
+              maxRows={6}
+              autosize
               required
               size="md"
               styles={inputStyles}
+              style={{
+                width: '100%',
+              }}
             />
           </motion.div>
 
@@ -216,9 +249,14 @@ export default function AboutForm({ initialData }: AboutFormProps) {
               onChange={(event) => handleInputChange('about_contact', event.currentTarget.value)}
               error={formState.errors?.about_contact?.[0]}
               minRows={3}
+              maxRows={6}
+              autosize
               required
               size="md"
               styles={inputStyles}
+              style={{
+                width: '100%',
+              }}
             />
           </motion.div>
 
@@ -233,6 +271,9 @@ export default function AboutForm({ initialData }: AboutFormProps) {
               leftSection={<IconLink size={16} />}
               size="md"
               styles={inputStyles}
+              style={{
+                width: '100%',
+              }}
             />
           </motion.div>
 
@@ -247,6 +288,9 @@ export default function AboutForm({ initialData }: AboutFormProps) {
               leftSection={<IconLink size={16} />}
               size="md"
               styles={inputStyles}
+              style={{
+                width: '100%',
+              }}
             />
           </motion.div>
 
@@ -264,6 +308,10 @@ export default function AboutForm({ initialData }: AboutFormProps) {
                   boxShadow: '0 8px 32px rgba(59, 130, 246, 0.3)',
                   border: '1px solid rgba(59, 130, 246, 0.2)',
                   fontWeight: 600,
+                  minHeight: '48px',
+                  fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
+                  borderRadius: 'clamp(8px, 2vw, 12px)',
+                  padding: 'clamp(12px, 3vw, 16px)',
                 }}
                 styles={{
                   root: {

@@ -105,12 +105,14 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              gap: '1rem',
-              padding: '2rem',
+              gap: 'clamp(12px, 3vw, 16px)',
+              padding: 'clamp(16px, 4vw, 32px)',
               background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
               backdropFilter: 'blur(10px)',
               border: '1px solid rgba(255, 255, 255, 0.1)',
-              borderRadius: '12px',
+              borderRadius: 'clamp(8px, 2vw, 12px)',
+              maxWidth: 'clamp(280px, 85vw, 400px)',
+              width: '100%',
             }}
           >
             <Loader size="lg" color="blue.4" type="dots" />
@@ -122,6 +124,9 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
                 backgroundClip: 'text',
                 WebkitBackgroundClip: 'text',
                 color: 'transparent',
+                fontSize: 'clamp(1rem, 3vw, 1.25rem)',
+                textAlign: 'center',
+                lineHeight: 1.4,
               }}
             >
               Admin Panel Laden...
@@ -154,8 +159,8 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
             position: 'absolute',
             top: '10%',
             left: '5%',
-            width: '300px',
-            height: '300px',
+            width: 'clamp(200px, 40vw, 300px)',
+            height: 'clamp(200px, 40vw, 300px)',
             background: 'radial-gradient(circle, rgba(59, 130, 246, 0.05) 0%, transparent 70%)',
             borderRadius: '50%',
             filter: 'blur(60px)',
@@ -166,8 +171,8 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
             position: 'absolute',
             bottom: '10%',
             right: '5%',
-            width: '250px',
-            height: '250px',
+            width: 'clamp(150px, 30vw, 250px)',
+            height: 'clamp(150px, 30vw, 250px)',
             background: 'radial-gradient(circle, rgba(6, 182, 212, 0.05) 0%, transparent 70%)',
             borderRadius: '50%',
             filter: 'blur(60px)',
@@ -176,18 +181,18 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
 
           <AppShell
             navbar={{
-              width: 280,
+              width: { base: 280, sm: 300 },
               breakpoint: 'sm',
               collapsed: { mobile: !opened },
             }}
             header={{
-              height: 70,
+              height: { base: 60, sm: 70 },
             }}
-            padding="md"
             styles={{
               main: {
                 background: 'transparent',
                 minHeight: 'calc(100vh - 70px)',
+                padding: 'clamp(12px, 3vw, 24px)',
               },
               navbar: {
                 background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
@@ -196,6 +201,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
                 borderLeft: 'none',
                 borderTop: 'none',
                 borderBottom: 'none',
+                padding: 'clamp(12px, 3vw, 24px)',
               },
               header: {
                 background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
@@ -209,14 +215,25 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
           >
             <AppShell.Header>
               <motion.div variants={headerVariants}>
-                <Group h="100%" px="lg" justify="space-between">
-                  <Group>
+                <Group 
+                  h="100%" 
+                  justify="space-between"
+                  style={{
+                    padding: '0 clamp(12px, 3vw, 24px)',
+                    height: '100%',
+                  }}
+                >
+                  <Group style={{ gap: 'clamp(8px, 2vw, 12px)' }}>
                     <Burger
                       opened={opened}
                       onClick={toggle}
                       hiddenFrom="sm"
                       size="sm"
                       color="var(--mantine-color-gray-3)"
+                      style={{
+                        minWidth: 'clamp(32px, 6vw, 40px)',
+                        minHeight: 'clamp(32px, 6vw, 40px)',
+                      }}
                     />
                     <Title 
                       order={2}
@@ -225,8 +242,11 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
                         backgroundClip: 'text',
                         WebkitBackgroundClip: 'text',
                         color: 'transparent',
-                        fontSize: '1.5rem',
+                        fontSize: 'clamp(1.125rem, 4vw, 1.5rem)',
                         fontWeight: 700,
+                        lineHeight: 1.2,
+                        WebkitFontSmoothing: 'antialiased',
+                        MozOsxFontSmoothing: 'grayscale',
                       }}
                     >
                       Admin Panel
@@ -236,8 +256,8 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
                   {/* Decorative element */}
                   <Box
                     style={{
-                      width: '40px',
-                      height: '40px',
+                      width: 'clamp(32px, 6vw, 40px)',
+                      height: 'clamp(32px, 6vw, 40px)',
                       background: 'radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%)',
                       borderRadius: '50%',
                       filter: 'blur(10px)',
@@ -247,7 +267,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
               </motion.div>
             </AppShell.Header>
 
-            <AppShell.Navbar p="lg">
+            <AppShell.Navbar>
               <AdminErrorBoundary componentName="Admin Navigation">
                 <AdminNavbar onNavigate={close} />
               </AdminErrorBoundary>

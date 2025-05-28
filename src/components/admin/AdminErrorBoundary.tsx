@@ -59,7 +59,9 @@ class AdminErrorBoundary extends React.Component<Props, State> {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: 'var(--mantine-spacing-xl)',
+            padding: 'clamp(16px, 4vw, 24px)',
+            width: '100%',
+            maxWidth: '100%',
           }}
         >
           {/* Decorative error elements */}
@@ -67,8 +69,8 @@ class AdminErrorBoundary extends React.Component<Props, State> {
             position: 'absolute',
             top: '20%',
             left: '20%',
-            width: '100px',
-            height: '100px',
+            width: 'clamp(80px, 15vw, 100px)',
+            height: 'clamp(80px, 15vw, 100px)',
             background: 'radial-gradient(circle, rgba(239, 68, 68, 0.1) 0%, transparent 70%)',
             borderRadius: '50%',
             filter: 'blur(30px)',
@@ -79,8 +81,8 @@ class AdminErrorBoundary extends React.Component<Props, State> {
             position: 'absolute',
             bottom: '20%',
             right: '20%',
-            width: '80px',
-            height: '80px',
+            width: 'clamp(60px, 12vw, 80px)',
+            height: 'clamp(60px, 12vw, 80px)',
             background: 'radial-gradient(circle, rgba(251, 146, 60, 0.1) 0%, transparent 70%)',
             borderRadius: '50%',
             filter: 'blur(25px)',
@@ -91,15 +93,18 @@ class AdminErrorBoundary extends React.Component<Props, State> {
             variants={errorVariants}
             initial="hidden"
             animate="visible"
-            style={{ maxWidth: '500px', width: '100%' }}
+            style={{ 
+              maxWidth: 'clamp(320px, 85vw, 500px)', 
+              width: '100%' 
+            }}
           >
             <Box
               style={{
                 background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
                 backdropFilter: 'blur(10px)',
                 border: '1px solid rgba(255, 255, 255, 0.1)',
-                borderRadius: '12px',
-                padding: 'var(--mantine-spacing-xl)',
+                borderRadius: 'clamp(8px, 2vw, 12px)',
+                padding: 'clamp(16px, 4vw, 24px)',
                 position: 'relative',
                 overflow: 'hidden',
               }}
@@ -109,15 +114,22 @@ class AdminErrorBoundary extends React.Component<Props, State> {
                 position: 'absolute',
                 top: '-20px',
                 right: '-20px',
-                width: '80px',
-                height: '80px',
+                width: 'clamp(60px, 12vw, 80px)',
+                height: 'clamp(60px, 12vw, 80px)',
                 background: 'radial-gradient(circle, rgba(239, 68, 68, 0.1) 0%, transparent 70%)',
                 borderRadius: '50%',
                 filter: 'blur(20px)',
                 pointerEvents: 'none',
               }} />
 
-              <Stack gap="lg" style={{ position: 'relative', zIndex: 1 }}>
+              <Stack 
+                gap="lg" 
+                style={{ 
+                  position: 'relative', 
+                  zIndex: 1,
+                  gap: 'clamp(12px, 3vw, 16px)',
+                }}
+              >
                 {/* Error Icon and Title */}
                 <Group justify="center">
                   <ThemeIcon
@@ -125,6 +137,10 @@ class AdminErrorBoundary extends React.Component<Props, State> {
                     radius="md"
                     variant="gradient"
                     gradient={{ from: 'red.6', to: 'orange.5' }}
+                    style={{
+                      width: 'clamp(48px, 10vw, 64px)',
+                      height: 'clamp(48px, 10vw, 64px)',
+                    }}
                   >
                     <IconAlertCircle size={28} />
                   </ThemeIcon>
@@ -140,11 +156,24 @@ class AdminErrorBoundary extends React.Component<Props, State> {
                       backgroundClip: 'text',
                       WebkitBackgroundClip: 'text',
                       color: 'transparent',
+                      fontSize: 'clamp(1.125rem, 4vw, 1.5rem)',
+                      lineHeight: 1.2,
+                      marginBottom: 'clamp(4px, 1vw, 8px)',
                     }}
                   >
                     Administratieve Fout
                   </Text>
-                  <Text size="lg" c="gray.2" fw={600} mb="sm">
+                  <Text 
+                    size="lg" 
+                    c="gray.2" 
+                    fw={600} 
+                    mb="sm"
+                    style={{
+                      fontSize: 'clamp(1rem, 3vw, 1.125rem)',
+                      lineHeight: 1.3,
+                      marginBottom: 'clamp(8px, 2vw, 12px)',
+                    }}
+                  >
                     Fout in {this.props.componentName}
                   </Text>
                 </Box>
@@ -154,14 +183,32 @@ class AdminErrorBoundary extends React.Component<Props, State> {
                   style={{
                     background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(220, 38, 38, 0.05) 100%)',
                     border: '1px solid rgba(239, 68, 68, 0.2)',
-                    borderRadius: '8px',
-                    padding: 'var(--mantine-spacing-md)',
+                    borderRadius: 'clamp(6px, 1.5vw, 8px)',
+                    padding: 'clamp(12px, 3vw, 16px)',
                   }}
                 >
-                  <Text size="sm" c="gray.3" ta="center" mb="xs">
+                  <Text 
+                    size="sm" 
+                    c="gray.3" 
+                    ta="center" 
+                    mb="xs"
+                    style={{
+                      fontSize: 'clamp(0.8rem, 2.2vw, 0.875rem)',
+                      lineHeight: 1.4,
+                      marginBottom: 'clamp(4px, 1vw, 8px)',
+                    }}
+                  >
                     {this.state.error?.message || `Er is een onverwachte fout opgetreden in ${this.props.componentName}.`}
                   </Text>
-                  <Text size="xs" c="gray.4" ta="center">
+                  <Text 
+                    size="xs" 
+                    c="gray.4" 
+                    ta="center"
+                    style={{
+                      fontSize: 'clamp(0.7rem, 1.8vw, 0.75rem)',
+                      lineHeight: 1.4,
+                    }}
+                  >
                     Deze fout is gelogd voor verdere analyse. Probeer de pagina te vernieuwen of neem contact op met de beheerder als het probleem aanhoudt.
                   </Text>
                 </Box>
@@ -180,6 +227,10 @@ class AdminErrorBoundary extends React.Component<Props, State> {
                       boxShadow: '0 8px 32px rgba(239, 68, 68, 0.3)',
                       border: '1px solid rgba(239, 68, 68, 0.2)',
                       fontWeight: 500,
+                      minHeight: 'clamp(44px, 8vw, 48px)',
+                      fontSize: 'clamp(0.875rem, 2.5vw, 1rem)',
+                      padding: 'clamp(8px, 2vw, 12px) clamp(16px, 4vw, 20px)',
+                      borderRadius: 'clamp(6px, 1.5vw, 8px)',
                     }}
                     styles={{
                       root: {

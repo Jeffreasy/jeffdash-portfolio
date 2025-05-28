@@ -109,6 +109,7 @@ export default function AdminDashboardClient({ data }: AdminDashboardClientProps
         position: 'relative',
         minHeight: '100%',
         width: '100%',
+        padding: 'clamp(12px, 3vw, 24px)', // Responsive padding
       }}
     >
       {/* Subtle background elements */}
@@ -116,8 +117,8 @@ export default function AdminDashboardClient({ data }: AdminDashboardClientProps
         position: 'absolute',
         top: '20%',
         right: '10%',
-        width: '200px',
-        height: '200px',
+        width: 'clamp(150px, 20vw, 200px)', // Responsive background element
+        height: 'clamp(150px, 20vw, 200px)',
         background: 'radial-gradient(circle, rgba(59, 130, 246, 0.05) 0%, transparent 70%)',
         borderRadius: '50%',
         filter: 'blur(40px)',
@@ -125,7 +126,14 @@ export default function AdminDashboardClient({ data }: AdminDashboardClientProps
         zIndex: 0,
       }} />
 
-      <Container size="xl" style={{ position: 'relative', zIndex: 1 }}>
+      <Container 
+        size="xl" 
+        style={{ 
+          position: 'relative', 
+          zIndex: 1,
+          padding: 'clamp(16px, 4vw, 32px)', // Responsive container padding
+        }}
+      >
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -135,7 +143,7 @@ export default function AdminDashboardClient({ data }: AdminDashboardClientProps
             {/* Header */}
             <motion.div variants={itemVariants}>
               <Group justify="space-between" align="flex-start">
-                <Box>
+                <Box style={{ width: '100%' }}>
                   <Title 
                     order={1}
                     style={{
@@ -143,9 +151,12 @@ export default function AdminDashboardClient({ data }: AdminDashboardClientProps
                       backgroundClip: 'text',
                       WebkitBackgroundClip: 'text',
                       color: 'transparent',
-                      fontSize: 'clamp(1.8rem, 4vw, 2.5rem)',
+                      fontSize: 'clamp(1.5rem, 5vw, 2.5rem)',
                       fontWeight: 900,
-                      marginBottom: '0.5rem',
+                      marginBottom: 'clamp(8px, 2vw, 16px)',
+                      lineHeight: 1.2,
+                      WebkitFontSmoothing: 'antialiased',
+                      MozOsxFontSmoothing: 'grayscale',
                     }}
                   >
                     Dashboard
@@ -154,7 +165,9 @@ export default function AdminDashboardClient({ data }: AdminDashboardClientProps
                     size="lg" 
                     c="gray.3"
                     style={{
-                      fontSize: 'clamp(1rem, 2vw, 1.125rem)',
+                      fontSize: 'clamp(0.9rem, 3vw, 1.125rem)',
+                      lineHeight: 1.5,
+                      maxWidth: '100%',
                     }}
                   >
                     Welkom bij het admin dashboard. Beheer je content en bekijk statistieken.
@@ -197,6 +210,9 @@ export default function AdminDashboardClient({ data }: AdminDashboardClientProps
                         position: 'relative',
                         overflow: 'hidden',
                         height: '100%',
+                        minHeight: 'clamp(140px, 20vw, 180px)',
+                        padding: 'clamp(16px, 4vw, 24px)',
+                        borderRadius: 'clamp(12px, 3vw, 16px)',
                       }}
                       styles={{
                         root: {
@@ -204,7 +220,7 @@ export default function AdminDashboardClient({ data }: AdminDashboardClientProps
                             borderColor: `rgba(${card.color === 'blue' ? '59, 130, 246' : card.color === 'violet' ? '139, 92, 246' : card.color === 'green' ? '34, 197, 94' : '249, 115, 22'}, 0.4)`,
                             background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.08) 100%)',
                             boxShadow: `0 12px 32px rgba(${card.color === 'blue' ? '59, 130, 246' : card.color === 'violet' ? '139, 92, 246' : card.color === 'green' ? '34, 197, 94' : '249, 115, 22'}, 0.2)`,
-                          }
+                          },
                         }
                       }}
                     >
@@ -213,21 +229,33 @@ export default function AdminDashboardClient({ data }: AdminDashboardClientProps
                         position: 'absolute',
                         top: '-20px',
                         right: '-20px',
-                        width: '80px',
-                        height: '80px',
+                        width: 'clamp(60px, 10vw, 80px)',
+                        height: 'clamp(60px, 10vw, 80px)',
                         background: `radial-gradient(circle, rgba(${card.color === 'blue' ? '59, 130, 246' : card.color === 'violet' ? '139, 92, 246' : card.color === 'green' ? '34, 197, 94' : '249, 115, 22'}, 0.1) 0%, transparent 70%)`,
                         borderRadius: '50%',
                         filter: 'blur(15px)',
                         pointerEvents: 'none',
                       }} />
 
-                      <Stack gap="md" style={{ position: 'relative', zIndex: 1 }}>
+                      <Stack 
+                        gap="md" 
+                        style={{ 
+                          position: 'relative', 
+                          zIndex: 1,
+                          height: '100%',
+                          justifyContent: 'space-between',
+                        }}
+                      >
                         <Group justify="space-between" align="flex-start">
                           <ThemeIcon
                             size="lg"
                             radius="md"
                             variant="gradient"
                             gradient={card.gradient}
+                            style={{
+                              minWidth: 'clamp(40px, 8vw, 48px)',
+                              minHeight: 'clamp(40px, 8vw, 48px)',
+                            }}
                           >
                             <card.icon size={20} />
                           </ThemeIcon>
@@ -237,17 +265,39 @@ export default function AdminDashboardClient({ data }: AdminDashboardClientProps
                               variant="gradient"
                               gradient={{ from: 'red.6', to: 'orange.5' }}
                               size="sm"
+                              style={{
+                                fontSize: 'clamp(0.75rem, 2vw, 0.875rem)',
+                                padding: 'clamp(4px, 1vw, 6px) clamp(8px, 2vw, 12px)',
+                              }}
                             >
                               {card.badge}
                             </Badge>
                           )}
                         </Group>
 
-                        <Box>
-                          <Title order={4} c="gray.1" mb={4}>
+                        <Box style={{ flex: 1 }}>
+                          <Title 
+                            order={4} 
+                            c="gray.1" 
+                            mb={4}
+                            style={{
+                              fontSize: 'clamp(1rem, 3vw, 1.25rem)',
+                              lineHeight: 1.3,
+                              WebkitFontSmoothing: 'antialiased',
+                              MozOsxFontSmoothing: 'grayscale',
+                            }}
+                          >
                             {card.title}
                           </Title>
-                          <Text size="sm" c="gray.4" mb="xs">
+                          <Text 
+                            size="sm" 
+                            c="gray.4" 
+                            mb="xs"
+                            style={{
+                              fontSize: 'clamp(0.8rem, 2.5vw, 0.875rem)',
+                              lineHeight: 1.4,
+                            }}
+                          >
                             {card.description}
                           </Text>
                           {card.count !== null && (
@@ -259,6 +309,8 @@ export default function AdminDashboardClient({ data }: AdminDashboardClientProps
                                 backgroundClip: 'text',
                                 WebkitBackgroundClip: 'text',
                                 color: 'transparent',
+                                fontSize: 'clamp(1.5rem, 4vw, 2rem)',
+                                lineHeight: 1.2,
                               }}
                             >
                               {card.count}
@@ -272,6 +324,12 @@ export default function AdminDashboardClient({ data }: AdminDashboardClientProps
                             size="xs"
                             rightSection={<IconArrowRight size={14} />}
                             color={card.color}
+                            style={{
+                              minHeight: '32px',
+                              fontSize: 'clamp(0.75rem, 2vw, 0.875rem)',
+                              padding: 'clamp(6px, 1.5vw, 8px) clamp(12px, 3vw, 16px)',
+                              borderRadius: 'clamp(6px, 1.5vw, 8px)',
+                            }}
                           >
                             Beheren
                           </Button>
@@ -293,6 +351,8 @@ export default function AdminDashboardClient({ data }: AdminDashboardClientProps
                     background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(6, 182, 212, 0.05) 100%)',
                     border: '1px solid rgba(59, 130, 246, 0.2)',
                     backdropFilter: 'blur(10px)',
+                    padding: 'clamp(16px, 4vw, 24px)',
+                    borderRadius: 'clamp(12px, 3vw, 16px)',
                   }}
                 >
                   <Stack gap="md">
@@ -305,17 +365,41 @@ export default function AdminDashboardClient({ data }: AdminDashboardClientProps
                       >
                         <IconChartBar size={16} />
                       </ThemeIcon>
-                      <Title order={4} c="blue.3">
+                      <Title 
+                        order={4} 
+                        c="blue.3"
+                        style={{
+                          fontSize: 'clamp(1rem, 3vw, 1.25rem)',
+                          WebkitFontSmoothing: 'antialiased',
+                          MozOsxFontSmoothing: 'grayscale',
+                        }}
+                      >
                         Debug Informatie
                       </Title>
                     </Group>
                     
-                    <Text size="sm" c="gray.3">
+                    <Text 
+                      size="sm" 
+                      c="gray.3"
+                      style={{
+                        fontSize: 'clamp(0.8rem, 2.5vw, 0.875rem)',
+                        lineHeight: 1.5,
+                        wordBreak: 'break-word',
+                      }}
+                    >
                       <strong>Auth Status:</strong> {authInfo}
                     </Text>
                     
                     {debugInfo.projects && (
-                      <Text size="sm" c="gray.3">
+                      <Text 
+                        size="sm" 
+                        c="gray.3"
+                        style={{
+                          fontSize: 'clamp(0.8rem, 2.5vw, 0.875rem)',
+                          lineHeight: 1.5,
+                          wordBreak: 'break-word',
+                        }}
+                      >
                         <strong>Direct Projects Query:</strong> {debugInfo.projects.error ? 
                           `Error: ${debugInfo.projects.error.message}` : 
                           `Found ${debugInfo.projects.data?.length || 0} projects`}
@@ -323,7 +407,15 @@ export default function AdminDashboardClient({ data }: AdminDashboardClientProps
                     )}
                     
                     {debugInfo.posts && (
-                      <Text size="sm" c="gray.3">
+                      <Text 
+                        size="sm" 
+                        c="gray.3"
+                        style={{
+                          fontSize: 'clamp(0.8rem, 2.5vw, 0.875rem)',
+                          lineHeight: 1.5,
+                          wordBreak: 'break-word',
+                        }}
+                      >
                         <strong>Direct Posts Query:</strong> {debugInfo.posts.error ? 
                           `Error: ${debugInfo.posts.error.message}` : 
                           `Found ${debugInfo.posts.data?.length || 0} posts`}
@@ -331,7 +423,15 @@ export default function AdminDashboardClient({ data }: AdminDashboardClientProps
                     )}
                     
                     {debugInfo.contacts && (
-                      <Text size="sm" c="gray.3">
+                      <Text 
+                        size="sm" 
+                        c="gray.3"
+                        style={{
+                          fontSize: 'clamp(0.8rem, 2.5vw, 0.875rem)',
+                          lineHeight: 1.5,
+                          wordBreak: 'break-word',
+                        }}
+                      >
                         <strong>Direct Contacts Query:</strong> {debugInfo.contacts.error ? 
                           `Error: ${debugInfo.contacts.error.message}` : 
                           `Found ${debugInfo.contacts.data?.length || 0} contacts`}
@@ -340,11 +440,28 @@ export default function AdminDashboardClient({ data }: AdminDashboardClientProps
                     
                     {errors.length > 0 && (
                       <Box>
-                        <Text size="sm" fw={600} c="red.4" mb="xs">
+                        <Text 
+                          size="sm" 
+                          fw={600} 
+                          c="red.4" 
+                          mb="xs"
+                          style={{
+                            fontSize: 'clamp(0.8rem, 2.5vw, 0.875rem)',
+                          }}
+                        >
                           Errors detected:
                         </Text>
                         {errors.map((error, index) => (
-                          <Text key={index} c="red.4" size="sm">
+                          <Text 
+                            key={index} 
+                            c="red.4" 
+                            size="sm"
+                            style={{
+                              fontSize: 'clamp(0.75rem, 2vw, 0.875rem)',
+                              lineHeight: 1.5,
+                              wordBreak: 'break-word',
+                            }}
+                          >
                             • {error}
                           </Text>
                         ))}
