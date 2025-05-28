@@ -506,7 +506,7 @@ export default function AdminDashboardClient({ data }: AdminDashboardClientProps
                       order={2}
                       c="gray.1"
                       style={{
-                        fontSize: 'clamp(1.25rem, 4vw, 1.5rem)',
+                        fontSize: 'clamp(1.1rem, 3.5vw, 1.5rem)',
                         fontWeight: 700,
                         marginBottom: 'clamp(4px, 1vw, 8px)',
                       }}
@@ -517,7 +517,8 @@ export default function AdminDashboardClient({ data }: AdminDashboardClientProps
                       size="sm" 
                       c="gray.4"
                       style={{
-                        fontSize: 'clamp(0.8rem, 2.5vw, 0.875rem)',
+                        fontSize: 'clamp(0.75rem, 2.2vw, 0.875rem)',
+                        lineHeight: 1.4,
                       }}
                     >
                       Laatste 7 dagen • Website traffic en gebruikersgedrag
@@ -534,8 +535,11 @@ export default function AdminDashboardClient({ data }: AdminDashboardClientProps
                   </ThemeIcon>
                 </Group>
 
-                {/* GA Overview Cards */}
-                <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="md">
+                {/* GA Overview Cards - More mobile optimized */}
+                <SimpleGrid 
+                  cols={{ base: 2, xs: 2, sm: 4 }} 
+                  spacing={{ base: 'xs', sm: 'md' }}
+                >
                   {gaOverviewCards.map((card, index) => (
                     <motion.div
                       key={card.title}
@@ -543,14 +547,14 @@ export default function AdminDashboardClient({ data }: AdminDashboardClientProps
                       whileHover="hover"
                     >
                       <Card
-                        p="lg"
+                        p="md"
                         radius="lg"
                         style={{
                           background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
                           backdropFilter: 'blur(10px)',
                           border: '1px solid rgba(255, 255, 255, 0.1)',
-                          minHeight: 'clamp(120px, 15vw, 140px)',
-                          padding: 'clamp(12px, 3vw, 16px)',
+                          minHeight: 'clamp(110px, 18vw, 140px)',
+                          padding: 'clamp(8px, 2.5vw, 16px)',
                         }}
                       >
                         <Stack gap="xs" align="center" style={{ textAlign: 'center' }}>
@@ -559,16 +563,21 @@ export default function AdminDashboardClient({ data }: AdminDashboardClientProps
                             radius="md"
                             color={card.color}
                             variant="light"
+                            style={{
+                              width: 'clamp(28px, 8vw, 36px)',
+                              height: 'clamp(28px, 8vw, 36px)',
+                            }}
                           >
-                            <card.icon size={18} />
+                            <card.icon size="clamp(14, 4vw, 18)" />
                           </ThemeIcon>
                           
                           <Text 
                             fw={700} 
                             size="lg"
                             style={{
-                              fontSize: 'clamp(1rem, 3vw, 1.25rem)',
+                              fontSize: 'clamp(0.9rem, 2.8vw, 1.25rem)',
                               color: `var(--mantine-color-${card.color}-4)`,
+                              lineHeight: 1.2,
                             }}
                           >
                             {card.count}
@@ -579,7 +588,8 @@ export default function AdminDashboardClient({ data }: AdminDashboardClientProps
                             c="gray.1" 
                             fw={600}
                             style={{
-                              fontSize: 'clamp(0.7rem, 2vw, 0.75rem)',
+                              fontSize: 'clamp(0.65rem, 1.8vw, 0.75rem)',
+                              lineHeight: 1.3,
                             }}
                           >
                             {card.title}
@@ -588,8 +598,11 @@ export default function AdminDashboardClient({ data }: AdminDashboardClientProps
                           <Text 
                             size="xs" 
                             c="gray.5"
+                            hiddenFrom="base"
+                            visibleFrom="xs"
                             style={{
-                              fontSize: 'clamp(0.65rem, 1.8vw, 0.7rem)',
+                              fontSize: 'clamp(0.6rem, 1.6vw, 0.7rem)',
+                              lineHeight: 1.2,
                             }}
                           >
                             {card.description}
@@ -600,15 +613,16 @@ export default function AdminDashboardClient({ data }: AdminDashboardClientProps
                   ))}
                 </SimpleGrid>
 
-                {/* Top Pages Table */}
+                {/* Top Pages Table - Mobile Optimized */}
                 {googleAnalyticsData.pageViews.pageViews.length > 0 && (
                   <Card
-                    p="lg"
+                    p="md"
                     radius="lg"
                     style={{
                       background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
                       backdropFilter: 'blur(10px)',
                       border: '1px solid rgba(255, 255, 255, 0.1)',
+                      padding: 'clamp(12px, 3vw, 20px)',
                     }}
                   >
                     <Title 
@@ -616,91 +630,266 @@ export default function AdminDashboardClient({ data }: AdminDashboardClientProps
                       c="gray.1" 
                       mb="md"
                       style={{
-                        fontSize: 'clamp(1rem, 3vw, 1.125rem)',
+                        fontSize: 'clamp(0.95rem, 2.8vw, 1.125rem)',
                         fontWeight: 600,
                       }}
                     >
                       Top Pagina's (7 dagen)
                     </Title>
                     
-                    <Table
-                      highlightOnHover
-                      style={{
-                        '--table-border-color': 'rgba(255, 255, 255, 0.1)',
-                        '--table-hover-color': 'rgba(255, 255, 255, 0.02)',
-                      }}
-                    >
-                      <Table.Thead>
-                        <Table.Tr>
-                          <Table.Th style={{ color: 'var(--mantine-color-gray-3)', fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>
-                            Pagina Titel
-                          </Table.Th>
-                          <Table.Th style={{ color: 'var(--mantine-color-gray-3)', fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>
-                            Pad
-                          </Table.Th>
-                          <Table.Th style={{ color: 'var(--mantine-color-gray-3)', fontSize: 'clamp(0.75rem, 2vw, 0.875rem)', textAlign: 'right' }}>
-                            Weergaven
-                          </Table.Th>
-                          <Table.Th style={{ color: 'var(--mantine-color-gray-3)', fontSize: 'clamp(0.75rem, 2vw, 0.875rem)', textAlign: 'right' }}>
-                            Sessies
-                          </Table.Th>
-                          <Table.Th style={{ color: 'var(--mantine-color-gray-3)', fontSize: 'clamp(0.75rem, 2vw, 0.875rem)', textAlign: 'right' }}>
-                            Gem. Duur
-                          </Table.Th>
-                        </Table.Tr>
-                      </Table.Thead>
-                      <Table.Tbody>
-                        {googleAnalyticsData.pageViews.pageViews.map((page, index) => (
-                          <Table.Tr key={`${page.pagePath}-${index}`}>
-                            <Table.Td style={{ color: 'var(--mantine-color-gray-2)', fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>
-                              <Text 
-                                truncate="end" 
+                    {/* Mobile-first responsive table */}
+                    <Box>
+                      {/* Mobile Card View - Hidden on larger screens */}
+                      <Box hiddenFrom="sm">
+                        {/* Mobile Legend */}
+                        <Group justify="center" mb="sm">
+                          <Group gap="sm">
+                            <Group gap={4}>
+                              <Badge variant="light" color="blue" size="xs">Views</Badge>
+                              <Badge variant="light" color="green" size="xs">Sessies</Badge>
+                            </Group>
+                          </Group>
+                        </Group>
+                        
+                        <Stack gap="xs">
+                          {googleAnalyticsData.pageViews.pageViews.slice(0, 5).map((page, index) => (
+                            <Card
+                              key={`mobile-${page.pagePath}-${index}`}
+                              p="sm"
+                              radius="md"
+                              style={{
+                                background: 'rgba(255, 255, 255, 0.03)',
+                                border: '1px solid rgba(255, 255, 255, 0.08)',
+                              }}
+                            >
+                              <Group justify="space-between" align="flex-start">
+                                <Box style={{ flex: 1 }}>
+                                  <Text 
+                                    size="sm" 
+                                    fw={600} 
+                                    c="gray.1"
+                                    style={{
+                                      fontSize: 'clamp(0.75rem, 2vw, 0.875rem)',
+                                      lineHeight: 1.3,
+                                    }}
+                                    lineClamp={2}
+                                  >
+                                    {page.pageTitle}
+                                  </Text>
+                                  <Anchor 
+                                    href={page.pagePath} 
+                                    target="_blank" 
+                                    c="blue.4" 
+                                    size="xs"
+                                    style={{
+                                      fontSize: 'clamp(0.65rem, 1.8vw, 0.75rem)',
+                                    }}
+                                  >
+                                    {page.pagePath}
+                                  </Anchor>
+                                </Box>
+                                <Stack gap={4} align="flex-end">
+                                  <Group gap="xs">
+                                    <Badge variant="light" color="blue" size="xs">
+                                      {page.screenPageViews}
+                                    </Badge>
+                                    <Badge variant="light" color="green" size="xs">
+                                      {page.sessions}
+                                    </Badge>
+                                  </Group>
+                                  <Text 
+                                    size="xs" 
+                                    c="gray.4"
+                                    style={{
+                                      fontSize: 'clamp(0.6rem, 1.6vw, 0.7rem)',
+                                    }}
+                                  >
+                                    {formatDuration(page.averageSessionDuration)}
+                                  </Text>
+                                </Stack>
+                              </Group>
+                            </Card>
+                          ))}
+                        </Stack>
+                      </Box>
+
+                      {/* Desktop Table View - Hidden on small screens */}
+                      <Box
+                        visibleFrom="sm"
+                        style={{
+                          overflowX: 'auto',
+                          // Add subtle scrollbar styling
+                          scrollbarWidth: 'thin',
+                          scrollbarColor: 'rgba(255, 255, 255, 0.2) transparent',
+                        }}
+                      >
+                        <Table
+                          highlightOnHover
+                          style={{
+                            '--table-border-color': 'rgba(255, 255, 255, 0.1)',
+                            '--table-hover-color': 'rgba(255, 255, 255, 0.02)',
+                            minWidth: '600px', // Ensure minimum width for horizontal scroll
+                          }}
+                        >
+                          <Table.Thead>
+                            <Table.Tr>
+                              <Table.Th 
                                 style={{ 
-                                  maxWidth: 'clamp(150px, 25vw, 250px)',
-                                  fontSize: 'clamp(0.75rem, 2vw, 0.875rem)',
+                                  color: 'var(--mantine-color-gray-3)', 
+                                  fontSize: 'clamp(0.7rem, 1.8vw, 0.875rem)',
+                                  padding: 'clamp(6px, 1.5vw, 12px)',
+                                  minWidth: '140px',
                                 }}
                               >
-                                {page.pageTitle}
-                              </Text>
-                            </Table.Td>
-                            <Table.Td style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>
-                              <Anchor 
-                                href={page.pagePath} 
-                                target="_blank" 
-                                c="blue.4" 
-                                size="sm"
-                                style={{
-                                  fontSize: 'clamp(0.75rem, 2vw, 0.875rem)',
+                                Pagina Titel
+                              </Table.Th>
+                              <Table.Th 
+                                style={{ 
+                                  color: 'var(--mantine-color-gray-3)', 
+                                  fontSize: 'clamp(0.7rem, 1.8vw, 0.875rem)',
+                                  padding: 'clamp(6px, 1.5vw, 12px)',
+                                  minWidth: '120px',
                                 }}
                               >
-                                <Text 
-                                  truncate="end" 
+                                Pad
+                              </Table.Th>
+                              <Table.Th 
+                                style={{ 
+                                  color: 'var(--mantine-color-gray-3)', 
+                                  fontSize: 'clamp(0.7rem, 1.8vw, 0.875rem)', 
+                                  textAlign: 'right',
+                                  padding: 'clamp(6px, 1.5vw, 12px)',
+                                  minWidth: '80px',
+                                }}
+                              >
+                                Views
+                              </Table.Th>
+                              <Table.Th 
+                                style={{ 
+                                  color: 'var(--mantine-color-gray-3)', 
+                                  fontSize: 'clamp(0.7rem, 1.8vw, 0.875rem)', 
+                                  textAlign: 'right',
+                                  padding: 'clamp(6px, 1.5vw, 12px)',
+                                  minWidth: '80px',
+                                }}
+                              >
+                                Sessies
+                              </Table.Th>
+                              <Table.Th 
+                                style={{ 
+                                  color: 'var(--mantine-color-gray-3)', 
+                                  fontSize: 'clamp(0.7rem, 1.8vw, 0.875rem)', 
+                                  textAlign: 'right',
+                                  padding: 'clamp(6px, 1.5vw, 12px)',
+                                  minWidth: '80px',
+                                }}
+                              >
+                                Duur
+                              </Table.Th>
+                            </Table.Tr>
+                          </Table.Thead>
+                          <Table.Tbody>
+                            {googleAnalyticsData.pageViews.pageViews.map((page, index) => (
+                              <Table.Tr key={`${page.pagePath}-${index}`}>
+                                <Table.Td 
                                   style={{ 
-                                    maxWidth: 'clamp(100px, 20vw, 150px)',
-                                    fontSize: 'clamp(0.75rem, 2vw, 0.875rem)',
+                                    color: 'var(--mantine-color-gray-2)', 
+                                    fontSize: 'clamp(0.7rem, 1.8vw, 0.875rem)',
+                                    padding: 'clamp(6px, 1.5vw, 12px)',
+                                    maxWidth: '140px',
                                   }}
                                 >
-                                  {page.pagePath}
-                                </Text>
-                              </Anchor>
-                            </Table.Td>
-                            <Table.Td style={{ textAlign: 'right', fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>
-                              <Badge variant="light" color="blue" size="sm">
-                                {page.screenPageViews.toLocaleString()}
-                              </Badge>
-                            </Table.Td>
-                            <Table.Td style={{ textAlign: 'right', fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>
-                              <Badge variant="light" color="green" size="sm">
-                                {page.sessions.toLocaleString()}
-                              </Badge>
-                            </Table.Td>
-                            <Table.Td style={{ textAlign: 'right', color: 'var(--mantine-color-gray-3)', fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>
-                              {formatDuration(page.averageSessionDuration)}
-                            </Table.Td>
-                          </Table.Tr>
-                        ))}
-                      </Table.Tbody>
-                    </Table>
+                                  <Text 
+                                    truncate="end" 
+                                    style={{ 
+                                      fontSize: 'clamp(0.7rem, 1.8vw, 0.875rem)',
+                                      lineHeight: 1.3,
+                                    }}
+                                    title={page.pageTitle} // Tooltip for full title
+                                  >
+                                    {page.pageTitle}
+                                  </Text>
+                                </Table.Td>
+                                <Table.Td 
+                                  style={{ 
+                                    fontSize: 'clamp(0.7rem, 1.8vw, 0.875rem)',
+                                    padding: 'clamp(6px, 1.5vw, 12px)',
+                                    maxWidth: '120px',
+                                  }}
+                                >
+                                  <Anchor 
+                                    href={page.pagePath} 
+                                    target="_blank" 
+                                    c="blue.4" 
+                                    size="sm"
+                                    style={{
+                                      fontSize: 'clamp(0.7rem, 1.8vw, 0.875rem)',
+                                    }}
+                                  >
+                                    <Text 
+                                      truncate="end" 
+                                      style={{ 
+                                        fontSize: 'clamp(0.7rem, 1.8vw, 0.875rem)',
+                                        lineHeight: 1.3,
+                                      }}
+                                      title={page.pagePath} // Tooltip for full path
+                                    >
+                                      {page.pagePath}
+                                    </Text>
+                                  </Anchor>
+                                </Table.Td>
+                                <Table.Td 
+                                  style={{ 
+                                    textAlign: 'right', 
+                                    fontSize: 'clamp(0.7rem, 1.8vw, 0.875rem)',
+                                    padding: 'clamp(6px, 1.5vw, 12px)',
+                                  }}
+                                >
+                                  <Badge 
+                                    variant="light" 
+                                    color="blue" 
+                                    size="sm"
+                                    style={{
+                                      fontSize: 'clamp(0.65rem, 1.6vw, 0.75rem)',
+                                    }}
+                                  >
+                                    {page.screenPageViews.toLocaleString()}
+                                  </Badge>
+                                </Table.Td>
+                                <Table.Td 
+                                  style={{ 
+                                    textAlign: 'right', 
+                                    fontSize: 'clamp(0.7rem, 1.8vw, 0.875rem)',
+                                    padding: 'clamp(6px, 1.5vw, 12px)',
+                                  }}
+                                >
+                                  <Badge 
+                                    variant="light" 
+                                    color="green" 
+                                    size="sm"
+                                    style={{
+                                      fontSize: 'clamp(0.65rem, 1.6vw, 0.75rem)',
+                                    }}
+                                  >
+                                    {page.sessions.toLocaleString()}
+                                  </Badge>
+                                </Table.Td>
+                                <Table.Td 
+                                  style={{ 
+                                    textAlign: 'right', 
+                                    color: 'var(--mantine-color-gray-3)', 
+                                    fontSize: 'clamp(0.7rem, 1.8vw, 0.875rem)',
+                                    padding: 'clamp(6px, 1.5vw, 12px)',
+                                  }}
+                                >
+                                  {formatDuration(page.averageSessionDuration)}
+                                </Table.Td>
+                              </Table.Tr>
+                            ))}
+                          </Table.Tbody>
+                        </Table>
+                      </Box>
+                    </Box>
                   </Card>
                 )}
               </Stack>
@@ -715,7 +904,7 @@ export default function AdminDashboardClient({ data }: AdminDashboardClientProps
                       order={2}
                       c="gray.1"
                       style={{
-                        fontSize: 'clamp(1.25rem, 4vw, 1.5rem)',
+                        fontSize: 'clamp(1.1rem, 3.5vw, 1.5rem)',
                         fontWeight: 700,
                         marginBottom: 'clamp(4px, 1vw, 8px)',
                       }}
@@ -726,7 +915,8 @@ export default function AdminDashboardClient({ data }: AdminDashboardClientProps
                       size="sm" 
                       c="gray.4"
                       style={{
-                        fontSize: 'clamp(0.8rem, 2.5vw, 0.875rem)',
+                        fontSize: 'clamp(0.75rem, 2.2vw, 0.875rem)',
+                        lineHeight: 1.4,
                       }}
                     >
                       Laatste 30 dagen • {analyticsData.pricingAnalytics.popularPlan && 
@@ -745,8 +935,11 @@ export default function AdminDashboardClient({ data }: AdminDashboardClientProps
                   </ThemeIcon>
                 </Group>
 
-                {/* Analytics Cards */}
-                <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="md">
+                {/* Analytics Cards - More mobile optimized */}
+                <SimpleGrid 
+                  cols={{ base: 2, xs: 2, sm: 4 }} 
+                  spacing={{ base: 'xs', sm: 'md' }}
+                >
                   {analyticsCards.map((card, index) => (
                     <motion.div
                       key={card.title}
@@ -754,14 +947,14 @@ export default function AdminDashboardClient({ data }: AdminDashboardClientProps
                       whileHover="hover"
                     >
                       <Card
-                        p="lg"
+                        p="md"
                         radius="lg"
                         style={{
                           background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
                           backdropFilter: 'blur(10px)',
                           border: '1px solid rgba(255, 255, 255, 0.1)',
-                          minHeight: 'clamp(120px, 15vw, 140px)',
-                          padding: 'clamp(12px, 3vw, 16px)',
+                          minHeight: 'clamp(110px, 18vw, 140px)',
+                          padding: 'clamp(8px, 2.5vw, 16px)',
                         }}
                       >
                         <Stack gap="xs" align="center" style={{ textAlign: 'center' }}>
@@ -770,16 +963,21 @@ export default function AdminDashboardClient({ data }: AdminDashboardClientProps
                             radius="md"
                             color={card.color}
                             variant="light"
+                            style={{
+                              width: 'clamp(28px, 8vw, 36px)',
+                              height: 'clamp(28px, 8vw, 36px)',
+                            }}
                           >
-                            <card.icon size={18} />
+                            <card.icon size="clamp(14, 4vw, 18)" />
                           </ThemeIcon>
                           
                           <Text 
                             fw={700} 
                             size="lg"
                             style={{
-                              fontSize: 'clamp(1rem, 3vw, 1.25rem)',
+                              fontSize: 'clamp(0.9rem, 2.8vw, 1.25rem)',
                               color: `var(--mantine-color-${card.color}-4)`,
+                              lineHeight: 1.2,
                             }}
                           >
                             {card.count}
@@ -790,7 +988,8 @@ export default function AdminDashboardClient({ data }: AdminDashboardClientProps
                             c="gray.1" 
                             fw={600}
                             style={{
-                              fontSize: 'clamp(0.7rem, 2vw, 0.75rem)',
+                              fontSize: 'clamp(0.65rem, 1.8vw, 0.75rem)',
+                              lineHeight: 1.3,
                             }}
                           >
                             {card.title}
@@ -799,8 +998,11 @@ export default function AdminDashboardClient({ data }: AdminDashboardClientProps
                           <Text 
                             size="xs" 
                             c="gray.5"
+                            hiddenFrom="base"
+                            visibleFrom="xs"
                             style={{
-                              fontSize: 'clamp(0.65rem, 1.8vw, 0.7rem)',
+                              fontSize: 'clamp(0.6rem, 1.6vw, 0.7rem)',
+                              lineHeight: 1.2,
                             }}
                           >
                             {card.description}
@@ -811,15 +1013,16 @@ export default function AdminDashboardClient({ data }: AdminDashboardClientProps
                   ))}
                 </SimpleGrid>
 
-                {/* Recent Activity */}
+                {/* Recent Activity - Mobile Optimized */}
                 {analyticsData.recentEvents.length > 0 && (
                   <Card
-                    p="lg"
+                    p="md"
                     radius="lg"
                     style={{
                       background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
                       backdropFilter: 'blur(10px)',
                       border: '1px solid rgba(255, 255, 255, 0.1)',
+                      padding: 'clamp(12px, 3vw, 20px)',
                     }}
                   >
                     <Title 
@@ -827,61 +1030,122 @@ export default function AdminDashboardClient({ data }: AdminDashboardClientProps
                       c="gray.1" 
                       mb="md"
                       style={{
-                        fontSize: 'clamp(1rem, 3vw, 1.125rem)',
+                        fontSize: 'clamp(0.95rem, 2.8vw, 1.125rem)',
                         fontWeight: 600,
                       }}
                     >
                       Recente Activiteit
                     </Title>
                     
-                    <Stack gap="xs">
-                      {analyticsData.recentEvents.slice(0, 5).map((event, index) => (
-                        <Group 
-                          key={`${event.id}-${index}`} 
-                          justify="space-between" 
-                          style={{
-                            padding: 'clamp(6px, 1.5vw, 8px)',
-                            borderRadius: 'clamp(4px, 1vw, 6px)',
-                            background: index % 2 === 0 ? 'rgba(255, 255, 255, 0.02)' : 'transparent',
-                          }}
-                        >
-                          <Group gap="xs">
-                            <Badge 
-                              size="sm" 
-                              color={
-                                event.event_type === 'inquiry' ? 'green' :
-                                event.event_type === 'click' ? 'blue' :
-                                event.event_type === 'view' ? 'gray' : 'violet'
-                              }
-                              variant="light"
+                    {/* Mobile-first responsive activity list */}
+                    <Box>
+                      {/* Mobile Card View - Better for small screens */}
+                      <Box hiddenFrom="sm">
+                        <Stack gap="xs">
+                          {analyticsData.recentEvents.slice(0, 5).map((event, index) => (
+                            <Card
+                              key={`mobile-activity-${event.id}-${index}`}
+                              p="sm"
+                              radius="md"
                               style={{
-                                fontSize: 'clamp(0.65rem, 1.8vw, 0.7rem)',
+                                background: 'rgba(255, 255, 255, 0.03)',
+                                border: '1px solid rgba(255, 255, 255, 0.08)',
                               }}
                             >
-                              {formatEventType(event.event_type)}
-                            </Badge>
-                            <Text 
-                              size="sm" 
-                              c="gray.3"
+                              <Group justify="space-between" align="center">
+                                <Group gap="xs">
+                                  <Badge 
+                                    size="xs" 
+                                    color={
+                                      event.event_type === 'inquiry' ? 'green' :
+                                      event.event_type === 'click' ? 'blue' :
+                                      event.event_type === 'view' ? 'gray' : 'violet'
+                                    }
+                                    variant="light"
+                                    style={{
+                                      fontSize: 'clamp(0.6rem, 1.6vw, 0.65rem)',
+                                    }}
+                                  >
+                                    {formatEventType(event.event_type)}
+                                  </Badge>
+                                  <Text 
+                                    size="sm" 
+                                    c="gray.3"
+                                    style={{
+                                      fontSize: 'clamp(0.7rem, 2vw, 0.8rem)',
+                                    }}
+                                    lineClamp={1}
+                                  >
+                                    {event.plan_name}
+                                  </Text>
+                                </Group>
+                                <Text 
+                                  size="xs" 
+                                  c="gray.5"
+                                  style={{
+                                    fontSize: 'clamp(0.6rem, 1.6vw, 0.7rem)',
+                                  }}
+                                >
+                                  {formatDate(event.created_at)}
+                                </Text>
+                              </Group>
+                            </Card>
+                          ))}
+                        </Stack>
+                      </Box>
+
+                      {/* Desktop List View - Hidden on small screens */}
+                      <Box visibleFrom="sm">
+                        <Stack gap="xs">
+                          {analyticsData.recentEvents.slice(0, 5).map((event, index) => (
+                            <Group 
+                              key={`desktop-activity-${event.id}-${index}`} 
+                              justify="space-between" 
                               style={{
-                                fontSize: 'clamp(0.75rem, 2vw, 0.8rem)',
+                                padding: 'clamp(8px, 2vw, 12px)',
+                                borderRadius: 'clamp(6px, 1.5vw, 8px)',
+                                background: index % 2 === 0 ? 'rgba(255, 255, 255, 0.02)' : 'transparent',
                               }}
                             >
-                              {event.plan_name}
-                            </Text>
-                          </Group>
-                          <Text 
-                            size="xs" 
-                            c="gray.5"
-                            style={{
-                              fontSize: 'clamp(0.65rem, 1.8vw, 0.7rem)',
-                            }}
-                          >
-                            {formatDate(event.created_at)}
-                          </Text>
-                        </Group>
-                      ))}
-                    </Stack>
+                              <Group gap="sm">
+                                <Badge 
+                                  size="sm" 
+                                  color={
+                                    event.event_type === 'inquiry' ? 'green' :
+                                    event.event_type === 'click' ? 'blue' :
+                                    event.event_type === 'view' ? 'gray' : 'violet'
+                                  }
+                                  variant="light"
+                                  style={{
+                                    fontSize: 'clamp(0.7rem, 1.8vw, 0.75rem)',
+                                  }}
+                                >
+                                  {formatEventType(event.event_type)}
+                                </Badge>
+                                <Text 
+                                  size="sm" 
+                                  c="gray.3"
+                                  style={{
+                                    fontSize: 'clamp(0.8rem, 2.2vw, 0.875rem)',
+                                  }}
+                                >
+                                  {event.plan_name}
+                                </Text>
+                              </Group>
+                              <Text 
+                                size="xs" 
+                                c="gray.5"
+                                style={{
+                                  fontSize: 'clamp(0.7rem, 1.8vw, 0.75rem)',
+                                }}
+                              >
+                                {formatDate(event.created_at)}
+                              </Text>
+                            </Group>
+                          ))}
+                        </Stack>
+                      </Box>
+                    </Box>
                   </Card>
                 )}
               </Stack>
