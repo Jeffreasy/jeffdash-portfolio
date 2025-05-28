@@ -16,7 +16,9 @@ import {
   Divider,
   LoadingOverlay,
   ActionIcon,
-  Tooltip
+  Tooltip,
+  ThemeIcon,
+  Box
 } from '@mantine/core';
 import { 
   IconSettings, 
@@ -24,8 +26,12 @@ import {
   IconCheck, 
   IconRefresh,
   IconInfoCircle,
-  IconHammer
+  IconHammer,
+  IconDatabase,
+  IconUser,
+  IconCode
 } from '@tabler/icons-react';
+import { motion } from 'framer-motion';
 import { notifications } from '@mantine/notifications';
 
 interface SiteSetting {
@@ -36,6 +42,19 @@ interface SiteSetting {
   createdAt: string;
   updatedAt: string;
 }
+
+// Animation variants
+const cardVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: {
+      duration: 0.5,
+      ease: [0.25, 0.46, 0.45, 0.94],
+    },
+  },
+};
 
 export default function SiteSettingsManager() {
   const [settings, setSettings] = useState<SiteSetting[]>([]);
@@ -177,189 +196,547 @@ export default function SiteSettingsManager() {
   const isUnderConstruction = underConstructionSetting?.value === 'true';
 
   return (
-    <Card shadow="sm" padding="lg" radius="md" withBorder>
-      <LoadingOverlay visible={loading} />
-      
-      <Group justify="space-between" mb="md">
-        <Group>
-          <IconSettings size={24} />
-          <Title order={3}>Site Instellingen</Title>
-        </Group>
-        <Tooltip label="Ververs instellingen">
-          <ActionIcon 
-            variant="light" 
-            onClick={fetchSettings}
-            loading={loading}
-          >
-            <IconRefresh size={16} />
-          </ActionIcon>
-        </Tooltip>
-      </Group>
+    <Box style={{ position: 'relative' }}>
+      {/* Decorative background element */}
+      <div style={{
+        position: 'absolute',
+        top: '10%',
+        right: '5%',
+        width: 'clamp(100px, 20vw, 150px)',
+        height: 'clamp(100px, 20vw, 150px)',
+        background: 'radial-gradient(circle, rgba(139, 92, 246, 0.05) 0%, transparent 70%)',
+        borderRadius: '50%',
+        filter: 'blur(30px)',
+        pointerEvents: 'none',
+        zIndex: 0,
+      }} />
 
-      <Text size="sm" c="dimmed" mb="xl">
-        Beheer site-brede instellingen en configuratie opties.
-      </Text>
-
-      <Stack gap="lg">
-        {/* Under Construction Toggle */}
-        <Card withBorder padding="md" style={{ 
-          background: isUnderConstruction 
-            ? 'linear-gradient(135deg, rgba(255, 165, 0, 0.1), rgba(255, 69, 0, 0.1))'
-            : 'linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(16, 185, 129, 0.1))'
-        }}>
-          <Group justify="space-between" align="flex-start">
-            <div style={{ flex: 1 }}>
-              <Group mb="xs">
-                <IconHammer size={20} />
-                <Text fw={600}>Under Construction Mode</Text>
-                <Badge 
-                  color={isUnderConstruction ? 'orange' : 'green'}
-                  variant="light"
-                >
-                  {isUnderConstruction ? 'ACTIEF' : 'INACTIEF'}
-                </Badge>
-              </Group>
-              <Text size="sm" c="dimmed" mb="md">
-                Schakel onderhoudsmodus in om de site tijdelijk offline te zetten voor bezoekers. 
-                Admin toegang blijft behouden.
-              </Text>
-              {isUnderConstruction && (
-                <Alert 
-                  icon={<IconAlertTriangle size={16} />} 
-                  color="orange" 
-                  variant="light"
-                  mb="md"
-                >
-                  <Text size="sm">
-                    <strong>Let op:</strong> De site is momenteel in onderhoudsmodus. 
-                    Alleen admins kunnen de site bezoeken.
-                  </Text>
-                </Alert>
-              )}
-            </div>
-            <Switch
-              checked={isUnderConstruction}
-              onChange={() => handleBooleanToggle('under_construction', underConstructionSetting?.value || 'false')}
-              disabled={updating === 'under_construction'}
-              size="lg"
-              color={isUnderConstruction ? 'orange' : 'green'}
-              thumbIcon={
-                isUnderConstruction ? (
-                  <IconHammer size={12} />
-                ) : (
-                  <IconCheck size={12} />
-                )
-              }
-            />
-          </Group>
-        </Card>
-
-        <Divider />
-
-        {/* Other Settings */}
-        {settings
-          .filter(setting => setting.key !== 'under_construction')
-          .map((setting) => (
-            <Card key={setting.key} withBorder padding="md">
-              <Stack gap="sm">
-                <Group justify="space-between">
-                  <div>
-                    <Text fw={500}>{setting.key.replace(/_/g, ' ').toUpperCase()}</Text>
-                    {setting.description && (
-                      <Text size="sm" c="dimmed">{setting.description}</Text>
-                    )}
-                  </div>
-                  <Badge variant="light" size="sm">
-                    {setting.type}
-                  </Badge>
-                </Group>
-
-                {setting.type === 'boolean' ? (
-                  <Switch
-                    checked={setting.value === 'true'}
-                    onChange={() => handleBooleanToggle(setting.key, setting.value)}
-                    disabled={updating === setting.key}
-                    label={setting.value === 'true' ? 'Ingeschakeld' : 'Uitgeschakeld'}
-                  />
-                ) : setting.key.includes('message') || setting.key.includes('description') ? (
-                  <Textarea
-                    value={setting.value}
-                    onChange={(e) => handleTextChange(setting.key, e.target.value)}
-                    placeholder={`Voer ${setting.key} in...`}
-                    disabled={updating === setting.key}
-                    autosize
-                    minRows={2}
-                    maxRows={4}
-                  />
-                ) : (
-                  <TextInput
-                    value={setting.value}
-                    onChange={(e) => handleTextChange(setting.key, e.target.value)}
-                    placeholder={`Voer ${setting.key} in...`}
-                    disabled={updating === setting.key}
-                  />
-                )}
-
-                <Text size="xs" c="dimmed">
-                  Laatst bijgewerkt: {new Date(setting.updatedAt).toLocaleString('nl-NL')}
-                </Text>
-              </Stack>
-            </Card>
-          ))}
-
-        {settings.length === 0 && !loading && (
-          <Alert icon={<IconInfoCircle size={16} />} color="blue">
-            Geen instellingen gevonden. Voer eerst de database migratie uit.
-          </Alert>
-        )}
-
-        {/* Troubleshooting Section */}
-        {settings.length === 0 && !loading && (
-          <Card withBorder padding="md" style={{ background: 'rgba(59, 130, 246, 0.05)' }}>
-            <Stack gap="md">
-              <Group>
-                <IconInfoCircle size={20} color="var(--mantine-color-blue-4)" />
-                <Text fw={600} c="blue.4">Troubleshooting</Text>
-              </Group>
-              
-              <Text size="sm" c="dimmed">
-                Als je deze foutmelding ziet, controleer dan de volgende stappen:
-              </Text>
-              
-              <Stack gap="xs">
-                <Text size="sm">
-                  <strong>1. Database Migratie:</strong> Voer de SQL scripts uit in je Supabase dashboard:
-                </Text>
-                <Text size="xs" c="dimmed" style={{ fontFamily: 'monospace', background: 'rgba(0,0,0,0.1)', padding: '8px', borderRadius: '4px' }}>
-                  supabasesql/V1_4_SiteSettings.sql<br />
-                  supabasesql/RLSV1.5_SiteSettings.sql
-                </Text>
-                
-                <Text size="sm">
-                  <strong>2. Admin Rechten:</strong> Zorg ervoor dat je gebruiker de rol 'ADMIN' heeft in de User tabel.
-                </Text>
-                
-                <Text size="sm">
-                  <strong>3. Supabase Verbinding:</strong> Controleer of je Supabase environment variables correct zijn ingesteld.
-                </Text>
-                
-                <Text size="sm">
-                  <strong>4. Browser Console:</strong> Open de developer tools (F12) en kijk naar eventuele foutmeldingen.
-                </Text>
-              </Stack>
-              
-              <Button 
-                variant="light" 
-                size="sm" 
-                onClick={fetchSettings}
-                leftSection={<IconRefresh size={16} />}
+      <motion.div
+        variants={cardVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <Card 
+          shadow="sm" 
+          padding="lg" 
+          radius="md" 
+          withBorder
+          style={{
+            background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            position: 'relative',
+            zIndex: 1,
+          }}
+        >
+          <LoadingOverlay visible={loading} />
+          
+          <Group justify="space-between" mb="md">
+            <Group>
+              <ThemeIcon
+                size="lg"
+                radius="md"
+                variant="gradient"
+                gradient={{ from: 'violet.6', to: 'purple.5' }}
               >
-                Probeer Opnieuw
-              </Button>
-            </Stack>
-          </Card>
-        )}
-      </Stack>
-    </Card>
+                <IconSettings size={20} />
+              </ThemeIcon>
+              <Title 
+                order={3}
+                style={{
+                  color: 'var(--mantine-color-gray-1)',
+                  fontSize: 'clamp(1.125rem, 3.5vw, 1.5rem)',
+                  fontWeight: 700,
+                }}
+              >
+                Site Instellingen
+              </Title>
+            </Group>
+            <Tooltip label="Ververs instellingen">
+              <ActionIcon 
+                variant="light" 
+                onClick={fetchSettings}
+                loading={loading}
+                style={{
+                  background: 'rgba(139, 92, 246, 0.1)',
+                  border: '1px solid rgba(139, 92, 246, 0.3)',
+                }}
+              >
+                <IconRefresh size={16} />
+              </ActionIcon>
+            </Tooltip>
+          </Group>
+
+          <Text 
+            size="sm" 
+            c="gray.4" 
+            mb="xl"
+            style={{
+              fontSize: 'clamp(0.8rem, 2.5vw, 0.875rem)',
+              lineHeight: 1.5,
+            }}
+          >
+            Beheer site-brede instellingen en configuratie opties.
+          </Text>
+
+          <Stack gap="lg">
+            {/* Under Construction Toggle */}
+            {underConstructionSetting && (
+              <motion.div
+                variants={cardVariants}
+                initial="hidden"
+                animate="visible"
+                transition={{ delay: 0.1 }}
+              >
+                <Card 
+                  withBorder 
+                  padding="md" 
+                  style={{ 
+                    background: isUnderConstruction 
+                      ? 'linear-gradient(135deg, rgba(255, 165, 0, 0.05), rgba(255, 69, 0, 0.05))'
+                      : 'linear-gradient(135deg, rgba(34, 197, 94, 0.05), rgba(16, 185, 129, 0.05))',
+                    border: isUnderConstruction 
+                      ? '1px solid rgba(255, 165, 0, 0.3)'
+                      : '1px solid rgba(34, 197, 94, 0.3)',
+                    position: 'relative',
+                    overflow: 'hidden',
+                  }}
+                >
+                  {/* Decorative element */}
+                  <div style={{
+                    position: 'absolute',
+                    top: '-5px',
+                    right: '-5px',
+                    width: '40px',
+                    height: '40px',
+                    background: isUnderConstruction 
+                      ? 'radial-gradient(circle, rgba(255, 165, 0, 0.1) 0%, transparent 70%)'
+                      : 'radial-gradient(circle, rgba(34, 197, 94, 0.1) 0%, transparent 70%)',
+                    borderRadius: '50%',
+                    filter: 'blur(10px)',
+                    pointerEvents: 'none',
+                  }} />
+
+                  <Group justify="space-between" align="flex-start" style={{ position: 'relative', zIndex: 1 }}>
+                    <div style={{ flex: 1 }}>
+                      <Group mb="xs">
+                        <ThemeIcon
+                          size="md"
+                          radius="md"
+                          variant="gradient"
+                          gradient={isUnderConstruction 
+                            ? { from: 'orange.6', to: 'red.5' }
+                            : { from: 'green.6', to: 'teal.5' }
+                          }
+                        >
+                          <IconHammer size={16} />
+                        </ThemeIcon>
+                        <Text 
+                          fw={600}
+                          style={{
+                            fontSize: 'clamp(1rem, 3vw, 1.125rem)',
+                            color: 'var(--mantine-color-gray-1)',
+                          }}
+                        >
+                          Under Construction Mode
+                        </Text>
+                        <Badge 
+                          color={isUnderConstruction ? 'orange' : 'green'}
+                          variant="light"
+                          style={{
+                            fontSize: 'clamp(0.7rem, 2vw, 0.75rem)',
+                          }}
+                        >
+                          {isUnderConstruction ? 'ACTIEF' : 'INACTIEF'}
+                        </Badge>
+                      </Group>
+                      <Text 
+                        size="sm" 
+                        c="gray.4" 
+                        mb="md"
+                        style={{
+                          fontSize: 'clamp(0.75rem, 2.2vw, 0.8rem)',
+                          lineHeight: 1.4,
+                        }}
+                      >
+                        Schakel onderhoudsmodus in om de site tijdelijk offline te zetten voor bezoekers. 
+                        Admin toegang blijft behouden.
+                      </Text>
+                      {isUnderConstruction && (
+                        <Alert 
+                          icon={<IconAlertTriangle size={16} />} 
+                          color="orange" 
+                          variant="light"
+                          mb="md"
+                          style={{
+                            background: 'rgba(255, 165, 0, 0.05)',
+                            border: '1px solid rgba(255, 165, 0, 0.2)',
+                          }}
+                        >
+                          <Text 
+                            size="sm"
+                            style={{
+                              fontSize: 'clamp(0.75rem, 2.2vw, 0.8rem)',
+                              lineHeight: 1.4,
+                            }}
+                          >
+                            <strong>Let op:</strong> De site is momenteel in onderhoudsmodus. 
+                            Alleen admins kunnen de site bezoeken.
+                          </Text>
+                        </Alert>
+                      )}
+                    </div>
+                    <Switch
+                      checked={isUnderConstruction}
+                      onChange={() => handleBooleanToggle('under_construction', underConstructionSetting?.value || 'false')}
+                      disabled={updating === 'under_construction'}
+                      size="lg"
+                      color={isUnderConstruction ? 'orange' : 'green'}
+                      thumbIcon={
+                        isUnderConstruction ? (
+                          <IconHammer size={12} />
+                        ) : (
+                          <IconCheck size={12} />
+                        )
+                      }
+                    />
+                  </Group>
+                </Card>
+              </motion.div>
+            )}
+
+            {settings.length > 1 && <Divider />}
+
+            {/* Other Settings */}
+            {settings
+              .filter(setting => setting.key !== 'under_construction')
+              .map((setting, index) => (
+                <motion.div
+                  key={setting.key}
+                  variants={cardVariants}
+                  initial="hidden"
+                  animate="visible"
+                  transition={{ delay: 0.2 + (index * 0.1) }}
+                >
+                  <Card 
+                    withBorder 
+                    padding="md"
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.01) 0%, rgba(255, 255, 255, 0.03) 100%)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      position: 'relative',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    {/* Subtle decorative element */}
+                    <div style={{
+                      position: 'absolute',
+                      top: '-3px',
+                      right: '-3px',
+                      width: '30px',
+                      height: '30px',
+                      background: 'radial-gradient(circle, rgba(139, 92, 246, 0.05) 0%, transparent 70%)',
+                      borderRadius: '50%',
+                      filter: 'blur(8px)',
+                      pointerEvents: 'none',
+                    }} />
+
+                    <Stack gap="sm" style={{ position: 'relative', zIndex: 1 }}>
+                      <Group justify="space-between">
+                        <div>
+                          <Text 
+                            fw={500}
+                            style={{
+                              fontSize: 'clamp(0.9rem, 2.8vw, 1rem)',
+                              color: 'var(--mantine-color-gray-2)',
+                            }}
+                          >
+                            {setting.key.replace(/_/g, ' ').toUpperCase()}
+                          </Text>
+                          {setting.description && (
+                            <Text 
+                              size="sm" 
+                              c="gray.4"
+                              style={{
+                                fontSize: 'clamp(0.75rem, 2.2vw, 0.8rem)',
+                                lineHeight: 1.4,
+                              }}
+                            >
+                              {setting.description}
+                            </Text>
+                          )}
+                        </div>
+                        <Badge 
+                          variant="light" 
+                          size="sm"
+                          color="violet"
+                          style={{
+                            fontSize: 'clamp(0.7rem, 1.8vw, 0.75rem)',
+                          }}
+                        >
+                          {setting.type}
+                        </Badge>
+                      </Group>
+
+                      {setting.type === 'boolean' ? (
+                        <Switch
+                          checked={setting.value === 'true'}
+                          onChange={() => handleBooleanToggle(setting.key, setting.value)}
+                          disabled={updating === setting.key}
+                          label={setting.value === 'true' ? 'Ingeschakeld' : 'Uitgeschakeld'}
+                          color="violet"
+                        />
+                      ) : setting.key.includes('message') || setting.key.includes('description') ? (
+                        <Textarea
+                          value={setting.value}
+                          onChange={(e) => handleTextChange(setting.key, e.target.value)}
+                          placeholder={`Voer ${setting.key} in...`}
+                          disabled={updating === setting.key}
+                          autosize
+                          minRows={2}
+                          maxRows={4}
+                          styles={{
+                            input: {
+                              background: 'rgba(255, 255, 255, 0.02)',
+                              border: '1px solid rgba(255, 255, 255, 0.1)',
+                              color: 'var(--mantine-color-gray-2)',
+                            },
+                          }}
+                        />
+                      ) : (
+                        <TextInput
+                          value={setting.value}
+                          onChange={(e) => handleTextChange(setting.key, e.target.value)}
+                          placeholder={`Voer ${setting.key} in...`}
+                          disabled={updating === setting.key}
+                          styles={{
+                            input: {
+                              background: 'rgba(255, 255, 255, 0.02)',
+                              border: '1px solid rgba(255, 255, 255, 0.1)',
+                              color: 'var(--mantine-color-gray-2)',
+                            },
+                          }}
+                        />
+                      )}
+
+                      <Text 
+                        size="xs" 
+                        c="gray.5"
+                        style={{
+                          fontSize: 'clamp(0.7rem, 1.8vw, 0.75rem)',
+                        }}
+                      >
+                        Laatst bijgewerkt: {new Date(setting.updatedAt).toLocaleString('nl-NL')}
+                      </Text>
+                    </Stack>
+                  </Card>
+                </motion.div>
+              ))}
+
+            {settings.length === 0 && !loading && (
+              <motion.div
+                variants={cardVariants}
+                initial="hidden"
+                animate="visible"
+              >
+                <Alert 
+                  icon={<IconInfoCircle size={16} />} 
+                  color="blue"
+                  style={{
+                    background: 'rgba(59, 130, 246, 0.05)',
+                    border: '1px solid rgba(59, 130, 246, 0.2)',
+                  }}
+                >
+                  Geen instellingen gevonden. Voer eerst de database migratie uit.
+                </Alert>
+              </motion.div>
+            )}
+
+            {/* Troubleshooting Section */}
+            {settings.length === 0 && !loading && (
+              <motion.div
+                variants={cardVariants}
+                initial="hidden"
+                animate="visible"
+                transition={{ delay: 0.3 }}
+              >
+                <Card 
+                  withBorder 
+                  padding="md" 
+                  style={{ 
+                    background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.02) 0%, rgba(6, 182, 212, 0.02) 100%)',
+                    border: '1px solid rgba(59, 130, 246, 0.2)',
+                    position: 'relative',
+                    overflow: 'hidden',
+                  }}
+                >
+                  {/* Decorative element */}
+                  <div style={{
+                    position: 'absolute',
+                    top: '-10px',
+                    right: '-10px',
+                    width: '50px',
+                    height: '50px',
+                    background: 'radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%)',
+                    borderRadius: '50%',
+                    filter: 'blur(15px)',
+                    pointerEvents: 'none',
+                  }} />
+
+                  <Stack gap="md" style={{ position: 'relative', zIndex: 1 }}>
+                    <Group>
+                      <ThemeIcon
+                        size="lg"
+                        radius="md"
+                        variant="gradient"
+                        gradient={{ from: 'blue.6', to: 'cyan.5' }}
+                      >
+                        <IconInfoCircle size={20} />
+                      </ThemeIcon>
+                      <Text 
+                        fw={600} 
+                        style={{
+                          color: 'var(--mantine-color-blue-3)',
+                          fontSize: 'clamp(1rem, 3vw, 1.125rem)',
+                        }}
+                      >
+                        Troubleshooting
+                      </Text>
+                    </Group>
+                    
+                    <Text 
+                      size="sm" 
+                      c="gray.3"
+                      style={{
+                        fontSize: 'clamp(0.8rem, 2.5vw, 0.875rem)',
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      Als je deze foutmelding ziet, controleer dan de volgende stappen:
+                    </Text>
+                    
+                    <Stack gap="sm">
+                      <Group gap="xs" align="flex-start">
+                        <ThemeIcon size="sm" variant="light" color="blue" radius="sm">
+                          <IconDatabase size={12} />
+                        </ThemeIcon>
+                        <div style={{ flex: 1 }}>
+                          <Text 
+                            size="sm" 
+                            fw={500}
+                            style={{
+                              fontSize: 'clamp(0.75rem, 2.2vw, 0.8rem)',
+                              color: 'var(--mantine-color-gray-2)',
+                            }}
+                          >
+                            Database Migratie:
+                          </Text>
+                          <Text 
+                            size="xs" 
+                            c="gray.4"
+                            style={{
+                              fontSize: 'clamp(0.7rem, 1.8vw, 0.75rem)',
+                              lineHeight: 1.4,
+                            }}
+                          >
+                            Voer de SQL scripts uit in je Supabase dashboard
+                          </Text>
+                          <Text 
+                            size="xs" 
+                            c="gray.5" 
+                            style={{ 
+                              fontFamily: 'monospace', 
+                              background: 'rgba(0,0,0,0.2)', 
+                              padding: '4px 8px', 
+                              borderRadius: '4px',
+                              fontSize: 'clamp(0.65rem, 1.6vw, 0.7rem)',
+                              marginTop: '4px',
+                            }}
+                          >
+                            supabasesql/V1_4_SiteSettings.sql<br />
+                            supabasesql/RLSV1.5_SiteSettings.sql
+                          </Text>
+                        </div>
+                      </Group>
+                      
+                      <Group gap="xs" align="flex-start">
+                        <ThemeIcon size="sm" variant="light" color="cyan" radius="sm">
+                          <IconUser size={12} />
+                        </ThemeIcon>
+                        <div style={{ flex: 1 }}>
+                          <Text 
+                            size="sm" 
+                            fw={500}
+                            style={{
+                              fontSize: 'clamp(0.75rem, 2.2vw, 0.8rem)',
+                              color: 'var(--mantine-color-gray-2)',
+                            }}
+                          >
+                            Admin Rechten:
+                          </Text>
+                          <Text 
+                            size="xs" 
+                            c="gray.4"
+                            style={{
+                              fontSize: 'clamp(0.7rem, 1.8vw, 0.75rem)',
+                              lineHeight: 1.4,
+                            }}
+                          >
+                            Zorg ervoor dat je gebruiker de rol 'ADMIN' heeft in de User tabel
+                          </Text>
+                        </div>
+                      </Group>
+                      
+                      <Group gap="xs" align="flex-start">
+                        <ThemeIcon size="sm" variant="light" color="violet" radius="sm">
+                          <IconCode size={12} />
+                        </ThemeIcon>
+                        <div style={{ flex: 1 }}>
+                          <Text 
+                            size="sm" 
+                            fw={500}
+                            style={{
+                              fontSize: 'clamp(0.75rem, 2.2vw, 0.8rem)',
+                              color: 'var(--mantine-color-gray-2)',
+                            }}
+                          >
+                            Browser Console:
+                          </Text>
+                          <Text 
+                            size="xs" 
+                            c="gray.4"
+                            style={{
+                              fontSize: 'clamp(0.7rem, 1.8vw, 0.75rem)',
+                              lineHeight: 1.4,
+                            }}
+                          >
+                            Open de developer tools (F12) en kijk naar eventuele foutmeldingen
+                          </Text>
+                        </div>
+                      </Group>
+                    </Stack>
+                    
+                    <Button 
+                      variant="light" 
+                      size="sm" 
+                      onClick={fetchSettings}
+                      leftSection={<IconRefresh size={16} />}
+                      style={{
+                        background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%)',
+                        border: '1px solid rgba(59, 130, 246, 0.3)',
+                        color: 'var(--mantine-color-blue-3)',
+                        fontSize: 'clamp(0.75rem, 2.2vw, 0.875rem)',
+                      }}
+                    >
+                      Probeer Opnieuw
+                    </Button>
+                  </Stack>
+                </Card>
+              </motion.div>
+            )}
+          </Stack>
+        </Card>
+      </motion.div>
+    </Box>
   );
 } 
