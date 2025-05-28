@@ -126,6 +126,8 @@ const PricingPlanModal: React.FC<PricingPlanModalProps> = ({
         cta_text: selectedPlan.cta_text,
         cta_variant: selectedPlan.cta_variant,
         category_color: selectedPlan.category_color,
+        category_name: selectedPlan.category_name,
+        category_icon: selectedPlan.category_icon,
         gradient_from: selectedPlan.gradient_from,
         gradient_to: selectedPlan.gradient_to,
         sort_order: selectedPlan.sort_order,

@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
-interface RouteParams {
-  params: { id: string };
-}
-
 // PUT - Update a pricing plan
-export async function PUT(request: NextRequest, { params }: RouteParams): Promise<NextResponse> {
+export async function PUT(
+  request: NextRequest, 
+  { params }: { params: { id: string } }
+): Promise<NextResponse> {
   try {
     const supabase = await createClient();
     const { id } = params;
@@ -128,7 +127,10 @@ export async function PUT(request: NextRequest, { params }: RouteParams): Promis
 }
 
 // DELETE - Delete a pricing plan
-export async function DELETE(request: NextRequest, { params }: RouteParams): Promise<NextResponse> {
+export async function DELETE(
+  request: NextRequest, 
+  { params }: { params: { id: string } }
+): Promise<NextResponse> {
   try {
     const supabase = await createClient();
     const { id } = params;
@@ -180,7 +182,10 @@ export async function DELETE(request: NextRequest, { params }: RouteParams): Pro
 }
 
 // GET - Get a specific pricing plan
-export async function GET(request: NextRequest, { params }: RouteParams): Promise<NextResponse> {
+export async function GET(
+  request: NextRequest, 
+  { params }: { params: { id: string } }
+): Promise<NextResponse> {
   try {
     const supabase = await createClient();
     const { id } = params;

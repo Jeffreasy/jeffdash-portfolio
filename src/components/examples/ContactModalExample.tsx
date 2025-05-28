@@ -1,10 +1,10 @@
 'use client';
 
 import React from 'react';
-import { Button, Group, Stack, Title, Text, Paper } from '@mantine/core';
-import { IconMail, IconStar, IconCode, IconServer } from '@tabler/icons-react';
+import { Button, Group, Stack, Title, Text, Paper, Loader, Alert } from '@mantine/core';
+import { IconMail, IconStar, IconCode, IconServer, IconAlertCircle } from '@tabler/icons-react';
 import { ContactModal, useContactModal } from '../features/contact';
-import { pricingPlans } from '../features/home/PricingSection/data';
+import { usePricingPlans } from '@/hooks/usePricingPlans';
 
 /**
  * Example component showing how to use the ContactModal
@@ -15,6 +15,28 @@ import { pricingPlans } from '../features/home/PricingSection/data';
  */
 export default function ContactModalExample() {
   const contactModal = useContactModal();
+  const { plans, isLoading, error } = usePricingPlans();
+
+  if (isLoading) {
+    return (
+      <Paper p="xl" radius="lg" withBorder>
+        <Stack align="center" gap="md">
+          <Loader size="md" />
+          <Text c="dimmed">Pricing plans laden...</Text>
+        </Stack>
+      </Paper>
+    );
+  }
+
+  if (error) {
+    return (
+      <Paper p="xl" radius="lg" withBorder>
+        <Alert icon={<IconAlertCircle size={16} />} color="red">
+          Fout bij het laden van pricing plans: {error}
+        </Alert>
+      </Paper>
+    );
+  }
 
   return (
     <Paper p="xl" radius="lg" withBorder>
@@ -36,35 +58,37 @@ export default function ContactModalExample() {
             Algemeen Contact
           </Button>
 
-          {/* Contact Modal with Frontend Plan */}
-          <Button
-            leftSection={<IconCode size={16} />}
-            onClick={() => contactModal.openWithPlan(pricingPlans[0])}
-            variant="filled"
-            color="cyan"
-          >
-            Frontend Plan
-          </Button>
+          {/* Contact Modal with plans - only show if plans are available */}
+          {plans && plans.length >= 3 && (
+            <>
+              <Button
+                leftSection={<IconCode size={16} />}
+                onClick={() => contactModal.openWithPlan(plans[0] as any)}
+                variant="filled"
+                color="cyan"
+              >
+                {plans[0]?.name || 'Frontend Plan'}
+              </Button>
 
-          {/* Contact Modal with Backend Plan */}
-          <Button
-            leftSection={<IconServer size={16} />}
-            onClick={() => contactModal.openWithPlan(pricingPlans[1])}
-            variant="filled"
-            color="violet"
-          >
-            Backend Plan
-          </Button>
+              <Button
+                leftSection={<IconServer size={16} />}
+                onClick={() => contactModal.openWithPlan(plans[1] as any)}
+                variant="filled"
+                color="violet"
+              >
+                {plans[1]?.name || 'Backend Plan'}
+              </Button>
 
-          {/* Contact Modal with Full-Stack Plan (Popular) */}
-          <Button
-            leftSection={<IconStar size={16} />}
-            onClick={() => contactModal.openWithPlan(pricingPlans[2])}
-            variant="gradient"
-            gradient={{ from: 'blue.6', to: 'cyan.5' }}
-          >
-            Full-Stack Plan (Populair)
-          </Button>
+              <Button
+                leftSection={<IconStar size={16} />}
+                onClick={() => contactModal.openWithPlan(plans[2] as any)}
+                variant="gradient"
+                gradient={{ from: 'blue.6', to: 'cyan.5' }}
+              >
+                {plans[2]?.name || 'Full-Stack Plan'} {plans[2]?.is_popular && '(Populair)'}
+              </Button>
+            </>
+          )}
         </Group>
 
         {/* Code Examples */}
@@ -98,7 +122,7 @@ contactModal.openWithPlan(plan); // Met specifiek plan`}
         <ContactModal
           opened={contactModal.opened}
           onClose={contactModal.closeModal}
-          selectedPlan={contactModal.selectedPlan}
+          selectedPlan={contactModal.selectedPlan as any}
         />
       </Stack>
     </Paper>

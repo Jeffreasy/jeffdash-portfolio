@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { PricingPlan } from '@/components/features/home/PricingSection/data';
+import { PricingPlan } from '@/types/pricing';
 import { useAnalytics } from './useAnalytics';
 
 interface UseContactModalReturn {

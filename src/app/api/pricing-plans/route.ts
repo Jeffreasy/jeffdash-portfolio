@@ -6,8 +6,8 @@ export interface PricingPlan {
   id: string;
   name: string;
   description: string;
-  price: string;
-  original_price?: string;
+  price: string | number;
+  original_price?: string | number;
   period: string;
   is_popular: boolean;
   cta_text: string;
@@ -42,8 +42,8 @@ interface DatabasePlan {
   id: string;
   name: string;
   description: string;
-  price: string;
-  original_price?: string;
+  price: string | number;
+  original_price?: string | number;
   period: string;
   is_popular: boolean;
   is_active: boolean;

@@ -7,13 +7,15 @@ export interface PricingPlansManagerProps {
 export interface FormData {
   name: string;
   description: string;
-  price: string;
-  original_price: string;
+  price: string | number;
+  original_price: string | number;
   period: string;
   is_popular: boolean;
   cta_text: string;
-  cta_variant: string;
+  cta_variant: 'filled' | 'outline' | 'gradient';
   category_color: string;
+  category_name: string;
+  category_icon: string;
   gradient_from: string;
   gradient_to: string;
   sort_order: number;
@@ -30,6 +32,8 @@ export const initialFormData: FormData = {
   cta_text: 'Start Project',
   cta_variant: 'outline',
   category_color: 'blue',
+  category_name: 'Standard',
+  category_icon: 'star',
   gradient_from: 'blue.6',
   gradient_to: 'cyan.6',
   sort_order: 0,
