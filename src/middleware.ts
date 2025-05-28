@@ -81,7 +81,11 @@ export async function middleware(request: NextRequest) {
     '/_next',
     '/favicon.ico',
     '/robots.txt',
-    '/sitemap.xml'
+    '/sitemap.xml',
+    '/manifest.json',
+    '/icon.png',
+    '/apple-icon.png',
+    '/.well-known'
   ]
   
   // Public routes that should be blocked during maintenance

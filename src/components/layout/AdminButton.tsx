@@ -34,10 +34,6 @@ const AdminButton: React.FC = () => {
             key.includes('auth')
           );
           
-          // Debug: Log what we find in localStorage
-          console.log('AdminButton Debug - localStorage keys:', localStorageKeys);
-          console.log('AdminButton Debug - Supabase-related keys:', supabaseKeys);
-          
           // Check for any Supabase session data
           hasSupabaseSession = supabaseKeys.some(key => {
             const value = localStorage.getItem(key);
@@ -62,9 +58,6 @@ const AdminButton: React.FC = () => {
             key.includes('sb-') ||
             key.includes('auth')
           );
-          
-          console.log('AdminButton Debug - sessionStorage keys:', sessionStorageKeys);
-          console.log('AdminButton Debug - Session Supabase-related keys:', sessionSupabaseKeys);
           
           if (!hasSupabaseSession) {
             hasSupabaseSession = sessionSupabaseKeys.some(key => {
@@ -91,18 +84,9 @@ const AdminButton: React.FC = () => {
           hasSupabaseCookie = cookies.includes('supabase') || 
                              cookies.includes('sb-') ||
                              cookies.includes('auth');
-          console.log('AdminButton Debug - Document cookies contain Supabase:', hasSupabaseCookie);
         }
 
         const adminDetected = isInAdminArea || hasSupabaseSession || hasSupabaseCookie;
-        
-        console.log('AdminButton Debug - Admin detection:', {
-          isInAdminArea,
-          hasSupabaseSession,
-          hasSupabaseCookie,
-          adminDetected,
-          pathname
-        });
 
         // Track admin status detection
         if (adminDetected !== isAdmin) {
@@ -134,7 +118,6 @@ const AdminButton: React.FC = () => {
 
     // Listen for storage changes (login/logout)
     const handleStorageChange = (e: StorageEvent) => {
-      console.log('AdminButton Debug - Storage change detected:', e.key, e.newValue);
       trackEvent('navigation_clicked', {
         action: 'admin_storage_change',
         element: 'admin_button',
@@ -151,7 +134,6 @@ const AdminButton: React.FC = () => {
       if (typeof document !== 'undefined') {
         const currentCookies = document.cookie;
         if (currentCookies !== lastCookies) {
-          console.log('AdminButton Debug - Cookie change detected');
           trackEvent('navigation_clicked', {
             action: 'admin_cookie_change',
             element: 'admin_button',
@@ -199,8 +181,6 @@ const AdminButton: React.FC = () => {
   }, [isVisible, isAdmin, pathname, trackEvent]);
 
   const handleAdminClick = () => {
-    console.log('AdminButton Debug - Admin button clicked, navigating to dashboard');
-    
     trackEvent('navigation_clicked', {
       action: 'admin_button_clicked',
       element: 'admin_button',
@@ -215,16 +195,8 @@ const AdminButton: React.FC = () => {
 
   // Don't render anything while loading, if not admin, or if already in admin area
   if (isLoading || !isAdmin || pathname?.startsWith('/admin_area')) {
-    console.log('AdminButton Debug - Not rendering button:', {
-      isLoading,
-      isAdmin,
-      isInAdminArea: pathname?.startsWith('/admin_area'),
-      pathname
-    });
     return null;
   }
-
-  console.log('AdminButton Debug - Rendering admin button');
 
   return (
     <AnimatePresence>
