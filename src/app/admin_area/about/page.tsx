@@ -19,7 +19,7 @@ function AboutAdminLoading() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 'var(--mantine-spacing-xl)',
+        padding: 'clamp(16px, 4vw, 24px)',
       }}
     >
       <Container size="lg">
@@ -32,7 +32,7 @@ function AboutAdminLoading() {
               backgroundClip: 'text',
               WebkitBackgroundClip: 'text',
               color: 'transparent',
-              fontSize: 'clamp(1.8rem, 4vw, 2.5rem)',
+              fontSize: 'clamp(1.5rem, 4vw, 2.5rem)',
               fontWeight: 900,
             }}
           >
@@ -44,18 +44,24 @@ function AboutAdminLoading() {
               background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
               backdropFilter: 'blur(10px)',
               border: '1px solid rgba(255, 255, 255, 0.1)',
-              borderRadius: '12px',
-              padding: 'var(--mantine-spacing-xl)',
+              borderRadius: 'clamp(8px, 2vw, 12px)',
+              padding: 'clamp(16px, 4vw, 24px)',
               position: 'relative',
-              minHeight: '400px',
+              minHeight: 'clamp(300px, 50vh, 400px)',
               width: '100%',
-              maxWidth: '600px',
+              maxWidth: 'clamp(300px, 90vw, 600px)',
             }}
           >
             <Center h="100%">
               <Stack align="center" gap="md">
                 <Loader size="lg" color="blue.4" type="dots" />
-                <Text c="gray.4" ta="center">
+                <Text 
+                  c="gray.4" 
+                  ta="center"
+                  style={{
+                    fontSize: 'clamp(0.875rem, 2.5vw, 1rem)',
+                  }}
+                >
                   About content laden...
                 </Text>
               </Stack>
@@ -85,8 +91,8 @@ async function AboutAdminContent() {
           position: 'absolute',
           top: '20%',
           left: '10%',
-          width: '200px',
-          height: '200px',
+          width: 'clamp(150px, 25vw, 200px)',
+          height: 'clamp(150px, 25vw, 200px)',
           background: 'radial-gradient(circle, rgba(59, 130, 246, 0.05) 0%, transparent 70%)',
           borderRadius: '50%',
           filter: 'blur(40px)',
@@ -94,11 +100,18 @@ async function AboutAdminContent() {
           zIndex: 0,
         }} />
 
-        <Container size="lg" style={{ position: 'relative', zIndex: 1 }}>
+        <Container 
+          size="lg" 
+          style={{ 
+            position: 'relative', 
+            zIndex: 1,
+            padding: 'clamp(16px, 4vw, 24px)',
+          }}
+        >
           <Stack gap="xl">
             {/* Header */}
-            <Group justify="space-between" align="flex-start">
-              <Box>
+            <Group justify="space-between" align="flex-start" wrap="wrap">
+              <Box style={{ flex: 1, minWidth: '250px' }}>
                 <Title 
                   order={1}
                   style={{
@@ -106,9 +119,9 @@ async function AboutAdminContent() {
                     backgroundClip: 'text',
                     WebkitBackgroundClip: 'text',
                     color: 'transparent',
-                    fontSize: 'clamp(1.8rem, 4vw, 2.5rem)',
+                    fontSize: 'clamp(1.5rem, 4vw, 2.5rem)',
                     fontWeight: 900,
-                    marginBottom: '0.5rem',
+                    marginBottom: 'clamp(8px, 2vw, 12px)',
                   }}
                 >
                   About Content Beheer
@@ -117,7 +130,8 @@ async function AboutAdminContent() {
                   size="lg" 
                   c="gray.3"
                   style={{
-                    fontSize: 'clamp(1rem, 2vw, 1.125rem)',
+                    fontSize: 'clamp(0.875rem, 2.5vw, 1.125rem)',
+                    lineHeight: 1.5,
                   }}
                 >
                   Bewerk je persoonlijke informatie en about sectie
@@ -130,6 +144,10 @@ async function AboutAdminContent() {
                 variant="gradient"
                 gradient={{ from: 'blue.6', to: 'cyan.5' }}
                 visibleFrom="sm"
+                style={{
+                  minHeight: '48px',
+                  minWidth: '48px',
+                }}
               >
                 <IconUser size={24} />
               </ThemeIcon>
@@ -141,8 +159,8 @@ async function AboutAdminContent() {
                 background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
                 backdropFilter: 'blur(10px)',
                 border: '1px solid rgba(255, 255, 255, 0.1)',
-                borderRadius: '12px',
-                padding: 'var(--mantine-spacing-xl)',
+                borderRadius: 'clamp(8px, 2vw, 12px)',
+                padding: 'clamp(16px, 4vw, 24px)',
                 position: 'relative',
                 overflow: 'hidden',
               }}
@@ -152,8 +170,8 @@ async function AboutAdminContent() {
                 position: 'absolute',
                 top: '-20px',
                 right: '-20px',
-                width: '100px',
-                height: '100px',
+                width: 'clamp(60px, 15vw, 100px)',
+                height: 'clamp(60px, 15vw, 100px)',
                 background: 'radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%)',
                 borderRadius: '50%',
                 filter: 'blur(20px)',
@@ -161,20 +179,39 @@ async function AboutAdminContent() {
               }} />
 
               <Stack gap="lg" style={{ position: 'relative', zIndex: 1 }}>
-                <Group gap="md">
+                <Group gap="md" wrap="wrap">
                   <ThemeIcon
                     size="lg"
                     radius="md"
                     variant="gradient"
                     gradient={{ from: 'blue.6', to: 'cyan.5' }}
+                    style={{
+                      minHeight: '44px',
+                      minWidth: '44px',
+                    }}
                   >
                     <IconEdit size={20} />
                   </ThemeIcon>
-                  <Box>
-                    <Title order={2} c="gray.1" size="h3">
+                  <Box style={{ flex: 1, minWidth: '200px' }}>
+                    <Title 
+                      order={2} 
+                      c="gray.1" 
+                      size="h3"
+                      style={{
+                        fontSize: 'clamp(1.125rem, 3vw, 1.5rem)',
+                        marginBottom: 'clamp(4px, 1vw, 8px)',
+                      }}
+                    >
                       Bewerk About Pagina
                     </Title>
-                    <Text size="sm" c="gray.4">
+                    <Text 
+                      size="sm" 
+                      c="gray.4"
+                      style={{
+                        fontSize: 'clamp(0.8rem, 2.2vw, 0.875rem)',
+                        lineHeight: 1.4,
+                      }}
+                    >
                       Update je persoonlijke informatie en vaardigheden
                     </Text>
                   </Box>

@@ -28,7 +28,7 @@ function EditProjectLoading() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 'var(--mantine-spacing-xl)',
+        padding: 'clamp(16px, 4vw, 24px)',
         overflow: 'hidden',
       }}
     >
@@ -38,8 +38,8 @@ function EditProjectLoading() {
           position: 'absolute',
           top: '20%',
           left: '10%',
-          width: '250px',
-          height: '250px',
+          width: 'clamp(200px, 30vw, 250px)',
+          height: 'clamp(200px, 30vw, 250px)',
           background: 'radial-gradient(circle, rgba(251, 146, 60, 0.1) 0%, transparent 70%)',
           borderRadius: '50%',
           filter: 'blur(50px)',
@@ -61,8 +61,8 @@ function EditProjectLoading() {
           position: 'absolute',
           bottom: '20%',
           right: '10%',
-          width: '180px',
-          height: '180px',
+          width: 'clamp(150px, 25vw, 180px)',
+          height: 'clamp(150px, 25vw, 180px)',
           background: 'radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%)',
           borderRadius: '50%',
           filter: 'blur(35px)',
@@ -95,9 +95,9 @@ function EditProjectLoading() {
                   backgroundClip: 'text',
                   WebkitBackgroundClip: 'text',
                   color: 'transparent',
-                  fontSize: 'clamp(2rem, 5vw, 3rem)',
+                  fontSize: 'clamp(1.5rem, 5vw, 3rem)',
                   fontWeight: 900,
-                  marginBottom: '0.5rem',
+                  marginBottom: 'clamp(8px, 2vw, 12px)',
                   WebkitFontSmoothing: 'antialiased',
                   MozOsxFontSmoothing: 'grayscale',
                 }}
@@ -108,7 +108,7 @@ function EditProjectLoading() {
                 size="lg" 
                 c="gray.3"
                 style={{
-                  fontSize: 'clamp(1rem, 2.5vw, 1.125rem)',
+                  fontSize: 'clamp(0.875rem, 2.5vw, 1.125rem)',
                   WebkitFontSmoothing: 'antialiased',
                   MozOsxFontSmoothing: 'grayscale',
                 }}
@@ -126,9 +126,9 @@ function EditProjectLoading() {
                 backdropFilter: 'blur(10px)',
                 border: '1px solid rgba(255, 255, 255, 0.1)',
                 position: 'relative',
-                minHeight: '250px',
+                minHeight: 'clamp(200px, 30vh, 250px)',
                 width: '100%',
-                maxWidth: '400px',
+                maxWidth: 'clamp(300px, 90vw, 400px)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -139,8 +139,8 @@ function EditProjectLoading() {
                 position: 'absolute',
                 top: '1rem',
                 right: '1rem',
-                width: '60px',
-                height: '60px',
+                width: 'clamp(40px, 10vw, 60px)',
+                height: 'clamp(40px, 10vw, 60px)',
                 background: 'radial-gradient(circle, rgba(251, 146, 60, 0.1) 0%, transparent 70%)',
                 borderRadius: '50%',
                 filter: 'blur(15px)',
@@ -157,12 +157,24 @@ function EditProjectLoading() {
                     radius="md"
                     variant="gradient"
                     gradient={{ from: 'orange.6', to: 'yellow.5' }}
+                    style={{
+                      minHeight: '48px',
+                      minWidth: '48px',
+                    }}
                   >
                     <IconEdit size={24} />
                   </ThemeIcon>
                 </motion.div>
                 <Loader size="md" color="orange.4" type="dots" />
-                <Text c="gray.4" ta="center" fw={500} size="sm">
+                <Text 
+                  c="gray.4" 
+                  ta="center" 
+                  fw={500} 
+                  size="sm"
+                  style={{
+                    fontSize: 'clamp(0.8rem, 2.2vw, 0.875rem)',
+                  }}
+                >
                   Project laden...
                 </Text>
               </Stack>
@@ -198,36 +210,31 @@ const itemVariants = {
   },
 } as const;
 
-// Client component wrapper for the edit page
 function EditProjectPageClient({ slug }: { slug: string }) {
   const [project, setProject] = useState<FullProjectType | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
     const loadProject = async () => {
       try {
         setIsLoading(true);
-        setError(null);
         const projectData = await getProjectBySlug(slug);
-        
-        if (!projectData) {
-          router.push('/404');
-          return;
-        }
-        
         setProject(projectData);
-      } catch (err) {
-        console.error('Error loading project:', err);
-        setError(err instanceof Error ? err.message : 'Kon project niet laden');
+        setError(null);
+      } catch (err: any) {
+        console.error("Error loading project:", err);
+        setError(err.message || 'Kon project niet laden.');
       } finally {
         setIsLoading(false);
       }
     };
 
-    loadProject();
-  }, [slug, router]);
+    if (slug) {
+      loadProject();
+    }
+  }, [slug]);
 
   if (isLoading) {
     return <EditProjectLoading />;
@@ -244,23 +251,42 @@ function EditProjectPageClient({ slug }: { slug: string }) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: 'var(--mantine-spacing-xl)',
+            padding: 'clamp(16px, 4vw, 24px)',
           }}
         >
-          <Container size="sm">
-            <Alert 
-              icon={<IconAlertTriangle size="1.2rem" />} 
-              title="Fout bij laden van project" 
-              color="red"
-              style={{
-                background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%)',
-                border: '1px solid rgba(239, 68, 68, 0.2)',
-                backdropFilter: 'blur(10px)',
-                borderRadius: '12px',
-              }}
-            >
-              {error}
-            </Alert>
+          <Container size="lg">
+            <Stack gap="xl" align="center">
+              <Title 
+                order={1}
+                ta="center"
+                style={{
+                  background: 'linear-gradient(135deg, var(--mantine-color-red-4), var(--mantine-color-orange-4))',
+                  backgroundClip: 'text',
+                  WebkitBackgroundClip: 'text',
+                  color: 'transparent',
+                  fontSize: 'clamp(1.5rem, 4vw, 2.5rem)',
+                  fontWeight: 900,
+                }}
+              >
+                Project Niet Gevonden
+              </Title>
+              
+              <Alert
+                icon={<IconAlertTriangle size={16} />}
+                title="Fout bij laden van project"
+                color="red"
+                radius="md"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(239, 68, 68, 0.1) 100%)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(239, 68, 68, 0.2)',
+                  fontSize: 'clamp(0.8rem, 2.2vw, 0.875rem)',
+                  maxWidth: 'clamp(300px, 90vw, 500px)',
+                }}
+              >
+                {error}
+              </Alert>
+            </Stack>
           </Container>
         </Box>
       </AdminErrorBoundary>
@@ -268,129 +294,183 @@ function EditProjectPageClient({ slug }: { slug: string }) {
   }
 
   if (!project) {
-    return null;
+    return (
+      <AdminErrorBoundary componentName="Edit Project Page">
+        <Box
+          style={{
+            position: 'relative',
+            minHeight: '100vh',
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 'clamp(16px, 4vw, 24px)',
+          }}
+        >
+          <Container size="lg">
+            <Stack gap="xl" align="center">
+              <Title 
+                order={1}
+                ta="center"
+                style={{
+                  background: 'linear-gradient(135deg, var(--mantine-color-gray-4), var(--mantine-color-gray-6))',
+                  backgroundClip: 'text',
+                  WebkitBackgroundClip: 'text',
+                  color: 'transparent',
+                  fontSize: 'clamp(1.5rem, 4vw, 2.5rem)',
+                  fontWeight: 900,
+                }}
+              >
+                Project Niet Gevonden
+              </Title>
+              
+              <Text 
+                size="lg" 
+                c="gray.4" 
+                ta="center"
+                style={{
+                  fontSize: 'clamp(0.875rem, 2.5vw, 1.125rem)',
+                  maxWidth: 'clamp(300px, 80vw, 500px)',
+                }}
+              >
+                Het project met slug "{slug}" kon niet worden gevonden.
+              </Text>
+            </Stack>
+          </Container>
+        </Box>
+      </AdminErrorBoundary>
+    );
   }
 
   return (
-    <Box
-      style={{
-        position: 'relative',
-        minHeight: '100vh',
-        width: '100%',
-        overflow: 'hidden',
-      }}
-    >
-      {/* Animated background elements */}
-      <motion.div
+    <AdminErrorBoundary componentName="Edit Project Page">
+      <Box
         style={{
-          position: 'absolute',
-          top: '8%',
-          left: '3%',
-          width: '350px',
-          height: '350px',
-          background: 'radial-gradient(circle, rgba(251, 146, 60, 0.05) 0%, transparent 70%)',
-          borderRadius: '50%',
-          filter: 'blur(70px)',
-          pointerEvents: 'none',
-          zIndex: 0,
+          position: 'relative',
+          minHeight: '100vh',
+          width: '100%',
+          overflow: 'hidden',
         }}
-        animate={{
-          x: [0, 40, 0],
-          y: [0, -25, 0],
-        }}
-        transition={{
-          duration: 14,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      />
-
-      <motion.div
-        style={{
-          position: 'absolute',
-          bottom: '12%',
-          right: '8%',
-          width: '280px',
-          height: '280px',
-          background: 'radial-gradient(circle, rgba(139, 92, 246, 0.05) 0%, transparent 70%)',
-          borderRadius: '50%',
-          filter: 'blur(55px)',
-          pointerEvents: 'none',
-          zIndex: 0,
-        }}
-        animate={{
-          x: [0, -35, 0],
-          y: [0, 30, 0],
-        }}
-        transition={{
-          duration: 11,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: 1.5,
-        }}
-      />
-
-      <Container size="lg" style={{ position: 'relative', zIndex: 1 }}>
+      >
+        {/* Animated background elements */}
         <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          <Stack gap="xl" py="xl">
-            {/* Enhanced Header */}
-            <motion.div variants={itemVariants}>
-              <Box
-                style={{
-                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
-                  backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  borderRadius: '16px',
-                  padding: 'var(--mantine-spacing-xl)',
-                  position: 'relative',
-                  overflow: 'hidden',
-                }}
-              >
-                {/* Header decorative element */}
-                <div style={{
-                  position: 'absolute',
-                  top: '-25px',
-                  right: '-25px',
-                  width: '130px',
-                  height: '130px',
-                  background: 'radial-gradient(circle, rgba(251, 146, 60, 0.1) 0%, transparent 70%)',
-                  borderRadius: '50%',
-                  filter: 'blur(28px)',
-                  pointerEvents: 'none',
-                }} />
+          style={{
+            position: 'absolute',
+            top: '15%',
+            left: '5%',
+            width: 'clamp(200px, 30vw, 300px)',
+            height: 'clamp(200px, 30vw, 300px)',
+            background: 'radial-gradient(circle, rgba(251, 146, 60, 0.05) 0%, transparent 70%)',
+            borderRadius: '50%',
+            filter: 'blur(60px)',
+            pointerEvents: 'none',
+            zIndex: 0,
+          }}
+          animate={{
+            x: [0, 30, 0],
+            y: [0, -20, 0],
+          }}
+          transition={{
+            duration: 12,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
 
-                <Group gap="lg" style={{ position: 'relative', zIndex: 1 }}>
-                  <motion.div
-                    animate={{ 
-                      rotate: [0, -5, 5, 0],
-                      scale: [1, 1.05, 1]
-                    }}
-                    transition={{ 
-                      duration: 4, 
-                      repeat: Infinity, 
-                      ease: "easeInOut" 
-                    }}
-                  >
-                    <ThemeIcon
-                      size="xl"
-                      radius="md"
-                      variant="gradient"
-                      gradient={{ from: 'orange.6', to: 'yellow.5' }}
-                      style={{
-                        boxShadow: '0 8px 32px rgba(251, 146, 60, 0.3)',
-                        border: '1px solid rgba(251, 146, 60, 0.2)',
+        <motion.div
+          style={{
+            position: 'absolute',
+            bottom: '10%',
+            right: '8%',
+            width: 'clamp(150px, 25vw, 200px)',
+            height: 'clamp(150px, 25vw, 200px)',
+            background: 'radial-gradient(circle, rgba(139, 92, 246, 0.05) 0%, transparent 70%)',
+            borderRadius: '50%',
+            filter: 'blur(40px)',
+            pointerEvents: 'none',
+            zIndex: 0,
+          }}
+          animate={{
+            x: [0, -25, 0],
+            y: [0, 25, 0],
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 1,
+          }}
+        />
+
+        <Container 
+          size="lg" 
+          style={{ 
+            position: 'relative', 
+            zIndex: 1,
+            padding: 'clamp(16px, 4vw, 24px)',
+          }}
+        >
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <Stack gap="xl" py="xl">
+              {/* Enhanced Header */}
+              <motion.div variants={itemVariants}>
+                <Box
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: 'clamp(12px, 3vw, 16px)',
+                    padding: 'clamp(16px, 4vw, 24px)',
+                    position: 'relative',
+                    overflow: 'hidden',
+                  }}
+                >
+                  {/* Header decorative element */}
+                  <div style={{
+                    position: 'absolute',
+                    top: '-20px',
+                    right: '-20px',
+                    width: 'clamp(80px, 20vw, 120px)',
+                    height: 'clamp(80px, 20vw, 120px)',
+                    background: 'radial-gradient(circle, rgba(251, 146, 60, 0.1) 0%, transparent 70%)',
+                    borderRadius: '50%',
+                    filter: 'blur(25px)',
+                    pointerEvents: 'none',
+                  }} />
+
+                  <Group gap="lg" style={{ position: 'relative', zIndex: 1 }} wrap="wrap">
+                    <motion.div
+                      animate={{ 
+                        rotate: [0, 5, -5, 0],
+                        scale: [1, 1.05, 1]
+                      }}
+                      transition={{ 
+                        duration: 3, 
+                        repeat: Infinity, 
+                        ease: "easeInOut" 
                       }}
                     >
-                      <IconEdit size={28} />
-                    </ThemeIcon>
-                  </motion.div>
-                  
-                  <Box style={{ flex: 1 }}>
-                    <Group gap="xs" mb="xs">
+                      <ThemeIcon
+                        size="xl"
+                        radius="md"
+                        variant="gradient"
+                        gradient={{ from: 'orange.6', to: 'yellow.5' }}
+                        style={{
+                          boxShadow: '0 8px 32px rgba(251, 146, 60, 0.3)',
+                          border: '1px solid rgba(251, 146, 60, 0.2)',
+                          minHeight: '48px',
+                          minWidth: '48px',
+                        }}
+                      >
+                        <IconEdit size={28} />
+                      </ThemeIcon>
+                    </motion.div>
+                    
+                    <Box style={{ flex: 1, minWidth: '250px' }}>
                       <Title 
                         order={1}
                         style={{
@@ -398,146 +478,116 @@ function EditProjectPageClient({ slug }: { slug: string }) {
                           backgroundClip: 'text',
                           WebkitBackgroundClip: 'text',
                           color: 'transparent',
-                          fontSize: 'clamp(1.6rem, 4vw, 2.2rem)',
+                          fontSize: 'clamp(1.5rem, 4vw, 2.5rem)',
                           fontWeight: 900,
+                          marginBottom: 'clamp(8px, 2vw, 12px)',
                           WebkitFontSmoothing: 'antialiased',
                           MozOsxFontSmoothing: 'grayscale',
                         }}
                       >
                         Project Bewerken
                       </Title>
-                    </Group>
-                    
-                    <Text 
-                      size="xl" 
-                      fw={700}
-                      c="gray.1"
-                      mb="xs"
-                      style={{
-                        fontSize: 'clamp(1.1rem, 2.5vw, 1.25rem)',
-                        WebkitFontSmoothing: 'antialiased',
-                        MozOsxFontSmoothing: 'grayscale',
-                      }}
-                    >
-                      {project.title}
-                    </Text>
-                    
-                    <Text 
-                      size="md" 
-                      c="gray.3"
-                      style={{
-                        fontSize: 'clamp(0.9rem, 2vw, 1rem)',
-                        lineHeight: 1.6,
-                        WebkitFontSmoothing: 'antialiased',
-                        MozOsxFontSmoothing: 'grayscale',
-                      }}
-                    >
-                      Bewerk de projectdetails en sla de wijzigingen op om je portfolio bij te werken.
-                    </Text>
-                    
-                    <Group gap="md" mt="sm">
-                      <Box
+                      
+                      <Text 
+                        size="lg" 
+                        c="gray.3"
                         style={{
-                          padding: '8px 12px',
-                          background: 'linear-gradient(135deg, rgba(251, 146, 60, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%)',
-                          border: '1px solid rgba(251, 146, 60, 0.2)',
-                          borderRadius: '6px',
-                          backdropFilter: 'blur(10px)',
+                          fontSize: 'clamp(0.875rem, 2.5vw, 1.125rem)',
+                          lineHeight: 1.6,
+                          WebkitFontSmoothing: 'antialiased',
+                          MozOsxFontSmoothing: 'grayscale',
                         }}
                       >
-                        <Group gap="xs">
-                          <IconFolder size={14} style={{ color: 'var(--mantine-color-orange-4)' }} />
-                          <Text size="xs" fw={600} c="orange.3">
-                            {project.category || 'Geen categorie'}
-                          </Text>
-                        </Group>
-                      </Box>
-                      
-                      {project.isFeatured && (
-                        <Box
-                          style={{
-                            padding: '8px 12px',
-                            background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%)',
-                            border: '1px solid rgba(34, 197, 94, 0.2)',
-                            borderRadius: '6px',
-                            backdropFilter: 'blur(10px)',
-                          }}
-                        >
-                          <Group gap="xs">
-                            <Text size="xs" fw={600} c="green.3">
-                              ⭐ Featured
-                            </Text>
-                          </Group>
-                        </Box>
-                      )}
-                      
-                      <Box
-                        style={{
-                          padding: '8px 12px',
-                          background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%)',
-                          border: '1px solid rgba(139, 92, 246, 0.2)',
-                          borderRadius: '6px',
-                          backdropFilter: 'blur(10px)',
-                        }}
-                      >
-                        <Group gap="xs">
-                          <IconEdit size={14} style={{ color: 'var(--mantine-color-violet-4)' }} />
-                          <Text size="xs" fw={600} c="violet.3">
-                            Bewerken
-                          </Text>
-                        </Group>
-                      </Box>
-                    </Group>
-                  </Box>
-                </Group>
-              </Box>
-            </motion.div>
+                        Bewerk de details van "{project.title}" en update je portfolio project.
+                      </Text>
+                    </Box>
+                  </Group>
+                </Box>
+              </motion.div>
 
-            {/* Warning Alert for missing content */}
-            {!project.detailedContent && (
+              {/* Project Form */}
               <motion.div variants={itemVariants}>
-                <Alert 
-                  icon={<IconAlertTriangle size="1.2rem" />} 
-                  title="Ontbrekende Inhoud" 
-                  color="yellow"
+                <Box
                   style={{
-                    background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%)',
-                    border: '1px solid rgba(251, 191, 36, 0.2)',
+                    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
                     backdropFilter: 'blur(10px)',
-                    borderRadius: '12px',
-                  }}
-                  styles={{
-                    title: {
-                      color: 'var(--mantine-color-yellow-4)',
-                      fontWeight: 600,
-                    },
-                    message: {
-                      color: 'var(--mantine-color-yellow-3)',
-                    }
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: 'clamp(8px, 2vw, 12px)',
+                    padding: 'clamp(16px, 4vw, 24px)',
+                    position: 'relative',
+                    overflow: 'hidden',
                   }}
                 >
-                  Dit project heeft nog geen gedetailleerde inhoud. Voeg een uitgebreide beschrijving toe om je project beter te presenteren.
-                </Alert>
-              </motion.div>
-            )}
+                  {/* Form decorative element */}
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '-30px',
+                    left: '-30px',
+                    width: 'clamp(80px, 20vw, 120px)',
+                    height: 'clamp(80px, 20vw, 120px)',
+                    background: 'radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%)',
+                    borderRadius: '50%',
+                    filter: 'blur(25px)',
+                    pointerEvents: 'none',
+                  }} />
 
-            {/* Project Form */}
-            <motion.div variants={itemVariants}>
-              <ProjectForm
-                action={updateProjectAction}
-                project={project}
-                submitButtonLabel="Wijzigingen Opslaan"
-              />
-            </motion.div>
-          </Stack>
-        </motion.div>
-      </Container>
-    </Box>
+                  <Stack gap="lg" style={{ position: 'relative', zIndex: 1 }}>
+                    <Group gap="md" wrap="wrap">
+                      <ThemeIcon
+                        size="lg"
+                        radius="md"
+                        variant="gradient"
+                        gradient={{ from: 'violet.6', to: 'purple.5' }}
+                        style={{
+                          minHeight: '44px',
+                          minWidth: '44px',
+                        }}
+                      >
+                        <IconFolder size={20} />
+                      </ThemeIcon>
+                      <Box style={{ flex: 1, minWidth: '200px' }}>
+                        <Title 
+                          order={2} 
+                          c="gray.1" 
+                          size="h3"
+                          style={{
+                            fontSize: 'clamp(1.125rem, 3vw, 1.5rem)',
+                            marginBottom: 'clamp(4px, 1vw, 8px)',
+                          }}
+                        >
+                          Project Details Bewerken
+                        </Title>
+                        <Text 
+                          size="sm" 
+                          c="gray.4"
+                          style={{
+                            fontSize: 'clamp(0.8rem, 2.2vw, 0.875rem)',
+                            lineHeight: 1.4,
+                          }}
+                        >
+                          Update de informatie en afbeeldingen van je project
+                        </Text>
+                      </Box>
+                    </Group>
+                    
+                    <ProjectForm 
+                      action={updateProjectAction}
+                      project={project}
+                      submitButtonLabel="Project Bijwerken"
+                    />
+                  </Stack>
+                </Box>
+              </motion.div>
+            </Stack>
+          </motion.div>
+        </Container>
+      </Box>
+    </AdminErrorBoundary>
   );
 }
 
 export default function EditProjectPage(props: EditProjectPageProps) {
-  const [slug, setSlug] = useState<string | null>(null);
+  const [slug, setSlug] = useState<string>('');
 
   useEffect(() => {
     const getSlug = async () => {
@@ -552,8 +602,8 @@ export default function EditProjectPage(props: EditProjectPageProps) {
   }
 
   return (
-    <AdminErrorBoundary componentName="Edit Project Page">
+    <Suspense fallback={<EditProjectLoading />}>
       <EditProjectPageClient slug={slug} />
-    </AdminErrorBoundary>
+    </Suspense>
   );
 } 

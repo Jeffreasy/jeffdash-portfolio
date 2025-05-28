@@ -67,7 +67,7 @@ export default function ContactsAdminPage() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: 'var(--mantine-spacing-xl)',
+          padding: 'clamp(16px, 4vw, 24px)',
         }}
       >
         <Container size="lg">
@@ -80,7 +80,7 @@ export default function ContactsAdminPage() {
                 backgroundClip: 'text',
                 WebkitBackgroundClip: 'text',
                 color: 'transparent',
-                fontSize: 'clamp(1.8rem, 4vw, 2.5rem)',
+                fontSize: 'clamp(1.5rem, 4vw, 2.5rem)',
                 fontWeight: 900,
               }}
             >
@@ -92,18 +92,24 @@ export default function ContactsAdminPage() {
                 background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
                 backdropFilter: 'blur(10px)',
                 border: '1px solid rgba(255, 255, 255, 0.1)',
-                borderRadius: '12px',
-                padding: 'var(--mantine-spacing-xl)',
+                borderRadius: 'clamp(8px, 2vw, 12px)',
+                padding: 'clamp(16px, 4vw, 24px)',
                 position: 'relative',
-                minHeight: '400px',
+                minHeight: 'clamp(300px, 50vh, 400px)',
                 width: '100%',
-                maxWidth: '600px',
+                maxWidth: 'clamp(300px, 90vw, 600px)',
               }}
             >
               <Center h="100%">
                 <Stack align="center" gap="md">
                   <Loader size="lg" color="green.4" type="dots" />
-                  <Text c="gray.4" ta="center">
+                  <Text 
+                    c="gray.4" 
+                    ta="center"
+                    style={{
+                      fontSize: 'clamp(0.875rem, 2.5vw, 1rem)',
+                    }}
+                  >
                     Contact berichten laden...
                   </Text>
                 </Stack>
@@ -128,8 +134,8 @@ export default function ContactsAdminPage() {
         position: 'absolute',
         top: '15%',
         right: '5%',
-        width: '250px',
-        height: '250px',
+        width: 'clamp(200px, 30vw, 250px)',
+        height: 'clamp(200px, 30vw, 250px)',
         background: 'radial-gradient(circle, rgba(34, 197, 94, 0.05) 0%, transparent 70%)',
         borderRadius: '50%',
         filter: 'blur(40px)',
@@ -137,7 +143,14 @@ export default function ContactsAdminPage() {
         zIndex: 0,
       }} />
 
-      <Container size="xl" style={{ position: 'relative', zIndex: 1 }}>
+      <Container 
+        size="xl" 
+        style={{ 
+          position: 'relative', 
+          zIndex: 1,
+          padding: 'clamp(16px, 4vw, 24px)',
+        }}
+      >
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -146,8 +159,8 @@ export default function ContactsAdminPage() {
           <Stack gap="xl">
             {/* Header */}
             <motion.div variants={itemVariants}>
-              <Group justify="space-between" align="flex-start">
-                <Box>
+              <Group justify="space-between" align="flex-start" wrap="wrap">
+                <Box style={{ flex: 1, minWidth: '250px' }}>
                   <Title 
                     order={1}
                     style={{
@@ -155,9 +168,9 @@ export default function ContactsAdminPage() {
                       backgroundClip: 'text',
                       WebkitBackgroundClip: 'text',
                       color: 'transparent',
-                      fontSize: 'clamp(1.8rem, 4vw, 2.5rem)',
+                      fontSize: 'clamp(1.5rem, 4vw, 2.5rem)',
                       fontWeight: 900,
-                      marginBottom: '0.5rem',
+                      marginBottom: 'clamp(8px, 2vw, 12px)',
                     }}
                   >
                     Contact Berichten
@@ -166,20 +179,21 @@ export default function ContactsAdminPage() {
                     size="lg" 
                     c="gray.3"
                     style={{
-                      fontSize: 'clamp(1rem, 2vw, 1.125rem)',
+                      fontSize: 'clamp(0.875rem, 2.5vw, 1.125rem)',
+                      lineHeight: 1.5,
                     }}
                   >
                     Beheer en beantwoord contactformulier inzendingen
                   </Text>
                 </Box>
                 
-                <Group gap="md" visibleFrom="sm">
+                <Group gap="md" visibleFrom="sm" wrap="wrap">
                   <Box
                     style={{
-                      padding: '12px 16px',
+                      padding: 'clamp(8px, 2vw, 12px) clamp(12px, 3vw, 16px)',
                       background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%)',
                       border: '1px solid rgba(34, 197, 94, 0.2)',
-                      borderRadius: '8px',
+                      borderRadius: 'clamp(6px, 1.5vw, 8px)',
                       backdropFilter: 'blur(10px)',
                     }}
                   >
@@ -189,10 +203,21 @@ export default function ContactsAdminPage() {
                         radius="md"
                         variant="gradient"
                         gradient={{ from: 'green.6', to: 'teal.5' }}
+                        style={{
+                          minHeight: '32px',
+                          minWidth: '32px',
+                        }}
                       >
                         <IconMessages size={14} />
                       </ThemeIcon>
-                      <Text size="sm" fw={600} c="green.3">
+                      <Text 
+                        size="sm" 
+                        fw={600} 
+                        c="green.3"
+                        style={{
+                          fontSize: 'clamp(0.8rem, 2.2vw, 0.875rem)',
+                        }}
+                      >
                         {totalCount} totaal
                       </Text>
                     </Group>
@@ -201,10 +226,10 @@ export default function ContactsAdminPage() {
                   {unreadCount > 0 && (
                     <Box
                       style={{
-                        padding: '12px 16px',
-                        background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%)',
-                        border: '1px solid rgba(59, 130, 246, 0.2)',
-                        borderRadius: '8px',
+                        padding: 'clamp(8px, 2vw, 12px) clamp(12px, 3vw, 16px)',
+                        background: 'linear-gradient(135deg, rgba(251, 146, 60, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%)',
+                        border: '1px solid rgba(251, 146, 60, 0.2)',
+                        borderRadius: 'clamp(6px, 1.5vw, 8px)',
                         backdropFilter: 'blur(10px)',
                       }}
                     >
@@ -213,12 +238,23 @@ export default function ContactsAdminPage() {
                           size="sm"
                           radius="md"
                           variant="gradient"
-                          gradient={{ from: 'blue.6', to: 'cyan.5' }}
+                          gradient={{ from: 'orange.6', to: 'yellow.5' }}
+                          style={{
+                            minHeight: '32px',
+                            minWidth: '32px',
+                          }}
                         >
                           <IconMail size={14} />
                         </ThemeIcon>
-                        <Text size="sm" fw={600} c="blue.3">
-                          {unreadCount} nieuw
+                        <Text 
+                          size="sm" 
+                          fw={600} 
+                          c="orange.3"
+                          style={{
+                            fontSize: 'clamp(0.8rem, 2.2vw, 0.875rem)',
+                          }}
+                        >
+                          {unreadCount} ongelezen
                         </Text>
                       </Group>
                     </Box>
@@ -227,25 +263,19 @@ export default function ContactsAdminPage() {
               </Group>
             </motion.div>
 
-            {/* Error Alert */}
+            {/* Error Display */}
             {error && (
               <motion.div variants={itemVariants}>
-                <Alert 
-                  title="Fout bij laden" 
-                  color="red" 
-                  icon={<IconAlertCircle />}
+                <Alert
+                  icon={<IconAlertCircle size={16} />}
+                  title="Fout bij laden van contactberichten"
+                  color="red"
+                  radius="md"
                   style={{
-                    background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%)',
-                    border: '1px solid rgba(239, 68, 68, 0.2)',
+                    background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(239, 68, 68, 0.1) 100%)',
                     backdropFilter: 'blur(10px)',
-                  }}
-                  styles={{
-                    title: {
-                      color: 'var(--mantine-color-red-4)',
-                    },
-                    message: {
-                      color: 'var(--mantine-color-red-3)',
-                    }
+                    border: '1px solid rgba(239, 68, 68, 0.2)',
+                    fontSize: 'clamp(0.8rem, 2.2vw, 0.875rem)',
                   }}
                 >
                   {error}
@@ -253,86 +283,77 @@ export default function ContactsAdminPage() {
               </motion.div>
             )}
 
-            {/* Empty State */}
-            {!error && submissions.length === 0 && (
-              <motion.div variants={itemVariants}>
-                <Box
-                  style={{
-                    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    borderRadius: '12px',
-                    padding: 'var(--mantine-spacing-xl)',
-                    textAlign: 'center',
-                    position: 'relative',
-                    overflow: 'hidden',
-                  }}
-                >
-                  {/* Decorative element */}
-                  <div style={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    width: '150px',
-                    height: '150px',
-                    background: 'radial-gradient(circle, rgba(34, 197, 94, 0.1) 0%, transparent 70%)',
-                    borderRadius: '50%',
-                    filter: 'blur(30px)',
-                    pointerEvents: 'none',
-                  }} />
+            {/* Contact Submissions Table */}
+            <motion.div variants={itemVariants}>
+              <Box
+                style={{
+                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: 'clamp(8px, 2vw, 12px)',
+                  padding: 'clamp(16px, 4vw, 24px)',
+                  position: 'relative',
+                  overflow: 'hidden',
+                }}
+              >
+                {/* Decorative element */}
+                <div style={{
+                  position: 'absolute',
+                  bottom: '-30px',
+                  left: '-30px',
+                  width: 'clamp(80px, 20vw, 120px)',
+                  height: 'clamp(80px, 20vw, 120px)',
+                  background: 'radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%)',
+                  borderRadius: '50%',
+                  filter: 'blur(25px)',
+                  pointerEvents: 'none',
+                }} />
 
-                  <Stack gap="md" align="center" style={{ position: 'relative', zIndex: 1 }}>
+                <Stack gap="lg" style={{ position: 'relative', zIndex: 1 }}>
+                  <Group gap="md">
                     <ThemeIcon
-                      size="xl"
+                      size="lg"
                       radius="md"
                       variant="gradient"
-                      gradient={{ from: 'green.6', to: 'teal.5' }}
+                      gradient={{ from: 'teal.6', to: 'green.5' }}
+                      style={{
+                        minHeight: '44px',
+                        minWidth: '44px',
+                      }}
                     >
-                      <IconMessages size={32} />
+                      <IconMessages size={20} />
                     </ThemeIcon>
-                    <Text size="lg" fw={600} c="gray.2">
-                      Nog geen contact berichten
-                    </Text>
-                    <Text size="sm" c="gray.4">
-                      Wanneer bezoekers het contactformulier invullen, verschijnen hun berichten hier
-                    </Text>
-                  </Stack>
-                </Box>
-              </motion.div>
-            )}
-
-            {/* Contact Submissions Table */}
-            {!error && submissions.length > 0 && (
-              <motion.div variants={itemVariants}>
-                <Box
-                  style={{
-                    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    borderRadius: '12px',
-                    padding: 'var(--mantine-spacing-lg)',
-                    position: 'relative',
-                    overflow: 'hidden',
-                  }}
-                >
-                  {/* Decorative element */}
-                  <div style={{
-                    position: 'absolute',
-                    top: '-20px',
-                    right: '-20px',
-                    width: '100px',
-                    height: '100px',
-                    background: 'radial-gradient(circle, rgba(34, 197, 94, 0.1) 0%, transparent 70%)',
-                    borderRadius: '50%',
-                    filter: 'blur(20px)',
-                    pointerEvents: 'none',
-                  }} />
-
-                  <ContactSubmissionsTable initialSubmissions={submissions} />
-                </Box>
-              </motion.div>
-            )}
+                    <Box>
+                      <Title 
+                        order={3} 
+                        c="gray.1" 
+                        size="h4"
+                        style={{
+                          fontSize: 'clamp(1rem, 2.5vw, 1.25rem)',
+                          marginBottom: 'clamp(2px, 0.5vw, 4px)',
+                        }}
+                      >
+                        Alle Contactberichten
+                      </Title>
+                      <Text 
+                        size="sm" 
+                        c="gray.4"
+                        style={{
+                          fontSize: 'clamp(0.8rem, 2.2vw, 0.875rem)',
+                        }}
+                      >
+                        {totalCount} {totalCount === 1 ? 'bericht' : 'berichten'} ontvangen
+                        {unreadCount > 0 && ` • ${unreadCount} ongelezen`}
+                      </Text>
+                    </Box>
+                  </Group>
+                  
+                  <ContactSubmissionsTable 
+                    initialSubmissions={submissions} 
+                  />
+                </Stack>
+              </Box>
+            </motion.div>
           </Stack>
         </motion.div>
       </Container>

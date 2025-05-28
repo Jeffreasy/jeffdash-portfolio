@@ -13,7 +13,15 @@ const MailgunTest = dynamic(() => import('@/components/admin/MailgunTest'), {
     <Center p="xl">
       <Stack align="center" gap="md">
         <Loader size="lg" color="blue.4" type="dots" />
-        <Text size="sm" c="gray.4">Email test component laden...</Text>
+        <Text 
+          size="sm" 
+          c="gray.4"
+          style={{
+            fontSize: 'clamp(0.8rem, 2.2vw, 0.875rem)',
+          }}
+        >
+          Email test component laden...
+        </Text>
       </Stack>
     </Center>
   ),
@@ -59,8 +67,8 @@ export default function EmailTestPage() {
           position: 'absolute',
           top: '15%',
           right: '5%',
-          width: '250px',
-          height: '250px',
+          width: 'clamp(200px, 30vw, 250px)',
+          height: 'clamp(200px, 30vw, 250px)',
           background: 'radial-gradient(circle, rgba(249, 115, 22, 0.05) 0%, transparent 70%)',
           borderRadius: '50%',
           filter: 'blur(40px)',
@@ -68,7 +76,14 @@ export default function EmailTestPage() {
           zIndex: 0,
         }} />
 
-        <Container size="lg" style={{ position: 'relative', zIndex: 1 }}>
+        <Container 
+          size="lg" 
+          style={{ 
+            position: 'relative', 
+            zIndex: 1,
+            padding: 'clamp(16px, 4vw, 24px)',
+          }}
+        >
           <motion.div
             variants={containerVariants}
             initial="hidden"
@@ -77,8 +92,8 @@ export default function EmailTestPage() {
             <Stack gap="xl">
               {/* Header */}
               <motion.div variants={itemVariants}>
-                <Group justify="space-between" align="flex-start">
-                  <Box>
+                <Group justify="space-between" align="flex-start" wrap="wrap">
+                  <Box style={{ flex: 1, minWidth: '250px' }}>
                     <Title 
                       order={1}
                       style={{
@@ -86,9 +101,9 @@ export default function EmailTestPage() {
                         backgroundClip: 'text',
                         WebkitBackgroundClip: 'text',
                         color: 'transparent',
-                        fontSize: 'clamp(1.8rem, 4vw, 2.5rem)',
+                        fontSize: 'clamp(1.5rem, 4vw, 2.5rem)',
                         fontWeight: 900,
-                        marginBottom: '0.5rem',
+                        marginBottom: 'clamp(8px, 2vw, 12px)',
                       }}
                     >
                       Email Test Center
@@ -97,8 +112,9 @@ export default function EmailTestPage() {
                       size="lg" 
                       c="gray.3"
                       style={{
-                        fontSize: 'clamp(1rem, 2vw, 1.125rem)',
-                        maxWidth: '600px',
+                        fontSize: 'clamp(0.875rem, 2.5vw, 1.125rem)',
+                        maxWidth: 'clamp(400px, 80vw, 600px)',
+                        lineHeight: 1.6,
                       }}
                     >
                       Test de Mailgun email integratie om te controleren of alle email functionaliteit correct werkt. 
@@ -112,6 +128,10 @@ export default function EmailTestPage() {
                     variant="gradient"
                     gradient={{ from: 'orange.6', to: 'red.5' }}
                     visibleFrom="sm"
+                    style={{
+                      minHeight: '48px',
+                      minWidth: '48px',
+                    }}
                   >
                     <IconMail size={24} />
                   </ThemeIcon>
@@ -125,8 +145,8 @@ export default function EmailTestPage() {
                     background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
                     backdropFilter: 'blur(10px)',
                     border: '1px solid rgba(255, 255, 255, 0.1)',
-                    borderRadius: '12px',
-                    padding: 'var(--mantine-spacing-xl)',
+                    borderRadius: 'clamp(8px, 2vw, 12px)',
+                    padding: 'clamp(16px, 4vw, 24px)',
                     position: 'relative',
                     overflow: 'hidden',
                   }}
@@ -136,8 +156,8 @@ export default function EmailTestPage() {
                     position: 'absolute',
                     top: '-20px',
                     right: '-20px',
-                    width: '100px',
-                    height: '100px',
+                    width: 'clamp(60px, 15vw, 100px)',
+                    height: 'clamp(60px, 15vw, 100px)',
                     background: 'radial-gradient(circle, rgba(249, 115, 22, 0.1) 0%, transparent 70%)',
                     borderRadius: '50%',
                     filter: 'blur(20px)',
@@ -148,7 +168,15 @@ export default function EmailTestPage() {
                     <Center p="xl">
                       <Stack align="center" gap="md">
                         <Loader size="lg" color="orange.4" type="dots" />
-                        <Text size="sm" c="gray.4">Email test component laden...</Text>
+                        <Text 
+                          size="sm" 
+                          c="gray.4"
+                          style={{
+                            fontSize: 'clamp(0.8rem, 2.2vw, 0.875rem)',
+                          }}
+                        >
+                          Email test component laden...
+                        </Text>
                       </Stack>
                     </Center>
                   }>
@@ -164,8 +192,8 @@ export default function EmailTestPage() {
                     background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
                     backdropFilter: 'blur(10px)',
                     border: '1px solid rgba(255, 255, 255, 0.1)',
-                    borderRadius: '12px',
-                    padding: 'var(--mantine-spacing-xl)',
+                    borderRadius: 'clamp(8px, 2vw, 12px)',
+                    padding: 'clamp(16px, 4vw, 24px)',
                     position: 'relative',
                     overflow: 'hidden',
                   }}
@@ -175,8 +203,8 @@ export default function EmailTestPage() {
                     position: 'absolute',
                     top: '-20px',
                     left: '-20px',
-                    width: '80px',
-                    height: '80px',
+                    width: 'clamp(60px, 15vw, 80px)',
+                    height: 'clamp(60px, 15vw, 80px)',
                     background: 'radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%)',
                     borderRadius: '50%',
                     filter: 'blur(15px)',
@@ -184,106 +212,82 @@ export default function EmailTestPage() {
                   }} />
 
                   <Stack gap="lg" style={{ position: 'relative', zIndex: 1 }}>
-                    <Group gap="md">
+                    <Group gap="md" wrap="wrap">
                       <ThemeIcon
                         size="lg"
                         radius="md"
                         variant="gradient"
                         gradient={{ from: 'blue.6', to: 'cyan.5' }}
+                        style={{
+                          minHeight: '44px',
+                          minWidth: '44px',
+                        }}
                       >
                         <IconSettings size={20} />
                       </ThemeIcon>
-                      <Box>
-                        <Title order={3} c="gray.1" size="h3">
+                      <Box style={{ flex: 1, minWidth: '200px' }}>
+                        <Title 
+                          order={3} 
+                          c="gray.1" 
+                          size="h3"
+                          style={{
+                            fontSize: 'clamp(1.125rem, 3vw, 1.5rem)',
+                            marginBottom: 'clamp(4px, 1vw, 8px)',
+                          }}
+                        >
                           Email Configuratie Info
                         </Title>
-                        <Text size="sm" c="gray.4">
-                          Overzicht van de huidige email instellingen
+                        <Text 
+                          size="sm" 
+                          c="gray.4"
+                          style={{
+                            fontSize: 'clamp(0.8rem, 2.2vw, 0.875rem)',
+                            lineHeight: 1.4,
+                          }}
+                        >
+                          Informatie over de huidige email configuratie en status
                         </Text>
                       </Box>
                     </Group>
 
-                    <Stack gap="md">
-                      {/* Domain Info */}
-                      <Box
-                        style={{
-                          padding: '16px',
-                          background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(6, 182, 212, 0.05) 100%)',
-                          border: '1px solid rgba(59, 130, 246, 0.1)',
-                          borderRadius: '8px',
-                        }}
-                      >
-                        <Text size="sm" fw={600} c="blue.3" mb="xs">
-                          Mailgun Domain
-                        </Text>
-                        <Text size="sm" c="gray.3">
-                          jeffdash.com (Custom Domain)
-                        </Text>
-                      </Box>
-
-                      {/* Test Email */}
-                      <Box
-                        style={{
-                          padding: '16px',
-                          background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%)',
-                          border: '1px solid rgba(34, 197, 94, 0.1)',
-                          borderRadius: '8px',
-                        }}
-                      >
-                        <Text size="sm" fw={600} c="green.3" mb="xs">
-                          Test Email Route
-                        </Text>
-                        <Text size="sm" c="gray.3">
-                          postmaster@jeffdash.com → jeffrey@jeffdash.com
-                        </Text>
-                      </Box>
-
-                      {/* Contact Form Flow */}
-                      <Box
-                        style={{
-                          padding: '16px',
-                          background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(124, 58, 237, 0.05) 100%)',
-                          border: '1px solid rgba(139, 92, 246, 0.1)',
-                          borderRadius: '8px',
-                        }}
-                      >
-                        <Text size="sm" fw={600} c="violet.3" mb="md">
-                          Contact Form Email Flow
-                        </Text>
-                        <Stack gap="xs">
-                          <Text size="sm" c="gray.3">
-                            • <strong>User confirmation:</strong> no-reply@jeffdash.com → klant
-                          </Text>
-                          <Text size="sm" c="gray.3">
-                            • <strong>Plan inquiry:</strong> sales@jeffdash.com → jeffrey@jeffdash.com
-                          </Text>
-                          <Text size="sm" c="gray.3">
-                            • <strong>General contact:</strong> contact@jeffdash.com → jeffrey@jeffdash.com
-                          </Text>
-                        </Stack>
-                      </Box>
-
-                      {/* Environment Variables Note */}
-                      <Box
-                        style={{
-                          padding: '16px',
-                          background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.05) 0%, rgba(234, 88, 12, 0.05) 100%)',
-                          border: '1px solid rgba(249, 115, 22, 0.1)',
-                          borderRadius: '8px',
-                        }}
-                      >
-                        <Group gap="xs" mb="xs">
-                          <IconInfoCircle size={16} style={{ color: 'var(--mantine-color-orange-4)' }} />
-                          <Text size="sm" fw={600} c="orange.3">
-                            Environment Variables
+                    <Card
+                      padding="md"
+                      radius="md"
+                      style={{
+                        background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(6, 182, 212, 0.05) 100%)',
+                        border: '1px solid rgba(59, 130, 246, 0.1)',
+                        backdropFilter: 'blur(5px)',
+                      }}
+                    >
+                      <Stack gap="sm">
+                        <Group gap="xs">
+                          <IconInfoCircle size={16} color="var(--mantine-color-blue-4)" />
+                          <Text 
+                            size="sm" 
+                            fw={600} 
+                            c="blue.3"
+                            style={{
+                              fontSize: 'clamp(0.8rem, 2.2vw, 0.875rem)',
+                            }}
+                          >
+                            Mailgun Configuratie
                           </Text>
                         </Group>
-                        <Text size="sm" c="gray.3">
-                          Zorg ervoor dat je de juiste environment variables hebt ingesteld in je .env.local bestand:
-                          MAILGUN_API_KEY, MAILGUN_DOMAIN, en MAILGUN_FROM_EMAIL.
+                        <Text 
+                          size="sm" 
+                          c="gray.4"
+                          style={{
+                            fontSize: 'clamp(0.75rem, 2vw, 0.8rem)',
+                            lineHeight: 1.5,
+                          }}
+                        >
+                          • Domain: Geconfigureerd via environment variabelen{'\n'}
+                          • API Key: Beveiligd opgeslagen in server environment{'\n'}
+                          • Test Mode: Beschikbaar voor veilig testen{'\n'}
+                          • Contact Form: Geïntegreerd met Mailgun API
                         </Text>
-                      </Box>
-                    </Stack>
+                      </Stack>
+                    </Card>
                   </Stack>
                 </Box>
               </motion.div>

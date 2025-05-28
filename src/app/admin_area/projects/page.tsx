@@ -127,7 +127,7 @@ export default function AdminProjectsPage() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: 'var(--mantine-spacing-xl)',
+            padding: 'clamp(16px, 4vw, 24px)',
             overflow: 'hidden',
           }}
         >
@@ -137,8 +137,8 @@ export default function AdminProjectsPage() {
               position: 'absolute',
               top: '20%',
               left: '10%',
-              width: '300px',
-              height: '300px',
+              width: 'clamp(200px, 30vw, 300px)',
+              height: 'clamp(200px, 30vw, 300px)',
               background: 'radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%)',
               borderRadius: '50%',
               filter: 'blur(60px)',
@@ -160,8 +160,8 @@ export default function AdminProjectsPage() {
               position: 'absolute',
               bottom: '20%',
               right: '10%',
-              width: '200px',
-              height: '200px',
+              width: 'clamp(150px, 25vw, 200px)',
+              height: 'clamp(150px, 25vw, 200px)',
               background: 'radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, transparent 70%)',
               borderRadius: '50%',
               filter: 'blur(40px)',
@@ -194,9 +194,9 @@ export default function AdminProjectsPage() {
                       backgroundClip: 'text',
                       WebkitBackgroundClip: 'text',
                       color: 'transparent',
-                      fontSize: 'clamp(2rem, 5vw, 3rem)',
+                      fontSize: 'clamp(1.5rem, 5vw, 3rem)',
                       fontWeight: 900,
-                      marginBottom: '0.5rem',
+                      marginBottom: 'clamp(8px, 2vw, 12px)',
                       WebkitFontSmoothing: 'antialiased',
                       MozOsxFontSmoothing: 'grayscale',
                     }}
@@ -207,12 +207,12 @@ export default function AdminProjectsPage() {
                     size="lg" 
                     c="gray.3"
                     style={{
-                      fontSize: 'clamp(1rem, 2.5vw, 1.125rem)',
+                      fontSize: 'clamp(0.875rem, 2.5vw, 1.125rem)',
                       WebkitFontSmoothing: 'antialiased',
                       MozOsxFontSmoothing: 'grayscale',
                     }}
                   >
-                    Portfolio projecten laden...
+                    Projecten laden...
                   </Text>
                 </Box>
                 
@@ -225,9 +225,9 @@ export default function AdminProjectsPage() {
                     backdropFilter: 'blur(10px)',
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     position: 'relative',
-                    minHeight: '300px',
+                    minHeight: 'clamp(200px, 30vh, 250px)',
                     width: '100%',
-                    maxWidth: '500px',
+                    maxWidth: 'clamp(300px, 90vw, 400px)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -238,31 +238,43 @@ export default function AdminProjectsPage() {
                     position: 'absolute',
                     top: '1rem',
                     right: '1rem',
-                    width: '80px',
-                    height: '80px',
+                    width: 'clamp(40px, 10vw, 60px)',
+                    height: 'clamp(40px, 10vw, 60px)',
                     background: 'radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%)',
                     borderRadius: '50%',
-                    filter: 'blur(20px)',
+                    filter: 'blur(15px)',
                     pointerEvents: 'none',
                   }} />
 
-                  <Stack align="center" gap="lg">
+                  <Stack align="center" gap="md">
                     <motion.div
                       animate={{ rotate: 360 }}
                       transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                     >
                       <ThemeIcon
-                        size="xl"
+                        size="lg"
                         radius="md"
                         variant="gradient"
                         gradient={{ from: 'blue.6', to: 'cyan.5' }}
+                        style={{
+                          minHeight: '48px',
+                          minWidth: '48px',
+                        }}
                       >
-                        <IconFolder size={32} />
+                        <IconFolder size={24} />
                       </ThemeIcon>
                     </motion.div>
-                    <Loader size="lg" color="blue.4" type="dots" />
-                    <Text c="gray.4" ta="center" fw={500}>
-                      Projecten worden geladen...
+                    <Loader size="md" color="blue.4" type="dots" />
+                    <Text 
+                      c="gray.4" 
+                      ta="center" 
+                      fw={500} 
+                      size="sm"
+                      style={{
+                        fontSize: 'clamp(0.8rem, 2.2vw, 0.875rem)',
+                      }}
+                    >
+                      Projecten laden...
                     </Text>
                   </Stack>
                 </Card>
@@ -284,26 +296,26 @@ export default function AdminProjectsPage() {
           overflow: 'hidden',
         }}
       >
-        {/* Enhanced background elements */}
+        {/* Animated background elements */}
         <motion.div
           style={{
             position: 'absolute',
-            top: '5%',
+            top: '15%',
             left: '5%',
-            width: '400px',
-            height: '400px',
+            width: 'clamp(200px, 30vw, 300px)',
+            height: 'clamp(200px, 30vw, 300px)',
             background: 'radial-gradient(circle, rgba(59, 130, 246, 0.05) 0%, transparent 70%)',
             borderRadius: '50%',
-            filter: 'blur(80px)',
+            filter: 'blur(60px)',
             pointerEvents: 'none',
             zIndex: 0,
           }}
           animate={{
-            x: [0, 50, 0],
-            y: [0, -30, 0],
+            x: [0, 30, 0],
+            y: [0, -20, 0],
           }}
           transition={{
-            duration: 15,
+            duration: 12,
             repeat: Infinity,
             ease: "easeInOut",
           }}
@@ -313,28 +325,35 @@ export default function AdminProjectsPage() {
           style={{
             position: 'absolute',
             bottom: '10%',
-            right: '10%',
-            width: '300px',
-            height: '300px',
-            background: 'radial-gradient(circle, rgba(6, 182, 212, 0.05) 0%, transparent 70%)',
+            right: '8%',
+            width: 'clamp(150px, 25vw, 200px)',
+            height: 'clamp(150px, 25vw, 200px)',
+            background: 'radial-gradient(circle, rgba(34, 197, 94, 0.05) 0%, transparent 70%)',
             borderRadius: '50%',
-            filter: 'blur(60px)',
+            filter: 'blur(40px)',
             pointerEvents: 'none',
             zIndex: 0,
           }}
           animate={{
-            x: [0, -40, 0],
-            y: [0, 40, 0],
+            x: [0, -25, 0],
+            y: [0, 25, 0],
           }}
           transition={{
-            duration: 12,
+            duration: 10,
             repeat: Infinity,
             ease: "easeInOut",
-            delay: 2,
+            delay: 1,
           }}
         />
 
-        <Container size="xl" style={{ position: 'relative', zIndex: 1 }}>
+        <Container 
+          size="xl" 
+          style={{ 
+            position: 'relative', 
+            zIndex: 1,
+            padding: 'clamp(16px, 4vw, 24px)',
+          }}
+        >
           <motion.div
             variants={containerVariants}
             initial="hidden"
@@ -343,13 +362,13 @@ export default function AdminProjectsPage() {
             <Stack gap="xl" py="xl">
               {/* Enhanced Header */}
               <motion.div variants={itemVariants}>
-                <Card
+                <Box
                   style={{
                     background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
                     backdropFilter: 'blur(10px)',
                     border: '1px solid rgba(255, 255, 255, 0.1)',
-                    borderRadius: '16px',
-                    padding: 'var(--mantine-spacing-xl)',
+                    borderRadius: 'clamp(12px, 3vw, 16px)',
+                    padding: 'clamp(16px, 4vw, 24px)',
                     position: 'relative',
                     overflow: 'hidden',
                   }}
@@ -357,298 +376,311 @@ export default function AdminProjectsPage() {
                   {/* Header decorative element */}
                   <div style={{
                     position: 'absolute',
-                    top: '-30px',
-                    right: '-30px',
-                    width: '150px',
-                    height: '150px',
+                    top: '-20px',
+                    right: '-20px',
+                    width: 'clamp(80px, 20vw, 120px)',
+                    height: 'clamp(80px, 20vw, 120px)',
                     background: 'radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%)',
                     borderRadius: '50%',
-                    filter: 'blur(30px)',
+                    filter: 'blur(25px)',
                     pointerEvents: 'none',
                   }} />
 
-                  <Group justify="space-between" align="flex-start" style={{ position: 'relative', zIndex: 1 }}>
-                    <Box>
-                      <Group gap="md" mb="sm">
-                        <ThemeIcon
-                          size="xl"
-                          radius="md"
-                          variant="gradient"
-                          gradient={{ from: 'blue.6', to: 'cyan.5' }}
-                        >
-                          <IconFolder size={28} />
-                        </ThemeIcon>
-                        <Box>
-                          <Title 
-                            order={1}
-                            style={{
-                              background: 'linear-gradient(135deg, var(--mantine-color-blue-4), var(--mantine-color-cyan-4))',
-                              backgroundClip: 'text',
-                              WebkitBackgroundClip: 'text',
-                              color: 'transparent',
-                              fontSize: 'clamp(1.8rem, 4vw, 2.5rem)',
-                              fontWeight: 900,
-                              marginBottom: '0.25rem',
-                              WebkitFontSmoothing: 'antialiased',
-                              MozOsxFontSmoothing: 'grayscale',
-                            }}
-                          >
-                            Projecten Beheer
-                          </Title>
-                          <Text 
-                            size="lg" 
-                            c="gray.3"
-                            style={{
-                              fontSize: 'clamp(1rem, 2vw, 1.125rem)',
-                              WebkitFontSmoothing: 'antialiased',
-                              MozOsxFontSmoothing: 'grayscale',
-                            }}
-                          >
-                            Beheer je portfolio projecten en voeg nieuwe toe
-                          </Text>
-                        </Box>
-                      </Group>
-                    </Box>
-                    
-                    {/* Action Button - Always visible */}
-                    <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
-                      <Button 
-                        component={Link} 
-                        href="/admin_area/projects/new"
-                        size="lg"
+                  <Group gap="lg" style={{ position: 'relative', zIndex: 1 }} wrap="wrap">
+                    <motion.div
+                      animate={{ 
+                        rotate: [0, 5, -5, 0],
+                        scale: [1, 1.05, 1]
+                      }}
+                      transition={{ 
+                        duration: 3, 
+                        repeat: Infinity, 
+                        ease: "easeInOut" 
+                      }}
+                    >
+                      <ThemeIcon
+                        size="xl"
+                        radius="md"
                         variant="gradient"
                         gradient={{ from: 'blue.6', to: 'cyan.5' }}
-                        leftSection={<IconPlus size={20} />}
                         style={{
                           boxShadow: '0 8px 32px rgba(59, 130, 246, 0.3)',
                           border: '1px solid rgba(59, 130, 246, 0.2)',
-                          fontWeight: 600,
-                        }}
-                        styles={{
-                          root: {
-                            '&:hover': {
-                              boxShadow: '0 12px 40px rgba(59, 130, 246, 0.4)',
-                              transform: 'translateY(-2px)',
-                            },
-                            '&:active': {
-                              transform: 'translateY(0px)',
-                            },
-                          },
+                          minHeight: '48px',
+                          minWidth: '48px',
                         }}
                       >
-                        Nieuw Project
-                      </Button>
+                        <IconFolder size={28} />
+                      </ThemeIcon>
                     </motion.div>
+                    
+                    <Box style={{ flex: 1, minWidth: '250px' }}>
+                      <Title 
+                        order={1}
+                        style={{
+                          background: 'linear-gradient(135deg, var(--mantine-color-blue-4), var(--mantine-color-cyan-4))',
+                          backgroundClip: 'text',
+                          WebkitBackgroundClip: 'text',
+                          color: 'transparent',
+                          fontSize: 'clamp(1.5rem, 4vw, 2.5rem)',
+                          fontWeight: 900,
+                          marginBottom: 'clamp(8px, 2vw, 12px)',
+                          WebkitFontSmoothing: 'antialiased',
+                          MozOsxFontSmoothing: 'grayscale',
+                        }}
+                      >
+                        Projecten Beheer
+                      </Title>
+                      
+                      <Text 
+                        size="lg" 
+                        c="gray.3"
+                        style={{
+                          fontSize: 'clamp(0.875rem, 2.5vw, 1.125rem)',
+                          lineHeight: 1.6,
+                          WebkitFontSmoothing: 'antialiased',
+                          MozOsxFontSmoothing: 'grayscale',
+                        }}
+                      >
+                        Beheer je portfolio projecten, voeg nieuwe toe en bewerk bestaande projecten. 
+                        Hier kun je alle details van je werk showcasen.
+                      </Text>
+                    </Box>
                   </Group>
-                </Card>
+                </Box>
               </motion.div>
 
-              {/* Enhanced Statistics Cards */}
+              {/* Statistics Cards */}
               <motion.div variants={itemVariants}>
-                <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="lg">
+                <SimpleGrid 
+                  cols={{ base: 1, sm: 2, md: 3 }} 
+                  spacing="lg"
+                >
                   <motion.div variants={statsCardVariants} whileHover="hover">
                     <Card
+                      shadow="md"
+                      padding="lg"
+                      radius="md"
                       style={{
-                        background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%)',
-                        border: '1px solid rgba(59, 130, 246, 0.2)',
-                        borderRadius: '12px',
+                        background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(59, 130, 246, 0.1) 100%)',
                         backdropFilter: 'blur(10px)',
-                        padding: 'var(--mantine-spacing-lg)',
-                        position: 'relative',
-                        overflow: 'hidden',
+                        border: '1px solid rgba(59, 130, 246, 0.2)',
+                        height: 'clamp(120px, 20vh, 140px)',
+                        cursor: 'default',
                       }}
                     >
-                      <div style={{
-                        position: 'absolute',
-                        top: '-10px',
-                        right: '-10px',
-                        width: '60px',
-                        height: '60px',
-                        background: 'radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, transparent 70%)',
-                        borderRadius: '50%',
-                        filter: 'blur(15px)',
-                        pointerEvents: 'none',
-                      }} />
-                      
-                      <Group gap="md" style={{ position: 'relative', zIndex: 1 }}>
+                      <Group justify="space-between" h="100%">
+                        <Box>
+                          <Text 
+                            size="sm" 
+                            c="blue.3" 
+                            fw={600}
+                            style={{
+                              fontSize: 'clamp(0.8rem, 2.2vw, 0.875rem)',
+                            }}
+                          >
+                            Totaal Projecten
+                          </Text>
+                          <Text 
+                            size="xl" 
+                            fw={900} 
+                            c="blue.2"
+                            style={{
+                              fontSize: 'clamp(1.5rem, 4vw, 2rem)',
+                            }}
+                          >
+                            {totalProjects}
+                          </Text>
+                        </Box>
                         <ThemeIcon
                           size="lg"
                           radius="md"
                           variant="gradient"
-                          gradient={{ from: 'blue.6', to: 'cyan.5' }}
+                          gradient={{ from: 'blue.6', to: 'blue.4' }}
+                          style={{
+                            minHeight: '44px',
+                            minWidth: '44px',
+                          }}
                         >
-                          <IconFolder size={20} />
+                          <IconClipboardList size={20} />
                         </ThemeIcon>
-                        <Box style={{ flex: 1 }}>
-                          <Text size="xl" fw={900} c="blue.3">
-                            {totalProjects}
-                          </Text>
-                          <Text size="sm" c="gray.4" fw={500}>
-                            Totaal Projecten
-                          </Text>
-                        </Box>
                       </Group>
                     </Card>
                   </motion.div>
 
                   <motion.div variants={statsCardVariants} whileHover="hover">
                     <Card
+                      shadow="md"
+                      padding="lg"
+                      radius="md"
                       style={{
-                        background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%)',
-                        border: '1px solid rgba(34, 197, 94, 0.2)',
-                        borderRadius: '12px',
+                        background: 'linear-gradient(135deg, rgba(251, 146, 60, 0.05) 0%, rgba(251, 146, 60, 0.1) 100%)',
                         backdropFilter: 'blur(10px)',
-                        padding: 'var(--mantine-spacing-lg)',
-                        position: 'relative',
-                        overflow: 'hidden',
+                        border: '1px solid rgba(251, 146, 60, 0.2)',
+                        height: 'clamp(120px, 20vh, 140px)',
+                        cursor: 'default',
                       }}
                     >
-                      <div style={{
-                        position: 'absolute',
-                        top: '-10px',
-                        right: '-10px',
-                        width: '60px',
-                        height: '60px',
-                        background: 'radial-gradient(circle, rgba(34, 197, 94, 0.2) 0%, transparent 70%)',
-                        borderRadius: '50%',
-                        filter: 'blur(15px)',
-                        pointerEvents: 'none',
-                      }} />
-                      
-                      <Group gap="md" style={{ position: 'relative', zIndex: 1 }}>
+                      <Group justify="space-between" h="100%">
+                        <Box>
+                          <Text 
+                            size="sm" 
+                            c="orange.3" 
+                            fw={600}
+                            style={{
+                              fontSize: 'clamp(0.8rem, 2.2vw, 0.875rem)',
+                            }}
+                          >
+                            Featured
+                          </Text>
+                          <Text 
+                            size="xl" 
+                            fw={900} 
+                            c="orange.2"
+                            style={{
+                              fontSize: 'clamp(1.5rem, 4vw, 2rem)',
+                            }}
+                          >
+                            {featuredProjects}
+                          </Text>
+                        </Box>
                         <ThemeIcon
                           size="lg"
                           radius="md"
                           variant="gradient"
-                          gradient={{ from: 'green.6', to: 'teal.5' }}
+                          gradient={{ from: 'orange.6', to: 'orange.4' }}
+                          style={{
+                            minHeight: '44px',
+                            minWidth: '44px',
+                          }}
                         >
                           <IconStar size={20} />
                         </ThemeIcon>
-                        <Box style={{ flex: 1 }}>
-                          <Text size="xl" fw={900} c="green.3">
-                            {featuredProjects}
-                          </Text>
-                          <Text size="sm" c="gray.4" fw={500}>
-                            Featured
-                          </Text>
-                        </Box>
                       </Group>
                     </Card>
                   </motion.div>
 
                   <motion.div variants={statsCardVariants} whileHover="hover">
                     <Card
+                      shadow="md"
+                      padding="lg"
+                      radius="md"
                       style={{
-                        background: 'linear-gradient(135deg, rgba(251, 146, 60, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%)',
-                        border: '1px solid rgba(251, 146, 60, 0.2)',
-                        borderRadius: '12px',
+                        background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.05) 0%, rgba(34, 197, 94, 0.1) 100%)',
                         backdropFilter: 'blur(10px)',
-                        padding: 'var(--mantine-spacing-lg)',
-                        position: 'relative',
-                        overflow: 'hidden',
+                        border: '1px solid rgba(34, 197, 94, 0.2)',
+                        height: 'clamp(120px, 20vh, 140px)',
+                        cursor: 'default',
                       }}
                     >
-                      <div style={{
-                        position: 'absolute',
-                        top: '-10px',
-                        right: '-10px',
-                        width: '60px',
-                        height: '60px',
-                        background: 'radial-gradient(circle, rgba(251, 146, 60, 0.2) 0%, transparent 70%)',
-                        borderRadius: '50%',
-                        filter: 'blur(15px)',
-                        pointerEvents: 'none',
-                      }} />
-                      
-                      <Group gap="md" style={{ position: 'relative', zIndex: 1 }}>
-                        <ThemeIcon
-                          size="lg"
-                          radius="md"
-                          variant="gradient"
-                          gradient={{ from: 'orange.6', to: 'yellow.5' }}
-                        >
-                          <IconCalendar size={20} />
-                        </ThemeIcon>
-                        <Box style={{ flex: 1 }}>
-                          <Text size="xl" fw={900} c="orange.3">
-                            {recentProjects}
-                          </Text>
-                          <Text size="sm" c="gray.4" fw={500}>
+                      <Group justify="space-between" h="100%">
+                        <Box>
+                          <Text 
+                            size="sm" 
+                            c="green.3" 
+                            fw={600}
+                            style={{
+                              fontSize: 'clamp(0.8rem, 2.2vw, 0.875rem)',
+                            }}
+                          >
                             Recent (30d)
                           </Text>
+                          <Text 
+                            size="xl" 
+                            fw={900} 
+                            c="green.2"
+                            style={{
+                              fontSize: 'clamp(1.5rem, 4vw, 2rem)',
+                            }}
+                          >
+                            {recentProjects}
+                          </Text>
                         </Box>
-                      </Group>
-                    </Card>
-                  </motion.div>
-
-                  <motion.div variants={statsCardVariants} whileHover="hover">
-                    <Card
-                      style={{
-                        background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%)',
-                        border: '1px solid rgba(139, 92, 246, 0.2)',
-                        borderRadius: '12px',
-                        backdropFilter: 'blur(10px)',
-                        padding: 'var(--mantine-spacing-lg)',
-                        position: 'relative',
-                        overflow: 'hidden',
-                      }}
-                    >
-                      <div style={{
-                        position: 'absolute',
-                        top: '-10px',
-                        right: '-10px',
-                        width: '60px',
-                        height: '60px',
-                        background: 'radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, transparent 70%)',
-                        borderRadius: '50%',
-                        filter: 'blur(15px)',
-                        pointerEvents: 'none',
-                      }} />
-                      
-                      <Group gap="md" style={{ position: 'relative', zIndex: 1 }}>
                         <ThemeIcon
                           size="lg"
                           radius="md"
                           variant="gradient"
-                          gradient={{ from: 'violet.6', to: 'purple.5' }}
+                          gradient={{ from: 'green.6', to: 'green.4' }}
+                          style={{
+                            minHeight: '44px',
+                            minWidth: '44px',
+                          }}
                         >
                           <IconTrendingUp size={20} />
                         </ThemeIcon>
-                        <Box style={{ flex: 1 }}>
-                          <Text size="xl" fw={900} c="violet.3">
-                            {Math.round((featuredProjects / Math.max(totalProjects, 1)) * 100)}%
-                          </Text>
-                          <Text size="sm" c="gray.4" fw={500}>
-                            Featured Rate
-                          </Text>
-                        </Box>
                       </Group>
                     </Card>
                   </motion.div>
                 </SimpleGrid>
               </motion.div>
 
-              {/* Error Alert */}
+              {/* Action Buttons */}
+              <motion.div variants={itemVariants}>
+                <Group justify="space-between" align="center" wrap="wrap">
+                  <Box>
+                    <Title 
+                      order={2} 
+                      c="gray.1" 
+                      size="h3"
+                      style={{
+                        fontSize: 'clamp(1.125rem, 3vw, 1.5rem)',
+                        marginBottom: 'clamp(4px, 1vw, 8px)',
+                      }}
+                    >
+                      Alle Projecten
+                    </Title>
+                    <Text 
+                      size="sm" 
+                      c="gray.4"
+                      style={{
+                        fontSize: 'clamp(0.8rem, 2.2vw, 0.875rem)',
+                      }}
+                    >
+                      {totalProjects} {totalProjects === 1 ? 'project' : 'projecten'} gevonden
+                    </Text>
+                  </Box>
+                  
+                  <motion.div
+                    variants={buttonVariants}
+                    initial="idle"
+                    whileHover="hover"
+                    whileTap="tap"
+                  >
+                    <Button
+                      component={Link}
+                      href="/admin_area/projects/new"
+                      leftSection={<IconPlus size={18} />}
+                      variant="gradient"
+                      gradient={{ from: 'green.6', to: 'teal.5' }}
+                      size="md"
+                      radius="md"
+                      style={{
+                        minHeight: '48px',
+                        fontSize: 'clamp(0.875rem, 2.5vw, 1rem)',
+                        padding: 'clamp(8px, 2vw, 12px) clamp(16px, 4vw, 24px)',
+                        boxShadow: '0 4px 16px rgba(34, 197, 94, 0.3)',
+                        border: '1px solid rgba(34, 197, 94, 0.2)',
+                      }}
+                    >
+                      Nieuw Project
+                    </Button>
+                  </motion.div>
+                </Group>
+              </motion.div>
+
+              {/* Error Display */}
               {fetchError && (
                 <motion.div variants={itemVariants}>
-                  <Alert 
-                    icon={<IconInfoCircle size="1.2rem" />} 
-                    title="Fout bij laden van projecten" 
+                  <Alert
+                    icon={<IconInfoCircle size={16} />}
+                    title="Fout bij laden van projecten"
                     color="red"
+                    radius="md"
                     style={{
-                      background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%)',
-                      border: '1px solid rgba(239, 68, 68, 0.2)',
+                      background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(239, 68, 68, 0.1) 100%)',
                       backdropFilter: 'blur(10px)',
-                      borderRadius: '12px',
-                    }}
-                    styles={{
-                      title: {
-                        color: 'var(--mantine-color-red-4)',
-                        fontWeight: 600,
-                      },
-                      message: {
-                        color: 'var(--mantine-color-red-3)',
-                      }
+                      border: '1px solid rgba(239, 68, 68, 0.2)',
+                      fontSize: 'clamp(0.8rem, 2.2vw, 0.875rem)',
                     }}
                   >
                     {fetchError}
@@ -656,203 +688,78 @@ export default function AdminProjectsPage() {
                 </motion.div>
               )}
 
-              {/* Empty State */}
-              {!fetchError && projects.length === 0 && (
-                <motion.div variants={itemVariants}>
-                  <Card
-                    shadow="xl"
-                    padding="3xl"
-                    radius="xl"
-                    style={{
-                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
-                      backdropFilter: 'blur(10px)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      textAlign: 'center',
-                      position: 'relative',
-                      overflow: 'hidden',
-                    }}
-                  >
-                    {/* Decorative elements */}
-                    <div style={{
-                      position: 'absolute',
-                      top: '20%',
-                      left: '20%',
-                      width: '120px',
-                      height: '120px',
-                      background: 'radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%)',
-                      borderRadius: '50%',
-                      filter: 'blur(30px)',
-                      pointerEvents: 'none',
-                    }} />
+              {/* Projects Table */}
+              <motion.div variants={itemVariants}>
+                <Box
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: 'clamp(8px, 2vw, 12px)',
+                    padding: 'clamp(16px, 4vw, 24px)',
+                    position: 'relative',
+                    overflow: 'hidden',
+                  }}
+                >
+                  {/* Decorative element */}
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '-30px',
+                    left: '-30px',
+                    width: 'clamp(80px, 20vw, 120px)',
+                    height: 'clamp(80px, 20vw, 120px)',
+                    background: 'radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, transparent 70%)',
+                    borderRadius: '50%',
+                    filter: 'blur(25px)',
+                    pointerEvents: 'none',
+                  }} />
 
-                    <div style={{
-                      position: 'absolute',
-                      bottom: '20%',
-                      right: '20%',
-                      width: '100px',
-                      height: '100px',
-                      background: 'radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, transparent 70%)',
-                      borderRadius: '50%',
-                      filter: 'blur(25px)',
-                      pointerEvents: 'none',
-                    }} />
-
-                    <Stack gap="xl" align="center" style={{ position: 'relative', zIndex: 1 }}>
-                      <motion.div
-                        animate={{ 
-                          y: [0, -10, 0],
-                          rotate: [0, 5, -5, 0]
-                        }}
-                        transition={{ 
-                          duration: 4, 
-                          repeat: Infinity, 
-                          ease: "easeInOut" 
+                  <Stack gap="lg" style={{ position: 'relative', zIndex: 1 }}>
+                    <Group gap="md">
+                      <ThemeIcon
+                        size="lg"
+                        radius="md"
+                        variant="gradient"
+                        gradient={{ from: 'cyan.6', to: 'blue.5' }}
+                        style={{
+                          minHeight: '44px',
+                          minWidth: '44px',
                         }}
                       >
-                        <ThemeIcon
-                          size={80}
-                          radius="md"
-                          variant="gradient"
-                          gradient={{ from: 'blue.6', to: 'cyan.5' }}
-                        >
-                          <IconFolder size={48} />
-                        </ThemeIcon>
-                      </motion.div>
-                      
+                        <IconEye size={20} />
+                      </ThemeIcon>
                       <Box>
-                        <Text 
-                          size="xl" 
-                          fw={700} 
-                          c="gray.2" 
-                          mb="sm"
+                        <Title 
+                          order={3} 
+                          c="gray.1" 
+                          size="h4"
                           style={{
-                            fontSize: 'clamp(1.25rem, 3vw, 1.5rem)',
-                            WebkitFontSmoothing: 'antialiased',
-                            MozOsxFontSmoothing: 'grayscale',
+                            fontSize: 'clamp(1rem, 2.5vw, 1.25rem)',
+                            marginBottom: 'clamp(2px, 0.5vw, 4px)',
                           }}
                         >
-                          Nog geen projecten gevonden
-                        </Text>
+                          Projecten Overzicht
+                        </Title>
                         <Text 
-                          size="md" 
+                          size="sm" 
                           c="gray.4"
                           style={{
-                            lineHeight: 1.6,
-                            maxWidth: '400px',
-                            margin: '0 auto',
+                            fontSize: 'clamp(0.8rem, 2.2vw, 0.875rem)',
                           }}
                         >
-                          Begin met het toevoegen van je eerste project om je portfolio te bouwen en te beheren.
+                          Bekijk, bewerk en beheer al je projecten
                         </Text>
                       </Box>
-                      
-                      <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
-                        <Button 
-                          component={Link} 
-                          href="/admin_area/projects/new"
-                          size="lg"
-                          variant="gradient"
-                          gradient={{ from: 'blue.6', to: 'cyan.5' }}
-                          leftSection={<IconPlus size={20} />}
-                          style={{
-                            boxShadow: '0 8px 32px rgba(59, 130, 246, 0.3)',
-                            border: '1px solid rgba(59, 130, 246, 0.2)',
-                            fontWeight: 600,
-                          }}
-                        >
-                          Eerste Project Toevoegen
-                        </Button>
-                      </motion.div>
-                    </Stack>
-                  </Card>
-                </motion.div>
-              )}
-
-              {/* Projects Table */}
-              {!fetchError && projects.length > 0 && (
-                <motion.div variants={itemVariants}>
-                  <Card
-                    style={{
-                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
-                      backdropFilter: 'blur(10px)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      borderRadius: '16px',
-                      padding: 'var(--mantine-spacing-lg)',
-                      position: 'relative',
-                      overflow: 'hidden',
-                    }}
-                  >
-                    {/* Table decorative elements */}
-                    <div style={{
-                      position: 'absolute',
-                      top: '-30px',
-                      right: '-30px',
-                      width: '120px',
-                      height: '120px',
-                      background: 'radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%)',
-                      borderRadius: '50%',
-                      filter: 'blur(25px)',
-                      pointerEvents: 'none',
-                    }} />
-
-                    <div style={{
-                      position: 'absolute',
-                      bottom: '-20px',
-                      left: '-20px',
-                      width: '80px',
-                      height: '80px',
-                      background: 'radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, transparent 70%)',
-                      borderRadius: '50%',
-                      filter: 'blur(20px)',
-                      pointerEvents: 'none',
-                    }} />
-
-                    <Box style={{ position: 'relative', zIndex: 1 }}>
-                      <Group justify="space-between" mb="lg">
-                        <Box>
-                          <Text 
-                            size="lg" 
-                            fw={700} 
-                            c="gray.1"
-                            style={{
-                              WebkitFontSmoothing: 'antialiased',
-                              MozOsxFontSmoothing: 'grayscale',
-                            }}
-                          >
-                            Alle Projecten
-                          </Text>
-                          <Text size="sm" c="gray.4">
-                            Beheer en bewerk je portfolio projecten
-                          </Text>
-                        </Box>
-                        
-                        <Badge
-                          variant="light"
-                          color="blue"
-                          size="lg"
-                          style={{
-                            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%)',
-                            border: '1px solid rgba(59, 130, 246, 0.2)',
-                            color: 'var(--mantine-color-blue-4)',
-                            fontWeight: 600,
-                          }}
-                        >
-                          {totalProjects} projecten
-                        </Badge>
-                      </Group>
-                      
-                      <Divider 
-                        mb="lg" 
-                        style={{ 
-                          borderColor: 'rgba(255, 255, 255, 0.1)',
-                        }} 
-                      />
-                      
-                      <ProjectsTable projects={projects} />
-                    </Box>
-                  </Card>
-                </motion.div>
-              )}
+                    </Group>
+                    
+                    <Divider color="gray.7" />
+                    
+                    <ProjectsTable 
+                      projects={projects} 
+                    />
+                  </Stack>
+                </Box>
+              </motion.div>
             </Stack>
           </motion.div>
         </Container>
