@@ -58,8 +58,8 @@ export function useContactModal(): UseContactModalReturn {
       plan_id: plan.id,
       plan_name: plan.name,
       plan_price: plan.price,
-      plan_color: plan.color,
-      is_popular: plan.popular || false,
+      plan_color: plan.category_color,
+      is_popular: plan.is_popular || false,
       selection_method: 'hook_open_with_plan',
       destination: 'contact_modal',
       features_count: plan.features?.length || 0
