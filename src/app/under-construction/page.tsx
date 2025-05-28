@@ -1,28 +1,35 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Container, Title, Text, Box, Group, ThemeIcon, Stack, Button, Card } from '@mantine/core';
-import { IconHammer, IconRocket, IconSparkles, IconArrowRight, IconClock } from '@tabler/icons-react';
+import { Container, Title, Text, Box, Group, ThemeIcon, Stack, Card } from '@mantine/core';
+import { IconHammer, IconRocket, IconSparkles, IconClock, IconMail } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
 import Head from 'next/head';
 
-// Animation variants
+// Enhanced animation variants with consistent easing
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.2,
-      delayChildren: 0.3,
+      staggerChildren: 0.15,
+      delayChildren: 0.2,
+      duration: 0.6,
+      ease: [0.25, 0.46, 0.45, 0.94],
     },
   },
 } as const;
 
 const itemVariants = {
-  hidden: { y: 30, opacity: 0 },
+  hidden: { 
+    y: 30, 
+    opacity: 0,
+    scale: 0.95,
+  },
   visible: {
     y: 0,
     opacity: 1,
+    scale: 1,
     transition: {
       duration: 0.6,
       ease: [0.25, 0.46, 0.45, 0.94],
@@ -31,10 +38,19 @@ const itemVariants = {
 } as const;
 
 const floatingAnimation = {
-  y: [-10, 10, -10],
-  rotate: [0, 5, -5, 0],
+  y: [-8, 8, -8],
+  rotate: [0, 3, -3, 0],
   transition: {
-    duration: 6,
+    duration: 8,
+    repeat: Infinity,
+    ease: "easeInOut" as const,
+  },
+};
+
+const pulseAnimation = {
+  scale: [1, 1.05, 1],
+  transition: {
+    duration: 3,
     repeat: Infinity,
     ease: "easeInOut" as const,
   },
@@ -82,7 +98,7 @@ export default function UnderConstructionPage() {
     fetchSettings();
   }, []);
 
-  // Disable right-click context menu during maintenance
+  // Enhanced security measures during maintenance
   useEffect(() => {
     const handleContextMenu = (e: MouseEvent) => {
       e.preventDefault();
@@ -93,7 +109,8 @@ export default function UnderConstructionPage() {
       if (
         e.key === 'F12' ||
         (e.ctrlKey && e.shiftKey && e.key === 'I') ||
-        (e.ctrlKey && e.key === 'u')
+        (e.ctrlKey && e.key === 'u') ||
+        (e.ctrlKey && e.shiftKey && e.key === 'C')
       ) {
         e.preventDefault();
       }
@@ -108,7 +125,7 @@ export default function UnderConstructionPage() {
     };
   }, []);
 
-  // Default values
+  // Default values with better fallbacks
   const maintenanceMessage = settings.maintenance_message || 
     'We werken hard aan het verbeteren van je ervaring. De website komt binnenkort terug online met geweldige nieuwe features!';
   const contactEmail = settings.maintenance_contact_email || 'contact@jeffdash.com';
@@ -131,64 +148,115 @@ export default function UnderConstructionPage() {
           alignItems: 'center',
           justifyContent: 'center',
           overflow: 'hidden',
-          background: 'linear-gradient(135deg, var(--mantine-color-dark-8) 0%, var(--mantine-color-dark-7) 100%)',
-          userSelect: 'none', // Prevent text selection
+          background: `
+            linear-gradient(135deg, 
+              var(--mantine-color-dark-8) 0%, 
+              var(--mantine-color-dark-7) 50%,
+              var(--mantine-color-dark-8) 100%
+            )
+          `,
+          userSelect: 'none',
         }}
       >
-        {/* Animated background elements */}
+        {/* Enhanced animated background elements */}
         <motion.div
           style={{
             position: 'absolute',
-            top: '15%',
-            left: '10%',
-            width: 'clamp(200px, 30vw, 400px)',
-            height: 'clamp(200px, 30vw, 400px)',
-            background: 'radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%)',
+            top: '10%',
+            left: '5%',
+            width: 'clamp(300px, 35vw, 500px)',
+            height: 'clamp(300px, 35vw, 500px)',
+            background: `
+              radial-gradient(circle, 
+                rgba(59, 130, 246, 0.12) 0%, 
+                rgba(59, 130, 246, 0.06) 40%,
+                transparent 70%
+              )
+            `,
+            borderRadius: '50%',
+            filter: 'blur(100px)',
+            pointerEvents: 'none',
+          }}
+          animate={{
+            x: [0, 60, 0],
+            y: [0, -40, 0],
+            scale: [1, 1.1, 1],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+
+        <motion.div
+          style={{
+            position: 'absolute',
+            bottom: '15%',
+            right: '10%',
+            width: 'clamp(250px, 30vw, 400px)',
+            height: 'clamp(250px, 30vw, 400px)',
+            background: `
+              radial-gradient(circle, 
+                rgba(6, 182, 212, 0.12) 0%, 
+                rgba(6, 182, 212, 0.06) 40%,
+                transparent 70%
+              )
+            `,
             borderRadius: '50%',
             filter: 'blur(80px)',
             pointerEvents: 'none',
           }}
           animate={{
-            x: [0, 50, 0],
-            y: [0, -30, 0],
+            x: [0, -50, 0],
+            y: [0, 50, 0],
+            scale: [1, 1.15, 1],
           }}
           transition={{
-            duration: 15,
+            duration: 16,
             repeat: Infinity,
             ease: "easeInOut",
+            delay: 3,
           }}
         />
 
+        {/* Additional decorative elements */}
         <motion.div
           style={{
             position: 'absolute',
-            bottom: '20%',
-            right: '15%',
-            width: 'clamp(150px, 25vw, 300px)',
-            height: 'clamp(150px, 25vw, 300px)',
-            background: 'radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, transparent 70%)',
+            top: '60%',
+            left: '80%',
+            width: 'clamp(150px, 20vw, 250px)',
+            height: 'clamp(150px, 20vw, 250px)',
+            background: `
+              radial-gradient(circle, 
+                rgba(139, 92, 246, 0.08) 0%, 
+                transparent 60%
+              )
+            `,
             borderRadius: '50%',
             filter: 'blur(60px)',
             pointerEvents: 'none',
           }}
           animate={{
-            x: [0, -40, 0],
-            y: [0, 40, 0],
+            x: [0, -30, 0],
+            y: [0, -30, 0],
+            opacity: [0.3, 0.6, 0.3],
           }}
           transition={{
             duration: 12,
             repeat: Infinity,
             ease: "easeInOut",
-            delay: 2,
+            delay: 6,
           }}
         />
 
         <Container 
-          size="md" 
+          size="lg" 
           style={{ 
             position: 'relative', 
             zIndex: 1,
-            padding: 'clamp(16px, 4vw, 24px)',
+            padding: 'clamp(20px, 5vw, 32px)',
           }}
         >
           <motion.div
@@ -196,185 +264,298 @@ export default function UnderConstructionPage() {
             initial="hidden"
             animate="visible"
           >
-            <Stack gap="xl" align="center" ta="center">
-              {/* Main Icon */}
+            <Stack gap={clamp(32, 6, 48)} align="center" ta="center">
+              {/* Enhanced main icon */}
               <motion.div variants={itemVariants}>
                 <motion.div 
                   animate={floatingAnimation}
+                  style={{
+                    filter: 'drop-shadow(0 25px 50px rgba(59, 130, 246, 0.4))',
+                  }}
                 >
                   <ThemeIcon
                     size="xl"
                     radius="xl"
                     variant="gradient"
-                    gradient={{ from: 'blue.6', to: 'cyan.5' }}
+                    gradient={{ from: 'blue.5', to: 'cyan.4', deg: 135 }}
                     style={{
-                      width: 'clamp(80px, 15vw, 120px)',
-                      height: 'clamp(80px, 15vw, 120px)',
-                      boxShadow: '0 20px 60px rgba(59, 130, 246, 0.3)',
-                      border: '2px solid rgba(59, 130, 246, 0.2)',
+                      width: 'clamp(100px, 18vw, 140px)',
+                      height: 'clamp(100px, 18vw, 140px)',
+                      boxShadow: `
+                        0 25px 80px rgba(59, 130, 246, 0.35),
+                        0 0 0 1px rgba(59, 130, 246, 0.2),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1)
+                      `,
+                      border: '2px solid rgba(59, 130, 246, 0.3)',
+                      backdropFilter: 'blur(10px)',
                     }}
                   >
-                    <IconHammer size={50} />
+                    <IconHammer size={clamp(40, 8, 60)} />
                   </ThemeIcon>
                 </motion.div>
               </motion.div>
 
-              {/* Title */}
+              {/* Enhanced title with better typography */}
               <motion.div variants={itemVariants}>
                 <Title
                   order={1}
                   style={{
-                    background: 'linear-gradient(135deg, var(--mantine-color-blue-4), var(--mantine-color-cyan-4))',
+                    background: `
+                      linear-gradient(135deg, 
+                        var(--mantine-color-blue-4) 0%,
+                        var(--mantine-color-cyan-4) 50%,
+                        var(--mantine-color-blue-3) 100%
+                      )
+                    `,
                     backgroundClip: 'text',
                     WebkitBackgroundClip: 'text',
                     color: 'transparent',
-                    fontSize: 'clamp(2rem, 6vw, 4rem)',
+                    fontSize: 'clamp(2.5rem, 8vw, 5rem)',
                     fontWeight: 900,
-                    marginBottom: 'clamp(8px, 2vw, 16px)',
+                    marginBottom: 'clamp(12px, 3vw, 24px)',
                     WebkitFontSmoothing: 'antialiased',
                     MozOsxFontSmoothing: 'grayscale',
                     textAlign: 'center',
+                    letterSpacing: '-0.02em',
+                    lineHeight: 1.1,
+                    filter: 'drop-shadow(0 4px 12px rgba(59, 130, 246, 0.3))',
                   }}
                 >
                   Website in Onderhoud
                 </Title>
               </motion.div>
 
-              {/* Dynamic Subtitle */}
+              {/* Enhanced subtitle with better spacing */}
               <motion.div variants={itemVariants}>
                 <Text
                   size="xl"
-                  c="gray.3"
+                  c="gray.2"
                   style={{
-                    fontSize: 'clamp(1rem, 3vw, 1.5rem)',
+                    fontSize: 'clamp(1.125rem, 4vw, 1.75rem)',
                     lineHeight: 1.6,
-                    maxWidth: '600px',
+                    maxWidth: '700px',
                     margin: '0 auto',
                     WebkitFontSmoothing: 'antialiased',
                     MozOsxFontSmoothing: 'grayscale',
+                    fontWeight: 400,
+                    letterSpacing: '-0.01em',
                   }}
                 >
                   {maintenanceMessage}
                 </Text>
               </motion.div>
 
-              {/* Features Cards */}
+              {/* Enhanced feature cards with better glassmorphism */}
               <motion.div variants={itemVariants}>
-                <Group gap="lg" justify="center" style={{ marginTop: 'clamp(24px, 5vw, 48px)' }} wrap="wrap">
-                  <Card
-                    shadow="xl"
-                    padding="lg"
-                    radius="lg"
-                    style={{
-                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
-                      backdropFilter: 'blur(10px)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      minWidth: 'clamp(200px, 40vw, 250px)',
-                      textAlign: 'center',
+                <Group 
+                  gap={clamp(20, 4, 32)} 
+                  justify="center" 
+                  style={{ marginTop: 'clamp(32px, 6vw, 64px)' }} 
+                  wrap="wrap"
+                >
+                  <motion.div
+                    whileHover={{ 
+                      scale: 1.05,
+                      transition: { duration: 0.2 }
                     }}
                   >
-                    <Stack gap="sm" align="center">
-                      <ThemeIcon
-                        size="lg"
-                        radius="md"
-                        variant="gradient"
-                        gradient={{ from: 'violet.6', to: 'purple.5' }}
-                        style={{ minHeight: '48px', minWidth: '48px' }}
-                      >
-                        <IconRocket size={24} />
-                      </ThemeIcon>
-                      <Text fw={600} c="gray.1" size="sm">
-                        Nieuwe Features
-                      </Text>
-                      <Text size="xs" c="gray.4">
-                        Verbeterde functionaliteit
-                      </Text>
-                    </Stack>
-                  </Card>
+                    <Card
+                      shadow="xl"
+                      padding={clamp(20, 4, 28)}
+                      radius="xl"
+                      style={{
+                        background: `
+                          linear-gradient(135deg, 
+                            rgba(255, 255, 255, 0.03) 0%, 
+                            rgba(255, 255, 255, 0.08) 100%
+                          )
+                        `,
+                        backdropFilter: 'blur(20px)',
+                        border: '1px solid rgba(255, 255, 255, 0.15)',
+                        minWidth: 'clamp(220px, 45vw, 280px)',
+                        textAlign: 'center',
+                        boxShadow: `
+                          0 20px 40px rgba(0, 0, 0, 0.1),
+                          0 0 0 1px rgba(255, 255, 255, 0.05)
+                        `,
+                      }}
+                    >
+                      <Stack gap="md" align="center">
+                        <motion.div animate={pulseAnimation}>
+                          <ThemeIcon
+                            size="xl"
+                            radius="lg"
+                            variant="gradient"
+                            gradient={{ from: 'violet.5', to: 'purple.4', deg: 135 }}
+                            style={{ 
+                              minHeight: '56px', 
+                              minWidth: '56px',
+                              boxShadow: '0 8px 24px rgba(139, 92, 246, 0.3)',
+                            }}
+                          >
+                            <IconRocket size={28} />
+                          </ThemeIcon>
+                        </motion.div>
+                        <Text fw={700} c="gray.1" size="lg">
+                          Nieuwe Features
+                        </Text>
+                        <Text size="sm" c="gray.4" style={{ lineHeight: 1.5 }}>
+                          Verbeterde functionaliteit en prestaties
+                        </Text>
+                      </Stack>
+                    </Card>
+                  </motion.div>
 
-                  <Card
-                    shadow="xl"
-                    padding="lg"
-                    radius="lg"
-                    style={{
-                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
-                      backdropFilter: 'blur(10px)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      minWidth: 'clamp(200px, 40vw, 250px)',
-                      textAlign: 'center',
+                  <motion.div
+                    whileHover={{ 
+                      scale: 1.05,
+                      transition: { duration: 0.2 }
                     }}
                   >
-                    <Stack gap="sm" align="center">
-                      <ThemeIcon
-                        size="lg"
-                        radius="md"
-                        variant="gradient"
-                        gradient={{ from: 'orange.6', to: 'yellow.5' }}
-                        style={{ minHeight: '48px', minWidth: '48px' }}
-                      >
-                        <IconSparkles size={24} />
-                      </ThemeIcon>
-                      <Text fw={600} c="gray.1" size="sm">
-                        Beter Design
-                      </Text>
-                      <Text size="xs" c="gray.4">
-                        Moderne gebruikerservaring
-                      </Text>
-                    </Stack>
-                  </Card>
+                    <Card
+                      shadow="xl"
+                      padding={clamp(20, 4, 28)}
+                      radius="xl"
+                      style={{
+                        background: `
+                          linear-gradient(135deg, 
+                            rgba(255, 255, 255, 0.03) 0%, 
+                            rgba(255, 255, 255, 0.08) 100%
+                          )
+                        `,
+                        backdropFilter: 'blur(20px)',
+                        border: '1px solid rgba(255, 255, 255, 0.15)',
+                        minWidth: 'clamp(220px, 45vw, 280px)',
+                        textAlign: 'center',
+                        boxShadow: `
+                          0 20px 40px rgba(0, 0, 0, 0.1),
+                          0 0 0 1px rgba(255, 255, 255, 0.05)
+                        `,
+                      }}
+                    >
+                      <Stack gap="md" align="center">
+                        <motion.div animate={pulseAnimation}>
+                          <ThemeIcon
+                            size="xl"
+                            radius="lg"
+                            variant="gradient"
+                            gradient={{ from: 'orange.5', to: 'yellow.4', deg: 135 }}
+                            style={{ 
+                              minHeight: '56px', 
+                              minWidth: '56px',
+                              boxShadow: '0 8px 24px rgba(251, 146, 60, 0.3)',
+                            }}
+                          >
+                            <IconSparkles size={28} />
+                          </ThemeIcon>
+                        </motion.div>
+                        <Text fw={700} c="gray.1" size="lg">
+                          Beter Design
+                        </Text>
+                        <Text size="sm" c="gray.4" style={{ lineHeight: 1.5 }}>
+                          Moderne en intuïtieve gebruikerservaring
+                        </Text>
+                      </Stack>
+                    </Card>
+                  </motion.div>
                 </Group>
               </motion.div>
 
-              {/* Status */}
+              {/* Enhanced status card */}
               <motion.div variants={itemVariants}>
                 <Card
-                  shadow="lg"
-                  padding="md"
-                  radius="md"
+                  shadow="xl"
+                  padding={clamp(16, 3, 24)}
+                  radius="xl"
                   style={{
-                    background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%)',
-                    border: '1px solid rgba(34, 197, 94, 0.2)',
-                    backdropFilter: 'blur(10px)',
-                    marginTop: 'clamp(16px, 3vw, 32px)',
+                    background: `
+                      linear-gradient(135deg, 
+                        rgba(34, 197, 94, 0.12) 0%, 
+                        rgba(16, 185, 129, 0.12) 100%
+                      )
+                    `,
+                    border: '1px solid rgba(34, 197, 94, 0.25)',
+                    backdropFilter: 'blur(20px)',
+                    marginTop: 'clamp(24px, 4vw, 40px)',
+                    boxShadow: `
+                      0 20px 40px rgba(34, 197, 94, 0.1),
+                      0 0 0 1px rgba(34, 197, 94, 0.1)
+                    `,
                   }}
                 >
                   <Group gap="sm" justify="center" wrap="wrap">
                     <motion.div
                       animate={{ rotate: 360 }}
-                      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                      transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
                     >
-                      <IconClock size={20} style={{ color: 'var(--mantine-color-green-4)' }} />
+                      <IconClock size={24} style={{ color: 'var(--mantine-color-green-4)' }} />
                     </motion.div>
-                    <Text fw={600} c="green.3" size="sm">
+                    <Text fw={600} c="green.3" size="lg">
                       Verwachte online tijd: Binnenkort
                     </Text>
                   </Group>
                 </Card>
               </motion.div>
 
-              {/* Dynamic Contact Info */}
+              {/* Enhanced contact section */}
               <motion.div variants={itemVariants}>
-                <Text
-                  size="sm"
-                  c="gray.5"
+                <Card
+                  shadow="lg"
+                  padding={clamp(20, 4, 28)}
+                  radius="xl"
                   style={{
-                    marginTop: 'clamp(24px, 4vw, 48px)',
-                    fontSize: 'clamp(0.8rem, 2.5vw, 0.875rem)',
+                    background: `
+                      linear-gradient(135deg, 
+                        rgba(255, 255, 255, 0.02) 0%, 
+                        rgba(255, 255, 255, 0.05) 100%
+                      )
+                    `,
+                    backdropFilter: 'blur(20px)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    marginTop: 'clamp(32px, 5vw, 48px)',
+                    maxWidth: '500px',
                   }}
                 >
-                  Voor dringende zaken kun je contact opnemen via{' '}
-                  <Text
-                    component="a"
-                    href={`mailto:${contactEmail}`}
-                    style={{
-                      color: 'var(--mantine-color-blue-4)',
-                      textDecoration: 'none',
-                      borderBottom: '1px solid rgba(59, 130, 246, 0.3)',
-                    }}
-                  >
-                    {contactEmail}
-                  </Text>
-                </Text>
+                  <Stack gap="md" align="center" ta="center">
+                    <Group gap="sm" justify="center">
+                      <IconMail size={20} style={{ color: 'var(--mantine-color-blue-4)' }} />
+                      <Text fw={600} c="gray.2" size="lg">
+                        Dringende zaken?
+                      </Text>
+                    </Group>
+                    <Text
+                      size="md"
+                      c="gray.4"
+                      style={{
+                        fontSize: 'clamp(0.875rem, 3vw, 1rem)',
+                        lineHeight: 1.6,
+                      }}
+                    >
+                      Neem contact op via{' '}
+                      <Text
+                        component="a"
+                        href={`mailto:${contactEmail}`}
+                        style={{
+                          color: 'var(--mantine-color-blue-4)',
+                          textDecoration: 'none',
+                          borderBottom: '1px solid rgba(59, 130, 246, 0.4)',
+                          fontWeight: 600,
+                          transition: 'all 0.2s ease',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.borderBottomColor = 'var(--mantine-color-blue-4)';
+                          e.currentTarget.style.color = 'var(--mantine-color-blue-3)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.borderBottomColor = 'rgba(59, 130, 246, 0.4)';
+                          e.currentTarget.style.color = 'var(--mantine-color-blue-4)';
+                        }}
+                      >
+                        {contactEmail}
+                      </Text>
+                    </Text>
+                  </Stack>
+                </Card>
               </motion.div>
             </Stack>
           </motion.div>
@@ -382,4 +563,9 @@ export default function UnderConstructionPage() {
       </Box>
     </>
   );
+}
+
+// Helper function for responsive values
+function clamp(min: number, vw: number, max: number): string {
+  return `clamp(${min}px, ${vw}vw, ${max}px)`;
 } 
