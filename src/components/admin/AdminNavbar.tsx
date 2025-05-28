@@ -13,6 +13,7 @@ import {
   IconUser,
   IconLogout,
   IconMail,
+  IconSettings,
 } from '@tabler/icons-react';
 import { logoutUser } from '@/lib/actions/auth';
 import AdminErrorBoundary from './AdminErrorBoundary';
@@ -24,6 +25,7 @@ const navLinks = [
   { icon: IconMessages, label: 'Contact Berichten', href: '/admin_area/contacts' },
   { icon: IconUser, label: 'About Content', href: '/admin_area/about' },
   { icon: IconMail, label: 'Email Test', href: '/admin_area/email-test' },
+  { icon: IconSettings, label: 'Site Instellingen', href: '/admin_area/settings' },
 ];
 
 // Animation variants

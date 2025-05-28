@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container, Title, Text, Box, Group, ThemeIcon, Stack, Button, Card } from '@mantine/core';
 import { IconHammer, IconRocket, IconSparkles, IconArrowRight, IconClock } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
@@ -40,7 +40,48 @@ const floatingAnimation = {
   },
 };
 
+interface SiteSettings {
+  maintenance_message?: string;
+  maintenance_contact_email?: string;
+  site_name?: string;
+}
+
 export default function UnderConstructionPage() {
+  const [settings, setSettings] = useState<SiteSettings>({});
+  const [loading, setLoading] = useState(true);
+
+  // Fetch site settings
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const response = await fetch('/api/site-status');
+        if (response.ok) {
+          // Try to fetch additional settings from admin API (will fail if not admin, that's ok)
+          try {
+            const adminResponse = await fetch('/api/admin/site-settings');
+            if (adminResponse.ok) {
+              const adminData = await adminResponse.json();
+              const settingsMap: SiteSettings = {};
+              adminData.settings?.forEach((setting: any) => {
+                settingsMap[setting.key as keyof SiteSettings] = setting.value;
+              });
+              setSettings(settingsMap);
+            }
+          } catch (error) {
+            // Not admin or error, use defaults
+            console.log('Using default settings');
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching settings:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSettings();
+  }, []);
+
   // Disable right-click context menu during maintenance
   useEffect(() => {
     const handleContextMenu = (e: MouseEvent) => {
@@ -67,10 +108,16 @@ export default function UnderConstructionPage() {
     };
   }, []);
 
+  // Default values
+  const maintenanceMessage = settings.maintenance_message || 
+    'We werken hard aan het verbeteren van je ervaring. De website komt binnenkort terug online met geweldige nieuwe features!';
+  const contactEmail = settings.maintenance_contact_email || 'contact@jeffdash.com';
+  const siteName = settings.site_name || 'Jeffrey Lavente Portfolio';
+
   return (
     <>
       <Head>
-        <title>Website in Onderhoud - Jeffrey Lavente</title>
+        <title>Website in Onderhoud - {siteName}</title>
         <meta name="robots" content="noindex, nofollow" />
         <meta name="description" content="Website tijdelijk in onderhoud. Komt binnenkort terug online." />
       </Head>
@@ -193,7 +240,7 @@ export default function UnderConstructionPage() {
                 </Title>
               </motion.div>
 
-              {/* Subtitle */}
+              {/* Dynamic Subtitle */}
               <motion.div variants={itemVariants}>
                 <Text
                   size="xl"
@@ -207,8 +254,7 @@ export default function UnderConstructionPage() {
                     MozOsxFontSmoothing: 'grayscale',
                   }}
                 >
-                  We werken hard aan het verbeteren van je ervaring. 
-                  De website komt binnenkort terug online met geweldige nieuwe features!
+                  {maintenanceMessage}
                 </Text>
               </motion.div>
 
@@ -306,7 +352,7 @@ export default function UnderConstructionPage() {
                 </Card>
               </motion.div>
 
-              {/* Contact Info */}
+              {/* Dynamic Contact Info */}
               <motion.div variants={itemVariants}>
                 <Text
                   size="sm"
@@ -319,14 +365,14 @@ export default function UnderConstructionPage() {
                   Voor dringende zaken kun je contact opnemen via{' '}
                   <Text
                     component="a"
-                    href="mailto:contact@jeffreylav.nl"
+                    href={`mailto:${contactEmail}`}
                     style={{
                       color: 'var(--mantine-color-blue-4)',
                       textDecoration: 'none',
                       borderBottom: '1px solid rgba(59, 130, 246, 0.3)',
                     }}
                   >
-                    contact@jeffdash.com
+                    {contactEmail}
                   </Text>
                 </Text>
               </motion.div>
