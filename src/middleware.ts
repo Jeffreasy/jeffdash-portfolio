@@ -11,6 +11,45 @@ export async function middleware(request: NextRequest) {
     },
   })
 
+  const { pathname } = request.nextUrl
+
+  // Check for under construction mode
+  const isUnderConstruction = process.env.UNDER_CONSTRUCTION === 'true'
+  
+  // Routes that should be accessible even during maintenance
+  const allowedRoutes = [
+    '/under-construction',
+    '/admin_area',
+    '/login',
+    '/api',
+    '/_next',
+    '/favicon.ico',
+    '/robots.txt',
+    '/sitemap.xml'
+  ]
+  
+  // Public routes that should be blocked during maintenance
+  const blockedPublicRoutes = [
+    '/about',
+    '/projects', 
+    '/blog',
+    '/contact',
+    '/test-auth'
+  ]
+  
+  // Check if current path should be allowed during maintenance
+  const isAllowedRoute = allowedRoutes.some(route => pathname.startsWith(route))
+  const isBlockedPublicRoute = blockedPublicRoutes.some(route => pathname.startsWith(route))
+  
+  // Redirect to under construction page if maintenance mode is enabled
+  if (isUnderConstruction && (!isAllowedRoute || isBlockedPublicRoute)) {
+    // Don't redirect if already on under construction page to prevent loops
+    if (pathname !== '/under-construction') {
+      console.log(`Middleware: Under construction mode - redirecting ${pathname} to /under-construction`);
+      return NextResponse.redirect(new URL('/under-construction', request.url))
+    }
+  }
+
   // Create an unmodified Supabase client for middleware actions
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -48,8 +87,6 @@ export async function middleware(request: NextRequest) {
 
   // Refresh session if expired - important!
   const { data: { user } } = await supabase.auth.getUser()
-
-  const { pathname } = request.nextUrl
 
   // Protect admin routes
   if (pathname.startsWith('/admin_area')) {
