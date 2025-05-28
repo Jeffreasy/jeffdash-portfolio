@@ -2,12 +2,20 @@
 
 import React, { useEffect } from 'react';
 import { Modal, Title, Text, Stack, Box, Group, ThemeIcon, List, Badge, Paper } from '@mantine/core';
-import { IconCheck, IconStar } from '@tabler/icons-react';
+import { IconCheck, IconStar, IconPalette, IconServer, IconCode, IconSettings } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
 import ContactForm from './ContactForm';
 import ContactErrorBoundary from './ContactErrorBoundary';
-import { PricingPlan } from '../home/PricingSection/data';
+import { PricingPlan } from '@/app/api/pricing-plans/route';
 import { useAnalytics } from '@/hooks/useAnalytics';
+
+// Icon mapping for dynamic icon rendering
+const iconMap = {
+  'IconPalette': IconPalette,
+  'IconServer': IconServer,
+  'IconCode': IconCode,
+  'IconSettings': IconSettings,
+};
 
 interface ContactModalProps {
   opened: boolean;
@@ -56,7 +64,14 @@ interface PlanDetailsProps {
 
 function PlanDetails({ plan }: PlanDetailsProps) {
   const { trackEvent } = useAnalytics();
-  const colorRGB = getColorRGB(plan.color);
+  const colorRGB = getColorRGB(plan.category_color);
+  
+  // Get icon component from string
+  const getIconComponent = (iconName: string) => {
+    return iconMap[iconName as keyof typeof iconMap] || IconCode;
+  };
+  
+  const IconComponent = getIconComponent(plan.category_icon);
   
   // Track plan details view
   useEffect(() => {
@@ -64,8 +79,8 @@ function PlanDetails({ plan }: PlanDetailsProps) {
       plan_id: plan.id,
       plan_name: plan.name,
       plan_price: plan.price,
-      plan_color: plan.color,
-      is_popular: plan.popular || false,
+      plan_color: plan.category_color,
+      is_popular: plan.is_popular || false,
       view_context: 'contact_modal',
       features_count: plan.features?.length || 0
     });
@@ -109,19 +124,19 @@ function PlanDetails({ plan }: PlanDetailsProps) {
               size="xl" 
               radius="md" 
               variant="gradient" 
-              gradient={plan.gradient}
+              gradient={{ from: plan.gradient_from, to: plan.gradient_to }}
             >
-              <plan.icon size={24} />
+              <IconComponent size={24} />
             </ThemeIcon>
             <Box flex={1}>
               <Group gap="xs">
                 <Title order={3} c="gray.1" size="h4">
                   {plan.name}
                 </Title>
-                {plan.popular && (
+                {plan.is_popular && (
                   <Badge
                     variant="gradient"
-                    gradient={plan.gradient}
+                    gradient={{ from: plan.gradient_from, to: plan.gradient_to }}
                     size="sm"
                     leftSection={<IconStar size={10} />}
                   >
@@ -150,7 +165,7 @@ function PlanDetails({ plan }: PlanDetailsProps) {
                 lh={1}
                 style={{
                   fontSize: '1.75rem',
-                  background: `linear-gradient(135deg, var(--mantine-color-${plan.color}-4), var(--mantine-color-${plan.color}-6))`,
+                  background: `linear-gradient(135deg, var(--mantine-color-${plan.category_color}-4), var(--mantine-color-${plan.category_color}-6))`,
                   backgroundClip: 'text',
                   WebkitBackgroundClip: 'text',
                   color: 'transparent',
@@ -158,9 +173,9 @@ function PlanDetails({ plan }: PlanDetailsProps) {
               >
                 {plan.price}
               </Text>
-              {plan.originalPrice && (
+              {plan.original_price && (
                 <Text size="md" c="dimmed" td="line-through">
-                  {plan.originalPrice}
+                  {plan.original_price}
                 </Text>
               )}
             </Group>
@@ -181,17 +196,17 @@ function PlanDetails({ plan }: PlanDetailsProps) {
                 <ThemeIcon 
                   size="sm" 
                   radius="xl" 
-                  color={plan.color} 
+                  color={plan.category_color} 
                   variant="light"
                 >
                   <IconCheck size={12} />
                 </ThemeIcon>
               }
             >
-              {plan.features.map((feature, index) => (
-                <List.Item key={index}>
+              {plan.features.map((feature: any, index: number) => (
+                <List.Item key={feature.id || index}>
                   <Text size="sm" c="gray.3">
-                    {feature}
+                    {feature.text}
                   </Text>
                 </List.Item>
               ))}

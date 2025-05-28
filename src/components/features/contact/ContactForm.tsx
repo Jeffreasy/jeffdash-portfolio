@@ -4,12 +4,20 @@ import React, { useEffect, useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useSearchParams } from 'next/navigation';
 import { TextInput, Textarea, Button, Stack, Group, Alert, LoadingOverlay, Paper, Text, ThemeIcon, Badge } from '@mantine/core';
-import { IconCheck, IconAlertCircle, IconSend, IconStar } from '@tabler/icons-react';
+import { IconCheck, IconAlertCircle, IconSend, IconStar, IconPalette, IconServer, IconCode, IconSettings } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
 import { submitContactForm, type ContactFormState } from '@/lib/actions/contact';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import ContactErrorBoundary from './ContactErrorBoundary';
-import { pricingPlans } from '../home/PricingSection/data';
+import { usePricingPlans } from '@/hooks/usePricingPlans';
+
+// Icon mapping for dynamic icon rendering
+const iconMap = {
+  'IconPalette': IconPalette,
+  'IconServer': IconServer,
+  'IconCode': IconCode,
+  'IconSettings': IconSettings,
+};
 
 // Animation variants
 const inputVariants = {
@@ -61,11 +69,17 @@ function SubmitButton() {
 export default function ContactForm() {
   const searchParams = useSearchParams();
   const planId = searchParams.get('plan');
-  const selectedPlan = planId ? pricingPlans.find(plan => plan.id === planId) : null;
+  const { plans } = usePricingPlans();
+  const selectedPlan = planId ? plans.find(plan => plan.id === planId) : null;
   const { trackEvent } = useAnalytics();
 
   const initialState: ContactFormState = { message: undefined, errors: {}, success: false };
   const [state, formAction] = useActionState(submitContactForm, initialState);
+
+  // Get icon component from string
+  const getIconComponent = (iconName: string) => {
+    return iconMap[iconName as keyof typeof iconMap] || IconCode;
+  };
 
   // Track form initialization
   useEffect(() => {
@@ -139,8 +153,8 @@ export default function ContactForm() {
               mb="lg" 
               radius="lg"
               style={{
-                background: `linear-gradient(135deg, rgba(${selectedPlan.color === 'cyan' ? '6, 182, 212' : selectedPlan.color === 'violet' ? '139, 92, 246' : selectedPlan.color === 'blue' ? '59, 130, 246' : '249, 115, 22'}, 0.1) 0%, rgba(255, 255, 255, 0.02) 100%)`,
-                border: `1px solid rgba(${selectedPlan.color === 'cyan' ? '6, 182, 212' : selectedPlan.color === 'violet' ? '139, 92, 246' : selectedPlan.color === 'blue' ? '59, 130, 246' : '249, 115, 22'}, 0.2)`,
+                background: `linear-gradient(135deg, rgba(${selectedPlan.category_color === 'cyan' ? '6, 182, 212' : selectedPlan.category_color === 'violet' ? '139, 92, 246' : selectedPlan.category_color === 'blue' ? '59, 130, 246' : '249, 115, 22'}, 0.1) 0%, rgba(255, 255, 255, 0.02) 100%)`,
+                border: `1px solid rgba(${selectedPlan.category_color === 'cyan' ? '6, 182, 212' : selectedPlan.category_color === 'violet' ? '139, 92, 246' : selectedPlan.category_color === 'blue' ? '59, 130, 246' : '249, 115, 22'}, 0.2)`,
                 backdropFilter: 'blur(10px)',
               }}
             >
@@ -149,19 +163,19 @@ export default function ContactForm() {
                   size="lg"
                   radius="md"
                   variant="gradient"
-                  gradient={selectedPlan.gradient}
+                  gradient={{ from: selectedPlan.gradient_from, to: selectedPlan.gradient_to }}
                 >
-                  <selectedPlan.icon size={20} />
+                  {React.createElement(getIconComponent(selectedPlan.category_icon), { size: 20 })}
                 </ThemeIcon>
                 <div style={{ flex: 1 }}>
                   <Group gap="xs">
                     <Text size="lg" fw={700} c="gray.1">
                       {selectedPlan.name}
                     </Text>
-                    {selectedPlan.popular && (
+                    {selectedPlan.is_popular && (
                       <Badge
                         variant="gradient"
-                        gradient={selectedPlan.gradient}
+                        gradient={{ from: selectedPlan.gradient_from, to: selectedPlan.gradient_to }}
                         size="sm"
                         leftSection={<IconStar size={10} />}
                       >
@@ -172,7 +186,7 @@ export default function ContactForm() {
                   <Text size="sm" c="gray.4">
                     Geïnteresseerd in: {selectedPlan.description}
                   </Text>
-                  <Text size="lg" fw={600} c={`${selectedPlan.color}.4`} mt={4}>
+                  <Text size="lg" fw={600} c={`${selectedPlan.category_color}.4`} mt={4}>
                     {selectedPlan.price} {selectedPlan.period}
                   </Text>
                 </div>

@@ -15,6 +15,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@google-analytics/data": "^5.1.0",
     "@headlessui/react": "^2.2.2",
     "@heroicons/react": "^2.2.0",
     "@mantine/core": "^7.17.4",
@@ -33,6 +34,7 @@
     "cloudinary": "^2.6.0",
     "form-data": "^4.0.2",
     "framer-motion": "^11.3.19",
+    "googleapis": "^149.0.0",
     "jose": "^6.0.10",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.511.0",

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useTransition } from 'react';
+import React, { useState, useTransition, useEffect } from 'react';
 import { Title, Paper, TextInput, PasswordInput, Button, Stack, Alert, Box, Text, Group, ThemeIcon, Container } from '@mantine/core';
 import { IconInfoCircle, IconLogin, IconShield, IconSparkles, IconLock } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
@@ -43,7 +43,13 @@ const buttonVariants = {
 export default function AdminLoginPage() {
   const [state, setState] = useState<LoginState>({ success: false });
   const [isPending, startTransition] = useTransition();
+  const [isClient, setIsClient] = useState(false);
   const router = useRouter();
+
+  // Prevent hydration mismatch by only rendering form on client
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleSubmit = async (formData: FormData) => {
     startTransition(async () => {
@@ -130,7 +136,7 @@ export default function AdminLoginPage() {
         }}
       />
 
-      <Container size="xs" style={{ position: 'relative', zIndex: 1, width: '100%' }}>
+      <Container size="xs" style={{ position: 'relative', zIndex: 1 }}>
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -164,7 +170,7 @@ export default function AdminLoginPage() {
                 pointerEvents: 'none',
               }} />
 
-              <Stack gap="xl" style={{ position: 'relative', zIndex: 1 }}>
+              <Stack gap="xl" style={{ position: 'relative' }}>
                 {/* Enhanced Header */}
                 <motion.div variants={itemVariants}>
                   <Box ta="center" mb="lg">
@@ -288,7 +294,7 @@ export default function AdminLoginPage() {
                 </motion.div>
 
                 {/* Error Messages */}
-                {state?.message && !state.success && (
+                {state.message && (
                   <motion.div variants={itemVariants}>
                     <Alert 
                       icon={<IconInfoCircle size="1.2rem" />} 
@@ -316,7 +322,7 @@ export default function AdminLoginPage() {
                   </motion.div>
                 )}
 
-                {state?.errors?.general && (
+                {state.errors?.general && (
                   <motion.div variants={itemVariants}>
                     <Alert 
                       icon={<IconInfoCircle size="1.2rem" />} 
@@ -344,110 +350,114 @@ export default function AdminLoginPage() {
                   </motion.div>
                 )}
 
-                {/* Login Form */}
-                <form action={handleSubmit}>
-                  <Stack gap="lg">
-                    <motion.div variants={itemVariants}>
-                      <TextInput
-                        label="Email"
-                        placeholder="admin@jeffdash.com"
-                        required
-                        name="email"
-                        type="email"
-                        size="md"
-                        error={state?.errors?.email?.join(', ')}
-                        disabled={isPending}
-                        styles={{
-                          label: {
-                            color: 'var(--mantine-color-gray-2)',
-                            fontWeight: 500,
-                            marginBottom: '8px',
-                            WebkitFontSmoothing: 'antialiased',
-                            MozOsxFontSmoothing: 'grayscale',
-                          },
-                          input: {
-                            background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
-                            border: '1px solid rgba(255, 255, 255, 0.1)',
-                            color: 'var(--mantine-color-gray-1)',
-                            backdropFilter: 'blur(10px)',
-                            '&:focus': {
-                              borderColor: 'rgba(139, 92, 246, 0.5)',
-                              boxShadow: '0 0 0 2px rgba(139, 92, 246, 0.2)',
-                            },
-                            '&::placeholder': {
-                              color: 'var(--mantine-color-gray-5)',
-                            }
-                          },
-                          error: {
-                            color: 'var(--mantine-color-red-4)',
-                          }
-                        }}
-                      />
-                    </motion.div>
+                {/* Login Form - Only render on client to prevent hydration mismatch */}
+                {isClient && (
+                  <motion.div variants={itemVariants}>
+                    <form action={handleSubmit}>
+                      <Stack gap="lg">
+                        <motion.div variants={itemVariants}>
+                          <TextInput
+                            label="Email"
+                            placeholder="admin@jeffdash.com"
+                            required
+                            name="email"
+                            type="email"
+                            size="md"
+                            error={state?.errors?.email?.join(', ')}
+                            disabled={isPending}
+                            styles={{
+                              label: {
+                                color: 'var(--mantine-color-gray-2)',
+                                fontWeight: 500,
+                                marginBottom: '8px',
+                                WebkitFontSmoothing: 'antialiased',
+                                MozOsxFontSmoothing: 'grayscale',
+                              },
+                              input: {
+                                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
+                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                color: 'var(--mantine-color-gray-1)',
+                                backdropFilter: 'blur(10px)',
+                                '&:focus': {
+                                  borderColor: 'rgba(139, 92, 246, 0.5)',
+                                  boxShadow: '0 0 0 2px rgba(139, 92, 246, 0.2)',
+                                },
+                                '&::placeholder': {
+                                  color: 'var(--mantine-color-gray-5)',
+                                }
+                              },
+                              error: {
+                                color: 'var(--mantine-color-red-4)',
+                              }
+                            }}
+                          />
+                        </motion.div>
 
-                    <motion.div variants={itemVariants}>
-                      <PasswordInput
-                        label="Wachtwoord"
-                        placeholder="••••••••••••"
-                        required
-                        name="password"
-                        size="md"
-                        error={state?.errors?.password?.join(', ')}
-                        disabled={isPending}
-                        styles={{
-                          label: {
-                            color: 'var(--mantine-color-gray-2)',
-                            fontWeight: 500,
-                            marginBottom: '8px',
-                            WebkitFontSmoothing: 'antialiased',
-                            MozOsxFontSmoothing: 'grayscale',
-                          },
-                          input: {
-                            background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
-                            border: '1px solid rgba(255, 255, 255, 0.1)',
-                            color: 'var(--mantine-color-gray-1)',
-                            backdropFilter: 'blur(10px)',
-                            '&:focus': {
-                              borderColor: 'rgba(139, 92, 246, 0.5)',
-                              boxShadow: '0 0 0 2px rgba(139, 92, 246, 0.2)',
-                            },
-                            '&::placeholder': {
-                              color: 'var(--mantine-color-gray-5)',
-                            }
-                          },
-                          error: {
-                            color: 'var(--mantine-color-red-4)',
-                          }
-                        }}
-                      />
-                    </motion.div>
+                        <motion.div variants={itemVariants}>
+                          <PasswordInput
+                            label="Wachtwoord"
+                            placeholder="••••••••••••"
+                            required
+                            name="password"
+                            size="md"
+                            error={state?.errors?.password?.join(', ')}
+                            disabled={isPending}
+                            styles={{
+                              label: {
+                                color: 'var(--mantine-color-gray-2)',
+                                fontWeight: 500,
+                                marginBottom: '8px',
+                                WebkitFontSmoothing: 'antialiased',
+                                MozOsxFontSmoothing: 'grayscale',
+                              },
+                              input: {
+                                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
+                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                color: 'var(--mantine-color-gray-1)',
+                                backdropFilter: 'blur(10px)',
+                                '&:focus': {
+                                  borderColor: 'rgba(139, 92, 246, 0.5)',
+                                  boxShadow: '0 0 0 2px rgba(139, 92, 246, 0.2)',
+                                },
+                                '&::placeholder': {
+                                  color: 'var(--mantine-color-gray-5)',
+                                }
+                              },
+                              error: {
+                                color: 'var(--mantine-color-red-4)',
+                              }
+                            }}
+                          />
+                        </motion.div>
 
-                    <motion.div variants={itemVariants}>
-                      <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
-                        <Button 
-                          type="submit" 
-                          fullWidth 
-                          size="md"
-                          loading={isPending}
-                          variant="gradient"
-                          gradient={{ from: 'violet.6', to: 'blue.5' }}
-                          rightSection={<IconLogin size={18} />}
-                          style={{
-                            boxShadow: '0 8px 32px rgba(139, 92, 246, 0.3)',
-                            border: '1px solid rgba(139, 92, 246, 0.2)',
-                            fontWeight: 600,
-                            fontSize: '1rem',
-                          }}
-                        >
-                          {isPending ? 'Bezig met inloggen...' : 'Inloggen'}
-                        </Button>
-                      </motion.div>
-                    </motion.div>
-                  </Stack>
-                </form>
+                        <motion.div variants={itemVariants}>
+                          <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+                            <Button 
+                              type="submit" 
+                              fullWidth 
+                              size="md"
+                              loading={isPending}
+                              variant="gradient"
+                              gradient={{ from: 'violet.6', to: 'blue.5' }}
+                              rightSection={<IconLogin size={18} />}
+                              style={{
+                                boxShadow: '0 8px 32px rgba(139, 92, 246, 0.3)',
+                                border: '1px solid rgba(139, 92, 246, 0.2)',
+                                fontWeight: 600,
+                                fontSize: '1rem',
+                              }}
+                            >
+                              {isPending ? 'Bezig met inloggen...' : 'Inloggen'}
+                            </Button>
+                          </motion.div>
+                        </motion.div>
+                      </Stack>
+                    </form>
+                  </motion.div>
+                )}
 
                 {/* Debug info - remove in production */}
-                {process.env.NODE_ENV === 'development' && state && Object.keys(state).length > 1 && (
+                {process.env.NODE_ENV === 'development' && (
                   <motion.div variants={itemVariants}>
                     <Box
                       style={{

@@ -110,29 +110,136 @@ export async function loginUser(prevState: LoginState | undefined, formData: For
   logger.info('Attempting login', { email });
 
   try {
-    const { error } = await supabase.auth.signInWithPassword({
+    // EXTRA DEBUG: Check if user exists in auth.users first
+    try {
+      const { data: authUsers, error: authError } = await supabase
+        .from('auth.users')
+        .select('id, email, email_confirmed_at, created_at')
+        .eq('email', email)
+        .limit(1);
+      
+      if (authError) {
+        logger.warn('Could not check auth.users table', { error: authError.message });
+      } else {
+        logger.info('Auth users query result', { 
+          email, 
+          found: authUsers?.length || 0,
+          user: authUsers?.[0] || null 
+        });
+      }
+    } catch (dbError) {
+      logger.warn('Database check failed', { error: dbError });
+    }
+
+    // EXTRA DEBUG: Check if user exists in public.User
+    try {
+      const { data: publicUsers, error: publicError } = await supabase
+        .from('User')
+        .select('id, email, role, createdAt')
+        .eq('email', email)
+        .limit(1);
+      
+      if (publicError) {
+        logger.warn('Could not check public.User table', { error: publicError.message });
+      } else {
+        logger.info('Public User query result', { 
+          email, 
+          found: publicUsers?.length || 0,
+          user: publicUsers?.[0] || null 
+        });
+      }
+    } catch (dbError) {
+      logger.warn('Public User check failed', { error: dbError });
+    }
+
+    // Attempt actual login
+    logger.info('Attempting Supabase auth.signInWithPassword', { email });
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
     if (error) {
-      logger.error('Login failed', { error: error.message });
+      logger.error('Login failed', { 
+        email,
+        error: error.message,
+        errorDetails: {
+          name: error.name,
+          status: error.status,
+          message: error.message
+        }
+      });
+      
+      // More specific error messages based on error type
+      let userMessage = 'Ongeldige inloggegevens.';
+      if (error.message?.includes('Email not confirmed')) {
+        userMessage = 'Email adres is nog niet bevestigd. Controleer je inbox.';
+      } else if (error.message?.includes('Invalid login credentials')) {
+        userMessage = 'Email of wachtwoord is incorrect.';
+      } else if (error.message?.includes('Too many requests')) {
+        userMessage = 'Te veel login pogingen. Probeer later opnieuw.';
+      }
+      
       const remainingAttempts = getRemainingAttempts(ip);
       return {
         success: false,
-        message: `Ongeldige inloggegevens. Nog ${remainingAttempts} pogingen over.`,
-        errors: { general: ['Ongeldige inloggegevens'] },
+        message: `${userMessage} Nog ${remainingAttempts} pogingen over.`,
+        errors: { general: [error.message] },
       };
     }
 
-    logger.info('Login successful', { email });
-    // Don't redirect here, let the client handle it
-    return {
-      success: true,
-      message: 'Login succesvol! Je wordt doorgestuurd...',
-    };
+    if (data?.session && data?.user) {
+      logger.info('Login successful', { 
+        email,
+        userId: data.user.id,
+        sessionExists: !!data.session,
+        userExists: !!data.user
+      });
+      
+      // EXTRA DEBUG: Try to fetch user from public.User after successful auth
+      try {
+        const { data: userData, error: userError } = await supabase
+          .from('User')
+          .select('id, email, role')
+          .eq('id', data.user.id)
+          .single();
+        
+        if (userError) {
+          logger.error('Database error granting user', { 
+            userId: data.user.id,
+            email,
+            error: userError.message,
+            errorDetails: userError
+          });
+        } else {
+          logger.info('User data fetched successfully', { 
+            userId: data.user.id,
+            email,
+            role: userData?.role 
+          });
+        }
+      } catch (dbError) {
+        logger.error('Database error granting user', { 
+          userId: data.user.id,
+          email,
+          error: dbError 
+        });
+      }
+      
+      return {
+        success: true,
+        message: 'Login succesvol! Je wordt doorgestuurd...',
+      };
+    } else {
+      logger.error('Login returned no session or user', { email, data });
+      return {
+        success: false,
+        message: 'Login fout: geen sessie ontvangen.',
+        errors: { general: ['No session returned'] },
+      };
+    }
   } catch (error) {
-    logger.error('Unexpected error during login', { error });
+    logger.error('Unexpected error during login', { email, error });
     return {
       success: false,
       message: 'Er is een onverwachte fout opgetreden.',

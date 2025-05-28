@@ -14,6 +14,7 @@ import {
   IconLogout,
   IconMail,
   IconSettings,
+  IconCurrencyEuro,
 } from '@tabler/icons-react';
 import { logoutUser } from '@/lib/actions/auth';
 import AdminErrorBoundary from './AdminErrorBoundary';
@@ -24,6 +25,7 @@ const navLinks = [
   { icon: IconFileText, label: 'Posts', href: '/admin_area/posts' },
   { icon: IconMessages, label: 'Contact Berichten', href: '/admin_area/contacts' },
   { icon: IconUser, label: 'About Content', href: '/admin_area/about' },
+  { icon: IconCurrencyEuro, label: 'Pricing Plans', href: '/admin_area/pricing' },
   { icon: IconMail, label: 'Email Test', href: '/admin_area/email-test' },
   { icon: IconSettings, label: 'Site Instellingen', href: '/admin_area/settings' },
 ];

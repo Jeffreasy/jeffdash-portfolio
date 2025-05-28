@@ -13,15 +13,23 @@ CREATE TABLE IF NOT EXISTS "SiteSettings" (
     CONSTRAINT "SiteSettings_pkey" PRIMARY KEY ("key")
 );
 
--- --- DEEL 2: Trigger Toepassen voor updatedAt ---
+-- --- DEEL 2: Custom Trigger Function voor SiteSettings ---
 
--- Gebruik dezelfde functie als gedefinieerd in V1.1
--- Zorg ervoor dat de functie update_updated_at_column() bestaat!
+-- Create a specific trigger function for SiteSettings with camelCase column names
+CREATE OR REPLACE FUNCTION update_sitesettings_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW."updatedAt" = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+-- Apply the trigger
 DROP TRIGGER IF EXISTS update_sitesettings_updated_at ON "SiteSettings";
 CREATE TRIGGER update_sitesettings_updated_at
 BEFORE UPDATE ON "SiteSettings"
 FOR EACH ROW
-EXECUTE FUNCTION update_updated_at_column();
+EXECUTE FUNCTION update_sitesettings_updated_at_column();
 
 -- --- DEEL 3: Seed Data ---
 

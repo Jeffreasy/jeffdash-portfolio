@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Title, Text, Card, SimpleGrid, Button, Stack, Box, Group, Badge, ThemeIcon, Container } from '@mantine/core';
+import { Title, Text, Card, SimpleGrid, Button, Stack, Box, Group, Badge, ThemeIcon, Container, Progress, Table, Anchor } from '@mantine/core';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
@@ -10,7 +10,16 @@ import {
   IconMessages,
   IconMail,
   IconArrowRight,
-  IconChartBar
+  IconChartBar,
+  IconEye,
+  IconClick,
+  IconTrendingUp,
+  IconUserCheck,
+  IconCalendarStats,
+  IconUsers,
+  IconDeviceAnalytics,
+  IconClock,
+  IconBounceRight
 } from '@tabler/icons-react';
 
 // Animation variants
@@ -46,14 +55,62 @@ const cardVariants = {
   tap: { scale: 0.98 },
 } as const;
 
+interface AnalyticsData {
+  pricingAnalytics: {
+    totalViews: number;
+    totalClicks: number;
+    totalInquiries: number;
+    conversionRate: number;
+    popularPlan: string | null;
+  };
+  recentEvents: Array<{
+    id: string;
+    event_type: string;
+    plan_name?: string;
+    created_at: string;
+  }>;
+  dailyStats: Array<{
+    date: string;
+    views: number;
+    clicks: number;
+    inquiries: number;
+  }>;
+}
+
+interface GoogleAnalyticsData {
+  pageViews: {
+    pageViews: Array<{
+      pageTitle: string;
+      pagePath: string;
+      screenPageViews: number;
+      sessions: number;
+      averageSessionDuration: number;
+    }>;
+    totalPageViews: number;
+    totalSessions: number;
+    error?: string;
+  };
+  overview: {
+    totalUsers: number;
+    totalSessions: number;
+    totalPageViews: number;
+    bounceRate: number;
+    averageSessionDuration: number;
+    error?: string;
+  };
+}
+
 interface DashboardData {
   projectsCount: number;
   postsCount: number;
   contactsCount: number;
   unreadContactsCount: number;
+  pricingPlansCount: number;
   errors: string[];
   authInfo: string;
   debugInfo: any;
+  analyticsData: AnalyticsData;
+  googleAnalyticsData: GoogleAnalyticsData;
 }
 
 interface AdminDashboardClientProps {
@@ -61,7 +118,18 @@ interface AdminDashboardClientProps {
 }
 
 export default function AdminDashboardClient({ data }: AdminDashboardClientProps) {
-  const { projectsCount, postsCount, contactsCount, unreadContactsCount, errors, authInfo, debugInfo } = data;
+  const { 
+    projectsCount, 
+    postsCount, 
+    contactsCount, 
+    unreadContactsCount, 
+    pricingPlansCount, 
+    errors, 
+    authInfo, 
+    debugInfo,
+    analyticsData,
+    googleAnalyticsData
+  } = data;
 
   const dashboardCards = [
     {
@@ -93,15 +161,103 @@ export default function AdminDashboardClient({ data }: AdminDashboardClientProps
       badge: unreadContactsCount > 0 ? unreadContactsCount : undefined,
     },
     {
-      title: 'Email Test',
-      count: null,
-      href: '/admin_area/email-test',
-      icon: IconMail,
+      title: 'Pricing Plans',
+      count: pricingPlansCount,
+      href: '/admin_area/pricing',
+      icon: IconChartBar,
       color: 'orange',
       gradient: { from: 'orange.6', to: 'red.5' },
-      description: 'Test Mailgun integratie',
+      description: 'Beheer pricing & analytics',
     },
   ];
+
+  const analyticsCards = [
+    {
+      title: 'Totaal Views',
+      count: analyticsData.pricingAnalytics.totalViews,
+      icon: IconEye,
+      color: 'blue',
+      description: 'Pricing plan bekeken',
+    },
+    {
+      title: 'Totaal Clicks',
+      count: analyticsData.pricingAnalytics.totalClicks,
+      icon: IconClick,
+      color: 'cyan',
+      description: 'Plan buttons geklikt',
+    },
+    {
+      title: 'Inquiries',
+      count: analyticsData.pricingAnalytics.totalInquiries,
+      icon: IconUserCheck,
+      color: 'green',
+      description: 'Contact aanvragen',
+    },
+    {
+      title: 'Conversie Rate',
+      count: `${analyticsData.pricingAnalytics.conversionRate}%`,
+      icon: IconTrendingUp,
+      color: 'violet',
+      description: 'Views naar inquiries',
+    },
+  ];
+
+  const gaOverviewCards = [
+    {
+      title: 'Totaal Gebruikers',
+      count: googleAnalyticsData.overview.totalUsers,
+      icon: IconUsers,
+      color: 'blue',
+      description: 'Afgelopen 7 dagen',
+    },
+    {
+      title: 'Totaal Sessies',
+      count: googleAnalyticsData.overview.totalSessions,
+      icon: IconDeviceAnalytics,
+      color: 'green',
+      description: 'Website sessies',
+    },
+    {
+      title: 'Pagina Weergaven',
+      count: googleAnalyticsData.overview.totalPageViews,
+      icon: IconEye,
+      color: 'violet',
+      description: 'Totaal GA weergaven',
+    },
+    {
+      title: 'Bounce Rate',
+      count: `${googleAnalyticsData.overview.bounceRate.toFixed(1)}%`,
+      icon: IconBounceRight,
+      color: 'orange',
+      description: 'Gemiddelde bounce rate',
+    },
+  ];
+
+  const formatEventType = (eventType: string) => {
+    const types: Record<string, string> = {
+      'view': 'Bekeken',
+      'click': 'Geklikt',
+      'inquiry': 'Aanvraag',
+      'hover': 'Hover',
+      'modal_open': 'Modal'
+    };
+    return types[eventType] || eventType;
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('nl-NL', {
+      day: '2-digit',
+      month: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const formatDuration = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
 
   return (
     <Box
@@ -341,6 +497,396 @@ export default function AdminDashboardClient({ data }: AdminDashboardClientProps
               </SimpleGrid>
             </motion.div>
 
+            {/* Google Analytics Section */}
+            <motion.div variants={itemVariants}>
+              <Stack gap="lg">
+                <Group justify="space-between" align="center">
+                  <Box>
+                    <Title 
+                      order={2}
+                      c="gray.1"
+                      style={{
+                        fontSize: 'clamp(1.25rem, 4vw, 1.5rem)',
+                        fontWeight: 700,
+                        marginBottom: 'clamp(4px, 1vw, 8px)',
+                      }}
+                    >
+                      Google Analytics
+                    </Title>
+                    <Text 
+                      size="sm" 
+                      c="gray.4"
+                      style={{
+                        fontSize: 'clamp(0.8rem, 2.5vw, 0.875rem)',
+                      }}
+                    >
+                      Laatste 7 dagen • Website traffic en gebruikersgedrag
+                    </Text>
+                  </Box>
+                  <ThemeIcon
+                    size="lg"
+                    radius="md"
+                    variant="gradient"
+                    gradient={{ from: 'green.6', to: 'teal.5' }}
+                    visibleFrom="sm"
+                  >
+                    <IconDeviceAnalytics size={20} />
+                  </ThemeIcon>
+                </Group>
+
+                {/* GA Overview Cards */}
+                <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="md">
+                  {gaOverviewCards.map((card, index) => (
+                    <motion.div
+                      key={card.title}
+                      variants={cardVariants}
+                      whileHover="hover"
+                    >
+                      <Card
+                        p="lg"
+                        radius="lg"
+                        style={{
+                          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
+                          backdropFilter: 'blur(10px)',
+                          border: '1px solid rgba(255, 255, 255, 0.1)',
+                          minHeight: 'clamp(120px, 15vw, 140px)',
+                          padding: 'clamp(12px, 3vw, 16px)',
+                        }}
+                      >
+                        <Stack gap="xs" align="center" style={{ textAlign: 'center' }}>
+                          <ThemeIcon
+                            size="md"
+                            radius="md"
+                            color={card.color}
+                            variant="light"
+                          >
+                            <card.icon size={18} />
+                          </ThemeIcon>
+                          
+                          <Text 
+                            fw={700} 
+                            size="lg"
+                            style={{
+                              fontSize: 'clamp(1rem, 3vw, 1.25rem)',
+                              color: `var(--mantine-color-${card.color}-4)`,
+                            }}
+                          >
+                            {card.count}
+                          </Text>
+                          
+                          <Text 
+                            size="xs" 
+                            c="gray.1" 
+                            fw={600}
+                            style={{
+                              fontSize: 'clamp(0.7rem, 2vw, 0.75rem)',
+                            }}
+                          >
+                            {card.title}
+                          </Text>
+                          
+                          <Text 
+                            size="xs" 
+                            c="gray.5"
+                            style={{
+                              fontSize: 'clamp(0.65rem, 1.8vw, 0.7rem)',
+                            }}
+                          >
+                            {card.description}
+                          </Text>
+                        </Stack>
+                      </Card>
+                    </motion.div>
+                  ))}
+                </SimpleGrid>
+
+                {/* Top Pages Table */}
+                {googleAnalyticsData.pageViews.pageViews.length > 0 && (
+                  <Card
+                    p="lg"
+                    radius="lg"
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
+                      backdropFilter: 'blur(10px)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                    }}
+                  >
+                    <Title 
+                      order={3} 
+                      c="gray.1" 
+                      mb="md"
+                      style={{
+                        fontSize: 'clamp(1rem, 3vw, 1.125rem)',
+                        fontWeight: 600,
+                      }}
+                    >
+                      Top Pagina's (7 dagen)
+                    </Title>
+                    
+                    <Table
+                      highlightOnHover
+                      style={{
+                        '--table-border-color': 'rgba(255, 255, 255, 0.1)',
+                        '--table-hover-color': 'rgba(255, 255, 255, 0.02)',
+                      }}
+                    >
+                      <Table.Thead>
+                        <Table.Tr>
+                          <Table.Th style={{ color: 'var(--mantine-color-gray-3)', fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>
+                            Pagina Titel
+                          </Table.Th>
+                          <Table.Th style={{ color: 'var(--mantine-color-gray-3)', fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>
+                            Pad
+                          </Table.Th>
+                          <Table.Th style={{ color: 'var(--mantine-color-gray-3)', fontSize: 'clamp(0.75rem, 2vw, 0.875rem)', textAlign: 'right' }}>
+                            Weergaven
+                          </Table.Th>
+                          <Table.Th style={{ color: 'var(--mantine-color-gray-3)', fontSize: 'clamp(0.75rem, 2vw, 0.875rem)', textAlign: 'right' }}>
+                            Sessies
+                          </Table.Th>
+                          <Table.Th style={{ color: 'var(--mantine-color-gray-3)', fontSize: 'clamp(0.75rem, 2vw, 0.875rem)', textAlign: 'right' }}>
+                            Gem. Duur
+                          </Table.Th>
+                        </Table.Tr>
+                      </Table.Thead>
+                      <Table.Tbody>
+                        {googleAnalyticsData.pageViews.pageViews.map((page, index) => (
+                          <Table.Tr key={`${page.pagePath}-${index}`}>
+                            <Table.Td style={{ color: 'var(--mantine-color-gray-2)', fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>
+                              <Text 
+                                truncate="end" 
+                                style={{ 
+                                  maxWidth: 'clamp(150px, 25vw, 250px)',
+                                  fontSize: 'clamp(0.75rem, 2vw, 0.875rem)',
+                                }}
+                              >
+                                {page.pageTitle}
+                              </Text>
+                            </Table.Td>
+                            <Table.Td style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>
+                              <Anchor 
+                                href={page.pagePath} 
+                                target="_blank" 
+                                c="blue.4" 
+                                size="sm"
+                                style={{
+                                  fontSize: 'clamp(0.75rem, 2vw, 0.875rem)',
+                                }}
+                              >
+                                <Text 
+                                  truncate="end" 
+                                  style={{ 
+                                    maxWidth: 'clamp(100px, 20vw, 150px)',
+                                    fontSize: 'clamp(0.75rem, 2vw, 0.875rem)',
+                                  }}
+                                >
+                                  {page.pagePath}
+                                </Text>
+                              </Anchor>
+                            </Table.Td>
+                            <Table.Td style={{ textAlign: 'right', fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>
+                              <Badge variant="light" color="blue" size="sm">
+                                {page.screenPageViews.toLocaleString()}
+                              </Badge>
+                            </Table.Td>
+                            <Table.Td style={{ textAlign: 'right', fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>
+                              <Badge variant="light" color="green" size="sm">
+                                {page.sessions.toLocaleString()}
+                              </Badge>
+                            </Table.Td>
+                            <Table.Td style={{ textAlign: 'right', color: 'var(--mantine-color-gray-3)', fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}>
+                              {formatDuration(page.averageSessionDuration)}
+                            </Table.Td>
+                          </Table.Tr>
+                        ))}
+                      </Table.Tbody>
+                    </Table>
+                  </Card>
+                )}
+              </Stack>
+            </motion.div>
+
+            {/* Pricing Analytics Section */}
+            <motion.div variants={itemVariants}>
+              <Stack gap="lg">
+                <Group justify="space-between" align="center">
+                  <Box>
+                    <Title 
+                      order={2}
+                      c="gray.1"
+                      style={{
+                        fontSize: 'clamp(1.25rem, 4vw, 1.5rem)',
+                        fontWeight: 700,
+                        marginBottom: 'clamp(4px, 1vw, 8px)',
+                      }}
+                    >
+                      Pricing Analytics
+                    </Title>
+                    <Text 
+                      size="sm" 
+                      c="gray.4"
+                      style={{
+                        fontSize: 'clamp(0.8rem, 2.5vw, 0.875rem)',
+                      }}
+                    >
+                      Laatste 30 dagen • {analyticsData.pricingAnalytics.popularPlan && 
+                        `Populairste plan: ${analyticsData.pricingAnalytics.popularPlan}`
+                      }
+                    </Text>
+                  </Box>
+                  <ThemeIcon
+                    size="lg"
+                    radius="md"
+                    variant="gradient"
+                    gradient={{ from: 'violet.6', to: 'purple.5' }}
+                    visibleFrom="sm"
+                  >
+                    <IconCalendarStats size={20} />
+                  </ThemeIcon>
+                </Group>
+
+                {/* Analytics Cards */}
+                <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="md">
+                  {analyticsCards.map((card, index) => (
+                    <motion.div
+                      key={card.title}
+                      variants={cardVariants}
+                      whileHover="hover"
+                    >
+                      <Card
+                        p="lg"
+                        radius="lg"
+                        style={{
+                          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
+                          backdropFilter: 'blur(10px)',
+                          border: '1px solid rgba(255, 255, 255, 0.1)',
+                          minHeight: 'clamp(120px, 15vw, 140px)',
+                          padding: 'clamp(12px, 3vw, 16px)',
+                        }}
+                      >
+                        <Stack gap="xs" align="center" style={{ textAlign: 'center' }}>
+                          <ThemeIcon
+                            size="md"
+                            radius="md"
+                            color={card.color}
+                            variant="light"
+                          >
+                            <card.icon size={18} />
+                          </ThemeIcon>
+                          
+                          <Text 
+                            fw={700} 
+                            size="lg"
+                            style={{
+                              fontSize: 'clamp(1rem, 3vw, 1.25rem)',
+                              color: `var(--mantine-color-${card.color}-4)`,
+                            }}
+                          >
+                            {card.count}
+                          </Text>
+                          
+                          <Text 
+                            size="xs" 
+                            c="gray.1" 
+                            fw={600}
+                            style={{
+                              fontSize: 'clamp(0.7rem, 2vw, 0.75rem)',
+                            }}
+                          >
+                            {card.title}
+                          </Text>
+                          
+                          <Text 
+                            size="xs" 
+                            c="gray.5"
+                            style={{
+                              fontSize: 'clamp(0.65rem, 1.8vw, 0.7rem)',
+                            }}
+                          >
+                            {card.description}
+                          </Text>
+                        </Stack>
+                      </Card>
+                    </motion.div>
+                  ))}
+                </SimpleGrid>
+
+                {/* Recent Activity */}
+                {analyticsData.recentEvents.length > 0 && (
+                  <Card
+                    p="lg"
+                    radius="lg"
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%)',
+                      backdropFilter: 'blur(10px)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                    }}
+                  >
+                    <Title 
+                      order={3} 
+                      c="gray.1" 
+                      mb="md"
+                      style={{
+                        fontSize: 'clamp(1rem, 3vw, 1.125rem)',
+                        fontWeight: 600,
+                      }}
+                    >
+                      Recente Activiteit
+                    </Title>
+                    
+                    <Stack gap="xs">
+                      {analyticsData.recentEvents.slice(0, 5).map((event, index) => (
+                        <Group 
+                          key={`${event.id}-${index}`} 
+                          justify="space-between" 
+                          style={{
+                            padding: 'clamp(6px, 1.5vw, 8px)',
+                            borderRadius: 'clamp(4px, 1vw, 6px)',
+                            background: index % 2 === 0 ? 'rgba(255, 255, 255, 0.02)' : 'transparent',
+                          }}
+                        >
+                          <Group gap="xs">
+                            <Badge 
+                              size="sm" 
+                              color={
+                                event.event_type === 'inquiry' ? 'green' :
+                                event.event_type === 'click' ? 'blue' :
+                                event.event_type === 'view' ? 'gray' : 'violet'
+                              }
+                              variant="light"
+                              style={{
+                                fontSize: 'clamp(0.65rem, 1.8vw, 0.7rem)',
+                              }}
+                            >
+                              {formatEventType(event.event_type)}
+                            </Badge>
+                            <Text 
+                              size="sm" 
+                              c="gray.3"
+                              style={{
+                                fontSize: 'clamp(0.75rem, 2vw, 0.8rem)',
+                              }}
+                            >
+                              {event.plan_name}
+                            </Text>
+                          </Group>
+                          <Text 
+                            size="xs" 
+                            c="gray.5"
+                            style={{
+                              fontSize: 'clamp(0.65rem, 1.8vw, 0.7rem)',
+                            }}
+                          >
+                            {formatDate(event.created_at)}
+                          </Text>
+                        </Group>
+                      ))}
+                    </Stack>
+                  </Card>
+                )}
+              </Stack>
+            </motion.div>
+
             {/* Debug Info - Only show if there are errors or in development */}
             {(errors.length > 0 || process.env.NODE_ENV === 'development') && (
               <motion.div variants={itemVariants}>
@@ -437,6 +983,84 @@ export default function AdminDashboardClient({ data }: AdminDashboardClientProps
                           `Found ${debugInfo.contacts.data?.length || 0} contacts`}
                       </Text>
                     )}
+
+                    {/* Google Analytics Status */}
+                    <Text 
+                      size="sm" 
+                      c="gray.3"
+                      style={{
+                        fontSize: 'clamp(0.8rem, 2.5vw, 0.875rem)',
+                        lineHeight: 1.5,
+                        wordBreak: 'break-word',
+                      }}
+                    >
+                      <strong>Google Analytics:</strong> {
+                        typeof window !== 'undefined' && window.gtag ? 
+                          'Loaded ✅' : 
+                          process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ? 
+                            'Configured but not loaded' : 
+                            'Not configured (missing NEXT_PUBLIC_GA_MEASUREMENT_ID)'
+                      }
+                    </Text>
+
+                    <Text 
+                      size="sm" 
+                      c="gray.3"
+                      style={{
+                        fontSize: 'clamp(0.8rem, 2.5vw, 0.875rem)',
+                        lineHeight: 1.5,
+                        wordBreak: 'break-word',
+                      }}
+                    >
+                      <strong>GA Measurement ID:</strong> {
+                        process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || 'Not set'
+                      }
+                    </Text>
+
+                    <Text 
+                      size="sm" 
+                      c="gray.3"
+                      style={{
+                        fontSize: 'clamp(0.8rem, 2.5vw, 0.875rem)',
+                        lineHeight: 1.5,
+                        wordBreak: 'break-word',
+                      }}
+                    >
+                      <strong>GA4 Property ID:</strong> {
+                        process.env.GA4_PROPERTY_ID || 'Not set'
+                      }
+                    </Text>
+
+                    <Text 
+                      size="sm" 
+                      c="gray.3"
+                      style={{
+                        fontSize: 'clamp(0.8rem, 2.5vw, 0.875rem)',
+                        lineHeight: 1.5,
+                        wordBreak: 'break-word',
+                      }}
+                    >
+                      <strong>GA Data Status:</strong> {
+                        googleAnalyticsData.pageViews.error || googleAnalyticsData.overview.error ? 
+                          `Error: ${googleAnalyticsData.pageViews.error || googleAnalyticsData.overview.error}` :
+                          `${googleAnalyticsData.pageViews.pageViews.length} pages, ${googleAnalyticsData.overview.totalUsers} users`
+                      }
+                    </Text>
+
+                    <Text 
+                      size="sm" 
+                      c="gray.3"
+                      style={{
+                        fontSize: 'clamp(0.8rem, 2.5vw, 0.875rem)',
+                        lineHeight: 1.5,
+                        wordBreak: 'break-word',
+                      }}
+                    >
+                      <strong>Vercel Analytics:</strong> {
+                        typeof window !== 'undefined' && (window as any).va ? 
+                          'Active ✅' : 'Loading or not active'
+                      }
+                    </Text>
                     
                     {errors.length > 0 && (
                       <Box>

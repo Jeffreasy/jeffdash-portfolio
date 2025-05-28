@@ -24,6 +24,9 @@
 .env
 .env*.local
 
+# Google Analytics credentials
+ga-credentials.json
+
 # Prisma
 # Voeg hier eventuele gegenereerde Prisma client mappen toe als je een custom output pad gebruikt
 # /generated/prisma-client
