@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 import { Container, Title, Text, Box, Group, ThemeIcon, Stack, Card } from '@mantine/core';
 import { IconHammer, IconRocket, IconSparkles, IconClock, IconMail } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
-import Head from 'next/head';
 
 // Enhanced animation variants with consistent easing
 const containerVariants = {
@@ -133,21 +132,17 @@ export default function UnderConstructionPage() {
 
   return (
     <>
-      <Head>
-        <title>Website in Onderhoud - {siteName}</title>
-        <meta name="robots" content="noindex, nofollow" />
-        <meta name="description" content="Website tijdelijk in onderhoud. Komt binnenkort terug online." />
-      </Head>
-      
       <Box
         style={{
           position: 'relative',
           minHeight: '100vh',
           width: '100%',
+          maxWidth: '100vw',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           overflow: 'hidden',
+          overflowY: 'auto',
           background: `
             linear-gradient(135deg, 
               var(--mantine-color-dark-8) 0%, 
@@ -156,16 +151,20 @@ export default function UnderConstructionPage() {
             )
           `,
           userSelect: 'none',
+          paddingTop: 'clamp(20px, 5vh, 40px)',
+          paddingBottom: 'clamp(20px, 5vh, 40px)',
+          paddingLeft: 'clamp(16px, 4vw, 32px)',
+          paddingRight: 'clamp(16px, 4vw, 32px)',
         }}
       >
-        {/* Enhanced animated background elements */}
+        {/* Enhanced animated background elements - constrained within viewport */}
         <motion.div
           style={{
             position: 'absolute',
             top: '10%',
             left: '5%',
-            width: 'clamp(300px, 35vw, 500px)',
-            height: 'clamp(300px, 35vw, 500px)',
+            width: 'clamp(200px, 25vw, 350px)',
+            height: 'clamp(200px, 25vw, 350px)',
             background: `
               radial-gradient(circle, 
                 rgba(59, 130, 246, 0.12) 0%, 
@@ -178,9 +177,9 @@ export default function UnderConstructionPage() {
             pointerEvents: 'none',
           }}
           animate={{
-            x: [0, 60, 0],
-            y: [0, -40, 0],
-            scale: [1, 1.1, 1],
+            x: [0, 30, 0],
+            y: [0, -20, 0],
+            scale: [1, 1.05, 1],
           }}
           transition={{
             duration: 20,
@@ -193,9 +192,9 @@ export default function UnderConstructionPage() {
           style={{
             position: 'absolute',
             bottom: '15%',
-            right: '10%',
-            width: 'clamp(250px, 30vw, 400px)',
-            height: 'clamp(250px, 30vw, 400px)',
+            right: '5%',
+            width: 'clamp(180px, 22vw, 300px)',
+            height: 'clamp(180px, 22vw, 300px)',
             background: `
               radial-gradient(circle, 
                 rgba(6, 182, 212, 0.12) 0%, 
@@ -208,9 +207,9 @@ export default function UnderConstructionPage() {
             pointerEvents: 'none',
           }}
           animate={{
-            x: [0, -50, 0],
-            y: [0, 50, 0],
-            scale: [1, 1.15, 1],
+            x: [0, -25, 0],
+            y: [0, 25, 0],
+            scale: [1, 1.08, 1],
           }}
           transition={{
             duration: 16,
@@ -225,9 +224,9 @@ export default function UnderConstructionPage() {
           style={{
             position: 'absolute',
             top: '60%',
-            left: '80%',
-            width: 'clamp(150px, 20vw, 250px)',
-            height: 'clamp(150px, 20vw, 250px)',
+            left: '75%',
+            width: 'clamp(120px, 15vw, 200px)',
+            height: 'clamp(120px, 15vw, 200px)',
             background: `
               radial-gradient(circle, 
                 rgba(139, 92, 246, 0.08) 0%, 
@@ -239,8 +238,8 @@ export default function UnderConstructionPage() {
             pointerEvents: 'none',
           }}
           animate={{
-            x: [0, -30, 0],
-            y: [0, -30, 0],
+            x: [0, -15, 0],
+            y: [0, -15, 0],
             opacity: [0.3, 0.6, 0.3],
           }}
           transition={{
@@ -256,7 +255,9 @@ export default function UnderConstructionPage() {
           style={{ 
             position: 'relative', 
             zIndex: 1,
-            padding: 'clamp(20px, 5vw, 32px)',
+            width: '100%',
+            maxWidth: '100%',
+            padding: 'clamp(16px, 4vw, 24px)',
           }}
         >
           <motion.div
@@ -264,7 +265,7 @@ export default function UnderConstructionPage() {
             initial="hidden"
             animate="visible"
           >
-            <Stack gap={clamp(32, 6, 48)} align="center" ta="center">
+            <Stack gap={clamp(24, 4, 36)} align="center" ta="center">
               {/* Enhanced main icon */}
               <motion.div variants={itemVariants}>
                 <motion.div 
@@ -279,8 +280,8 @@ export default function UnderConstructionPage() {
                     variant="gradient"
                     gradient={{ from: 'blue.5', to: 'cyan.4', deg: 135 }}
                     style={{
-                      width: 'clamp(100px, 18vw, 140px)',
-                      height: 'clamp(100px, 18vw, 140px)',
+                      width: 'clamp(80px, 15vw, 120px)',
+                      height: 'clamp(80px, 15vw, 120px)',
                       boxShadow: `
                         0 25px 80px rgba(59, 130, 246, 0.35),
                         0 0 0 1px rgba(59, 130, 246, 0.2),
@@ -290,7 +291,7 @@ export default function UnderConstructionPage() {
                       backdropFilter: 'blur(10px)',
                     }}
                   >
-                    <IconHammer size={clamp(40, 8, 60)} />
+                    <IconHammer size={clamp(32, 6, 48)} />
                   </ThemeIcon>
                 </motion.div>
               </motion.div>
@@ -310,7 +311,7 @@ export default function UnderConstructionPage() {
                     backgroundClip: 'text',
                     WebkitBackgroundClip: 'text',
                     color: 'transparent',
-                    fontSize: 'clamp(2.5rem, 8vw, 5rem)',
+                    fontSize: 'clamp(2rem, 6vw, 4rem)',
                     fontWeight: 900,
                     marginBottom: 'clamp(12px, 3vw, 24px)',
                     WebkitFontSmoothing: 'antialiased',
@@ -319,6 +320,8 @@ export default function UnderConstructionPage() {
                     letterSpacing: '-0.02em',
                     lineHeight: 1.1,
                     filter: 'drop-shadow(0 4px 12px rgba(59, 130, 246, 0.3))',
+                    maxWidth: '100%',
+                    wordWrap: 'break-word',
                   }}
                 >
                   Website in Onderhoud
@@ -331,14 +334,16 @@ export default function UnderConstructionPage() {
                   size="xl"
                   c="gray.2"
                   style={{
-                    fontSize: 'clamp(1.125rem, 4vw, 1.75rem)',
+                    fontSize: 'clamp(1rem, 3.5vw, 1.5rem)',
                     lineHeight: 1.6,
-                    maxWidth: '700px',
+                    maxWidth: '100%',
                     margin: '0 auto',
                     WebkitFontSmoothing: 'antialiased',
                     MozOsxFontSmoothing: 'grayscale',
                     fontWeight: 400,
                     letterSpacing: '-0.01em',
+                    textAlign: 'center',
+                    wordWrap: 'break-word',
                   }}
                 >
                   {maintenanceMessage}
@@ -348,20 +353,25 @@ export default function UnderConstructionPage() {
               {/* Enhanced feature cards with better glassmorphism */}
               <motion.div variants={itemVariants}>
                 <Group 
-                  gap={clamp(20, 4, 32)} 
+                  gap={clamp(16, 3, 24)}
                   justify="center" 
-                  style={{ marginTop: 'clamp(32px, 6vw, 64px)' }} 
+                  style={{ 
+                    marginTop: 'clamp(24px, 5vw, 48px)',
+                    width: '100%',
+                    maxWidth: '100%',
+                  }} 
                   wrap="wrap"
                 >
                   <motion.div
                     whileHover={{ 
-                      scale: 1.05,
+                      scale: 1.02,
                       transition: { duration: 0.2 }
                     }}
+                    style={{ width: '100%', maxWidth: 'clamp(200px, 40vw, 260px)' }}
                   >
                     <Card
                       shadow="xl"
-                      padding={clamp(20, 4, 28)}
+                      padding={clamp(16, 3, 20)}
                       radius="xl"
                       style={{
                         background: `
@@ -372,7 +382,7 @@ export default function UnderConstructionPage() {
                         `,
                         backdropFilter: 'blur(20px)',
                         border: '1px solid rgba(255, 255, 255, 0.15)',
-                        minWidth: 'clamp(220px, 45vw, 280px)',
+                        width: '100%',
                         textAlign: 'center',
                         boxShadow: `
                           0 20px 40px rgba(0, 0, 0, 0.1),
@@ -408,13 +418,14 @@ export default function UnderConstructionPage() {
 
                   <motion.div
                     whileHover={{ 
-                      scale: 1.05,
+                      scale: 1.02,
                       transition: { duration: 0.2 }
                     }}
+                    style={{ width: '100%', maxWidth: 'clamp(200px, 40vw, 260px)' }}
                   >
                     <Card
                       shadow="xl"
-                      padding={clamp(20, 4, 28)}
+                      padding={clamp(16, 3, 20)}
                       radius="xl"
                       style={{
                         background: `
@@ -425,7 +436,7 @@ export default function UnderConstructionPage() {
                         `,
                         backdropFilter: 'blur(20px)',
                         border: '1px solid rgba(255, 255, 255, 0.15)',
-                        minWidth: 'clamp(220px, 45vw, 280px)',
+                        width: '100%',
                         textAlign: 'center',
                         boxShadow: `
                           0 20px 40px rgba(0, 0, 0, 0.1),
