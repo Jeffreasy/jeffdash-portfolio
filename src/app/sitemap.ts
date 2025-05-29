@@ -52,7 +52,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Fetch projects from Supabase
   const { data: projects, error: projectsError } = await supabase
     .from('Project')
-    .select('slug, updatedAt, featured');
+    .select('slug, updatedAt, isFeatured');
   
   if (projectsError) {
     console.error('Error fetching projects for sitemap:', projectsError);
@@ -63,7 +63,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url: `${baseUrl}/projects/${project.slug}`,
     lastModified: new Date(project.updatedAt),
     changeFrequency: 'monthly' as const,
-    priority: project.featured ? 0.8 : 0.7,
+    priority: project.isFeatured ? 0.8 : 0.7,
   })) || [];
 
   // Fetch posts from Supabase
