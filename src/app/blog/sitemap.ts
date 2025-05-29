@@ -1,9 +1,17 @@
 import { MetadataRoute } from 'next';
 import { SITE_CONFIG } from '@/lib/config';
-import { createClient } from '@/lib/supabase/server';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
+
+// Create a build-time safe client without cookies
+function createBuildTimeClient() {
+  return createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+}
 
 export async function generateSitemaps() {
-  const supabase = await createClient();
+  const supabase = createBuildTimeClient();
   
   // Haal het totale aantal posts op
   const { count } = await supabase
@@ -23,7 +31,7 @@ export default async function sitemap({
 }: { 
   id: number 
 }): Promise<MetadataRoute.Sitemap> {
-  const supabase = await createClient();
+  const supabase = createBuildTimeClient();
   const baseUrl = SITE_CONFIG.url;
   
   // Bereken de range voor deze sitemap
