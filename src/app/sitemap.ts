@@ -1,11 +1,19 @@
 import { MetadataRoute } from 'next'
 import { SITE_CONFIG } from '@/lib/config'
-import { createClient } from '@/lib/supabase/server'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
+
+// Create a build-time safe client without cookies
+function createBuildTimeClient() {
+  return createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = SITE_CONFIG.url;
   const currentDate = new Date();
-  const supabase = await createClient();
+  const supabase = createBuildTimeClient();
 
   // Static routes met verbeterde prioriteiten en frequenties
   const staticRoutes: MetadataRoute.Sitemap = [
