@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { Container, Title, Text, Box, Group, ThemeIcon, Stack, Card } from '@mantine/core';
 import { IconHammer, IconRocket, IconSparkles, IconClock, IconMail } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 
 // Enhanced animation variants with consistent easing
 const containerVariants = {
@@ -266,6 +267,87 @@ export default function UnderConstructionPage() {
             animate="visible"
           >
             <Stack gap={clamp(24, 4, 36)} align="center" ta="center">
+              {/* Logo with professional styling */}
+              <motion.div variants={itemVariants}>
+                <motion.div 
+                  animate={{
+                    y: [-4, 4, -4],
+                    rotate: [0, 1, -1, 0],
+                  }}
+                  transition={{
+                    duration: 6,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                  style={{
+                    filter: 'drop-shadow(0 20px 40px rgba(59, 130, 246, 0.25))',
+                  }}
+                >
+                  <Box
+                    style={{
+                      position: 'relative',
+                      width: 'clamp(120px, 20vw, 180px)',
+                      height: 'clamp(120px, 20vw, 180px)',
+                      borderRadius: '50%',
+                      background: `
+                        linear-gradient(135deg, 
+                          rgba(255, 255, 255, 0.08) 0%, 
+                          rgba(255, 255, 255, 0.03) 100%
+                        )
+                      `,
+                      backdropFilter: 'blur(20px)',
+                      border: '2px solid rgba(59, 130, 246, 0.2)',
+                      boxShadow: `
+                        0 25px 80px rgba(59, 130, 246, 0.2),
+                        0 0 0 1px rgba(255, 255, 255, 0.05),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1)
+                      `,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <Image
+                      src="/logo.png"
+                      alt="Jeffrey Lavente Portfolio Logo"
+                      width={180}
+                      height={180}
+                      style={{
+                        width: 'clamp(80px, 15vw, 120px)',
+                        height: 'clamp(80px, 15vw, 120px)',
+                        objectFit: 'contain',
+                        filter: 'drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2))',
+                      }}
+                      priority
+                      onError={(e) => {
+                        // Fallback to text if logo fails to load
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        const parent = target.parentElement;
+                        if (parent) {
+                          parent.innerHTML = `
+                            <div style="
+                              background: linear-gradient(135deg, #3b82f6, #06b6d4);
+                              background-clip: text;
+                              -webkit-background-clip: text;
+                              color: transparent;
+                              font-size: clamp(1.5rem, 4vw, 2.5rem);
+                              font-weight: 900;
+                              text-align: center;
+                              line-height: 1;
+                              letter-spacing: -0.02em;
+                            ">
+                              JL
+                            </div>
+                          `;
+                        }
+                      }}
+                    />
+                  </Box>
+                </motion.div>
+              </motion.div>
+
               {/* Enhanced main icon */}
               <motion.div variants={itemVariants}>
                 <motion.div 

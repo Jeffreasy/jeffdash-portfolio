@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Title, Text, Button, Container, Box, Group, Stack } from '@mantine/core';
 import { IconArrowRight, IconCode, IconSparkles } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import PageErrorBoundary from '../shared/PageErrorBoundary';
 import { ContactModal, useContactModal } from '@/components/features/contact';
 import { useAnalytics } from '@/hooks/useAnalytics';
@@ -171,13 +172,13 @@ const HeroSection: React.FC = () => {
           }}
         />
 
-        <Container size="lg" style={{ position: 'relative', zIndex: 1 }}>
+        <Container size="lg" style={{ position: 'relative', zIndex: 1, padding: 'clamp(1rem, 3vw, 2rem)' }}>
           <motion.div
             variants={containerVariants}
             initial="hidden"
             animate="visible"
           >
-            <Stack align="center" gap="xl">
+            <Stack align="center" gap="clamp(1rem, 3vw, 3rem)">
               {/* Greeting */}
               <motion.div variants={textVariants}>
                 <Group gap="xs" justify="center">
@@ -188,6 +189,143 @@ const HeroSection: React.FC = () => {
                 </Group>
               </motion.div>
 
+              {/* Logo with professional styling */}
+              <motion.div variants={textVariants}>
+                <motion.div 
+                  animate={{
+                    y: [-3, 3, -3],
+                    rotate: [0, 0.5, -0.5, 0],
+                  }}
+                  whileHover={{
+                    scale: 1.08,
+                    rotate: 2,
+                    transition: { duration: 0.3, ease: "easeOut" }
+                  }}
+                  whileTap={{
+                    scale: 0.95,
+                    transition: { duration: 0.1 }
+                  }}
+                  transition={{
+                    duration: 8,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                  style={{
+                    filter: 'drop-shadow(0 15px 35px rgba(59, 130, 246, 0.3))',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <Box
+                    style={{
+                      position: 'relative',
+                      width: 'clamp(120px, 18vw, 200px)',
+                      height: 'clamp(120px, 18vw, 200px)',
+                      borderRadius: '50%',
+                      background: `
+                        linear-gradient(135deg, 
+                          rgba(255, 255, 255, 0.15) 0%, 
+                          rgba(255, 255, 255, 0.08) 100%
+                        )
+                      `,
+                      backdropFilter: 'blur(20px)',
+                      border: '2px solid rgba(59, 130, 246, 0.2)',
+                      boxShadow: `
+                        0 25px 80px rgba(59, 130, 246, 0.2),
+                        0 0 0 1px rgba(255, 255, 255, 0.05),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1)
+                      `,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      overflow: 'hidden',
+                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = `
+                        linear-gradient(135deg, 
+                          rgba(255, 255, 255, 0.25) 0%, 
+                          rgba(255, 255, 255, 0.15) 100%
+                        )
+                      `;
+                      e.currentTarget.style.border = '2px solid rgba(59, 130, 246, 0.4)';
+                      e.currentTarget.style.boxShadow = `
+                        0 30px 100px rgba(59, 130, 246, 0.4),
+                        0 0 0 1px rgba(255, 255, 255, 0.1),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                        0 0 40px rgba(59, 130, 246, 0.3)
+                      `;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = `
+                        linear-gradient(135deg, 
+                          rgba(255, 255, 255, 0.15) 0%, 
+                          rgba(255, 255, 255, 0.08) 100%
+                        )
+                      `;
+                      e.currentTarget.style.border = '2px solid rgba(59, 130, 246, 0.2)';
+                      e.currentTarget.style.boxShadow = `
+                        0 25px 80px rgba(59, 130, 246, 0.2),
+                        0 0 0 1px rgba(255, 255, 255, 0.05),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1)
+                      `;
+                    }}
+                  >
+                    <motion.div
+                      whileHover={{
+                        scale: 1.05,
+                        transition: { duration: 0.3, ease: "easeOut" }
+                      }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <Image
+                        src="/logo.png"
+                        alt="Jeffrey Lavente Portfolio Logo"
+                        width={340}
+                        height={340}
+                        style={{
+                          width: 'clamp(140px, 20vw, 245px)',
+                          height: 'clamp(140px, 20vw, 245px)',
+                          objectFit: 'cover',
+                          objectPosition: 'center',
+                          filter: 'drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15))',
+                          transition: 'filter 0.3s ease',
+                          transform: 'scale(1.0)',
+                        }}
+                        priority
+                        onError={(e) => {
+                          // Fallback to text if logo fails to load
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          const parent = target.parentElement;
+                          if (parent) {
+                            parent.innerHTML = `
+                              <div style="
+                                background: linear-gradient(135deg, #3b82f6, #06b6d4);
+                                background-clip: text;
+                                -webkit-background-clip: text;
+                                color: transparent;
+                                font-size: clamp(2.8rem, 6vw, 4.6rem);
+                                font-weight: 900;
+                                text-align: center;
+                                line-height: 1;
+                                letter-spacing: -0.02em;
+                                transition: all 0.3s ease;
+                              ">
+                                JL
+                              </div>
+                            `;
+                          }
+                        }}
+                      />
+                    </motion.div>
+                  </Box>
+                </motion.div>
+              </motion.div>
+
               {/* Main Title with typing effect */}
               <motion.div variants={textVariants}>
                 <Title
@@ -195,7 +333,7 @@ const HeroSection: React.FC = () => {
                   order={1}
                   ta="center"
                   style={{
-                    fontSize: 'clamp(3rem, 8vw, 6rem)',
+                    fontSize: 'clamp(2.5rem, 7vw, 6rem)',
                     fontWeight: 900,
                     lineHeight: 1.1,
                     marginBottom: 'var(--mantine-spacing-md)',
@@ -228,7 +366,7 @@ const HeroSection: React.FC = () => {
                 <Stack align="center" gap="sm">
                   <Group gap="xs" justify="center">
                     <IconCode size={24} style={{ color: 'var(--mantine-color-blue-4)' }} />
-                    <Title order={2} size="h1" c="gray.2" ta="center">
+                    <Title order={2} size="h1" c="gray.2" ta="center" style={{ fontSize: 'clamp(1.5rem, 4vw, 2.5rem)' }}>
                       Full-Stack Developer & AI Explorer
                     </Title>
                   </Group>
@@ -239,8 +377,9 @@ const HeroSection: React.FC = () => {
                     size="xl"
                     maw={600}
                     style={{
-                      fontSize: 'clamp(1.1rem, 2.5vw, 1.25rem)',
+                      fontSize: 'clamp(1rem, 2.2vw, 1.25rem)',
                       lineHeight: 1.6,
+                      padding: '0 1rem',
                     }}
                   >
                     Gepassioneerd door moderne webtechnologieën. Ik verken het volledige spectrum van 
@@ -253,7 +392,7 @@ const HeroSection: React.FC = () => {
 
               {/* CTA Buttons */}
               <motion.div variants={textVariants}>
-                <Group gap="lg" justify="center" mt="xl">
+                <Group gap="lg" justify="center" mt="xl" style={{ flexWrap: 'wrap', padding: '0 1rem' }}>
                   <motion.div
                     whileHover={{ 
                       scale: 1.02,
@@ -263,6 +402,7 @@ const HeroSection: React.FC = () => {
                       scale: 0.98,
                       transition: { duration: 0.1 }
                     }}
+                    style={{ minWidth: '160px' }}
                   >
                     <Button
                       onClick={() => {
@@ -289,6 +429,10 @@ const HeroSection: React.FC = () => {
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                         position: 'relative',
                         overflow: 'hidden',
+                        fontSize: 'clamp(0.9rem, 2vw, 1.1rem)',
+                        padding: 'clamp(12px, 2vw, 16px) clamp(20px, 4vw, 24px)',
+                        height: 'auto',
+                        minHeight: '48px',
                       }}
                       styles={{
                         root: {
@@ -333,6 +477,7 @@ const HeroSection: React.FC = () => {
                       scale: 0.98,
                       transition: { duration: 0.1 }
                     }}
+                    style={{ minWidth: '160px' }}
                   >
                     <Button
                       onClick={() => {
@@ -350,6 +495,10 @@ const HeroSection: React.FC = () => {
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                         position: 'relative',
                         overflow: 'hidden',
+                        fontSize: 'clamp(0.9rem, 2vw, 1.1rem)',
+                        padding: 'clamp(12px, 2vw, 16px) clamp(20px, 4vw, 24px)',
+                        height: 'auto',
+                        minHeight: '48px',
                       }}
                       styles={{
                         root: {
