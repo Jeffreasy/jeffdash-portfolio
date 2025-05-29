@@ -10,13 +10,36 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
-        allow: ['/', '/about', '/projects', '/blog', '/contact'],
-        disallow: ['/admin_area/', '/login/', '/api/', '/_next/', '/admin'],
+        allow: '/',
+        disallow: [
+          '/admin_area/',
+          '/login/',
+          '/api/',
+          '/_next/',
+          '/admin',
+          '/private/',
+          '/under-construction/',
+        ],
       },
       {
         userAgent: 'Googlebot',
-        allow: ['/', '/about', '/projects', '/blog', '/contact'],
-        disallow: ['/admin_area/', '/login/', '/api/'],
+        allow: '/',
+        disallow: [
+          '/admin_area/',
+          '/login/',
+          '/api/',
+        ],
+      },
+      {
+        userAgent: ['Bingbot', 'Slurp', 'DuckDuckBot', 'Baiduspider', 'YandexBot'],
+        allow: '/',
+        disallow: [
+          '/admin_area/',
+          '/login/',
+          '/api/',
+          '/_next/',
+          '/admin',
+        ],
       },
     ],
     sitemap: `${baseUrl}/sitemap.xml`,

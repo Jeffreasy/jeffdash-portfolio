@@ -9,22 +9,22 @@ export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Blog',
-  description: 'Lees mijn blog posts over webontwikkeling en technologie',
+  description: 'Lees de laatste artikelen over web development, AI en design door Jeffrey Lavente',
   alternates: {
-    canonical: '/blog',
+    canonical: `${SITE_CONFIG.url}/blog`,
   },
   openGraph: {
-    title: 'Blog',
-    description: 'Lees mijn blog posts over webontwikkeling en technologie',
-    url: '/blog',
+    title: 'Blog - Jeffrey Lavente',
+    description: 'Lees de laatste artikelen over web development, AI en design door Jeffrey Lavente',
+    url: `${SITE_CONFIG.url}/blog`,
     siteName: SITE_CONFIG.name,
     type: 'website',
     locale: 'nl_NL',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Blog',
-    description: 'Lees mijn blog posts over webontwikkeling en technologie',
+    title: 'Blog - Jeffrey Lavente',
+    description: 'Lees de laatste artikelen over web development, AI en design door Jeffrey Lavente',
   },
   robots: {
     index: true,
@@ -32,9 +32,44 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function BlogPage() {
-  // Haal alle gepubliceerde blog posts op
-  const posts = await getPublishedPosts();
+// JSON-LD component voor Blog overzichtspagina
+function BlogListJsonLd() {
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{
+        __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          "name": "Blog - Jeffrey Lavente",
+          "description": "Lees de laatste artikelen over web development, AI en design door Jeffrey Lavente",
+          "url": `${SITE_CONFIG.url}/blog`,
+          "isPartOf": {
+            "@type": "WebSite",
+            "name": SITE_CONFIG.name,
+            "url": SITE_CONFIG.url
+          },
+          "about": {
+            "@type": "Thing",
+            "name": "Web Development, AI en Design"
+          },
+          "author": {
+            "@type": "Person",
+            "name": "Jeffrey Lavente"
+          }
+        })
+      }}
+    />
+  );
+}
 
-  return <BlogList posts={posts} />;
+export default async function BlogPage() {
+  const posts = await getPublishedPosts();
+  
+  return (
+    <>
+      <BlogListJsonLd />
+      <BlogList posts={posts} />
+    </>
+  );
 } 

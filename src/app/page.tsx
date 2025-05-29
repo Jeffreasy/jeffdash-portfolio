@@ -50,6 +50,51 @@ export const metadata: Metadata = {
   category: 'technology',
 };
 
+// JSON-LD component voor de homepage
+function HomeJsonLd({ profilePicture }: { profilePicture: any }) {
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{
+        __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "ProfilePage",
+          "name": "Jeffrey Lavente Portfolio",
+          "description": "Jeffrey Lavente Portfolio - Gepassioneerd Full-Stack Developer die moderne webtechnologieën en AI combineert om innovatieve webapplicaties te creëren.",
+          "url": SITE_CONFIG.url,
+          "mainEntity": {
+            "@type": "Person",
+            "name": "Jeffrey Lavente",
+            "jobTitle": "Full-Stack Developer & AI Explorer",
+            "description": "Gepassioneerd door moderne webtechnologieën. Ik verken het volledige spectrum van full-stack development, ondersteund door AI (Vibecoding), om innovatieve en complete webapplicaties te realiseren.",
+            "url": SITE_CONFIG.url,
+            "image": profilePicture?.url || `${SITE_CONFIG.url}/images/profile.jpg`,
+            "sameAs": [
+              "https://github.com/jeffdash",
+              "https://linkedin.com/in/jeffreylavente"
+            ],
+            "knowsAbout": [
+              "Web Development",
+              "React",
+              "Next.js",
+              "TypeScript",
+              "AI Integration",
+              "Full-Stack Development"
+            ]
+          },
+          "potentialAction": {
+            "@type": "ViewAction",
+            "target": [
+              `${SITE_CONFIG.url}/projects`,
+              `${SITE_CONFIG.url}/contact`
+            ]
+          }
+        })
+      }}
+    />
+  );
+}
+
 // Pagina wordt async vanwege data fetching
 export default async function HomePage() {
   // Haal data parallel op
@@ -60,11 +105,9 @@ export default async function HomePage() {
   ]);
 
   return (
-    // De <main> tag wordt nu door de RootLayout verzorgd
     <>
-      {/* Verwelkomingstitel kan eventueel onderdeel worden van HeroSection */}
-      {/* <Title order={1}>Welkom bij Jeffdash Portfolio</Title> */}
-
+      <HomeJsonLd profilePicture={profilePicture} />
+      
       {/* 1. Hero Section */}
       <section aria-labelledby="hero-title">
         <h2 id="hero-title" className="sr-only">Hero Section</h2>

@@ -7,12 +7,12 @@ export const metadata: Metadata = {
   title: 'Contact',
   description: 'Neem contact op met Jeffrey Lavente voor samenwerkingen en vragen',
   alternates: {
-    canonical: '/contact',
+    canonical: `${SITE_CONFIG.url}/contact`,
   },
   openGraph: {
     title: 'Contact',
     description: 'Neem contact op met Jeffrey Lavente voor samenwerkingen en vragen',
-    url: '/contact',
+    url: `${SITE_CONFIG.url}/contact`,
     siteName: SITE_CONFIG.name,
     type: 'website',
     locale: 'nl_NL',
@@ -28,6 +28,40 @@ export const metadata: Metadata = {
   },
 };
 
+// JSON-LD component voor Contact page
+function ContactJsonLd() {
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{
+        __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "ContactPage",
+          "name": "Contact Jeffrey Lavente",
+          "description": "Neem contact op met Jeffrey Lavente voor samenwerkingen en vragen",
+          "mainEntity": {
+            "@type": "Person",
+            "name": "Jeffrey Lavente",
+            "email": "contact@jeffdash.com",
+            "url": SITE_CONFIG.url,
+            "contactPoint": {
+              "@type": "ContactPoint",
+              "contactType": "customer service",
+              "email": "contact@jeffdash.com",
+              "availableLanguage": ["Dutch", "English"]
+            }
+          }
+        })
+      }}
+    />
+  );
+}
+
 export default function ContactPage() {
-  return <ContactContent />;
+  return (
+    <>
+      <ContactJsonLd />
+      <ContactContent />
+    </>
+  );
 } 

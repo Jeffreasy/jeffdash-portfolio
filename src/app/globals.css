@@ -14,6 +14,7 @@ html {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -27,6 +28,26 @@ body {
   will-change: transform, opacity;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
+}
+
+/* Voorkom layout shifts door afbeeldingen */
+img, picture, video, canvas, svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Verbeter CLS voor content die nog moet laden */
+.content-placeholder {
+  min-height: 1.5em;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+/* Verbeter LCP voor hero images */
+.hero-image {
+  content-visibility: auto;
+  contain-intrinsic-size: 600px;
 }
 
 /* Text clarity during animations */
@@ -196,4 +217,25 @@ header {
 
 .button-glow:hover::after {
   left: 100%;
-} 
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  
+  a {
+    text-decoration: underline;
+    color: #0000EE !important;
+  }
+  
+  @page {
+    margin: 2cm;
+  }
+}
