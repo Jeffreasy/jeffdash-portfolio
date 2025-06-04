@@ -17,11 +17,16 @@ export type AnalyticsEvent =
   | 'hero_cta_clicked'
   | 'about_section_viewed'
   
+  // Blog Events
+  | 'blog_post_clicked'
+  | 'blog_search_performed'
+  | 'blog_section_viewed'
+  | 'blog_page_changed'
+  
   // Navigation & Interaction Events
   | 'scroll_to_top_used'
   | 'navigation_clicked'
   | 'social_link_clicked'
-  | 'blog_post_clicked'
   
   // Performance Events
   | 'page_load_complete'

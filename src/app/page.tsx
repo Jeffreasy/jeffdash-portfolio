@@ -11,7 +11,7 @@ import CallToActionBlock from '@/components/features/home/CallToActionBlock';
 import RecentBlogSection from '@/components/features/home/RecentBlogSection';
 
 // Importeer blog-gerelateerde zaken
-import { getPublishedPosts } from '@/lib/actions/blog';
+import { getPublishedPostsLegacy } from '@/lib/actions/blog';
 
 // Importeer project-gerelateerde zaken
 import { getFeaturedProjects } from '@/lib/actions/projects';
@@ -99,7 +99,7 @@ function HomeJsonLd({ profilePicture }: { profilePicture: any }) {
 export default async function HomePage() {
   // Haal data parallel op
   const [recentPosts, profilePicture, projectsData] = await Promise.all([
-    getPublishedPosts(3),
+    getPublishedPostsLegacy(3),
     getProfilePicture(),
     getFeaturedProjects()
   ]);

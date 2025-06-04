@@ -33,7 +33,7 @@ export const metadata: Metadata = {
 };
 
 // JSON-LD component voor Blog overzichtspagina
-function BlogListJsonLd() {
+function BlogListJsonLd({ totalPosts }: { totalPosts: number }) {
   return (
     <script
       type="application/ld+json"
@@ -56,7 +56,8 @@ function BlogListJsonLd() {
           "author": {
             "@type": "Person",
             "name": "Jeffrey Lavente"
-          }
+          },
+          "numberOfItems": totalPosts
         })
       }}
     />
@@ -64,12 +65,13 @@ function BlogListJsonLd() {
 }
 
 export default async function BlogPage() {
-  const posts = await getPublishedPosts();
+  // Load initial data for better performance
+  const initialData = await getPublishedPosts(1, 12);
   
   return (
     <>
-      <BlogListJsonLd />
-      <BlogList posts={posts} />
+      <BlogListJsonLd totalPosts={initialData.pagination.totalItems} />
+      <BlogList initialData={initialData} />
     </>
   );
 } 

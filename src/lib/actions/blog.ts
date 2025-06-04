@@ -3,32 +3,17 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { logger } from '@/lib/logger';
+import { cache, cacheHelpers } from '@/lib/cache';
 import { z } from 'zod';
 import { redirect } from 'next/navigation';
 import { validateAdminSession } from './auth';
 
-// Cache configuration
-const CACHE_CONFIG = {
-  ttl: 5 * 60 * 1000, // 5 minutes
-};
-
-// In-memory cache (in production, use Redis or similar)
-const cache = new Map<string, { data: any; timestamp: number }>();
-
-// Cache helper functions
-function getCached<T>(key: string): T | null {
-  const cached = cache.get(key);
-  if (!cached) return null;
-  if (Date.now() - cached.timestamp > CACHE_CONFIG.ttl) {
-    cache.delete(key);
-    return null;
-  }
-  return cached.data as T;
-}
-
-function setCached<T>(key: string, data: T): void {
-  cache.set(key, { data, timestamp: Date.now() });
-}
+// TTL constants for cache
+const CACHE_TTL = {
+  short: 2 * 60 * 1000,      // 2 minutes
+  medium: 10 * 60 * 1000,    // 10 minutes
+  long: 60 * 60 * 1000,      // 1 hour
+} as const;
 
 // --- Types (Vereenvoudigd - TODO: Verbeteren) --- //
 
@@ -50,6 +35,21 @@ interface Post {
   createdAt: string;
   updatedAt: string;
 }
+
+// Add pagination types
+export type PaginationMeta = {
+  currentPage: number;
+  totalPages: number;
+  totalItems: number;
+  itemsPerPage: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+};
+
+export type PaginatedPostsResult = {
+  posts: PublishedPostPreviewType[];
+  pagination: PaginationMeta;
+};
 
 // Type voor publieke post preview
 export type PublishedPostPreviewType = Pick<Post,
@@ -102,7 +102,7 @@ export type PostFormState = {
  */
 export async function getPosts(): Promise<AdminPostListItemType[]> {
   const cacheKey = 'admin_posts_list';
-  const cached = getCached<AdminPostListItemType[]>(cacheKey);
+  const cached = cache.get<AdminPostListItemType[]>(cacheKey);
   if (cached) {
     logger.info('Returning cached admin posts list');
     return cached;
@@ -122,7 +122,7 @@ export async function getPosts(): Promise<AdminPostListItemType[]> {
 
     if (error) throw error;
 
-    setCached(cacheKey, data || []);
+    cache.set(cacheKey, data || [], CACHE_TTL.medium, ['admin', 'posts']);
     return data || [];
   } catch (error: any) {
     logger.error('Failed to fetch posts for admin', { error: error.message || error });
@@ -137,7 +137,7 @@ export async function getPosts(): Promise<AdminPostListItemType[]> {
  */
 export async function getPostBySlugForAdmin(slug: string): Promise<FullAdminPostType | null> {
   const cacheKey = `admin_post_${slug}`;
-  const cached = getCached<FullAdminPostType>(cacheKey);
+  const cached = cache.get<FullAdminPostType>(cacheKey);
   if (cached) {
     logger.info('Returning cached admin post', { slug });
     return cached;
@@ -166,7 +166,7 @@ export async function getPostBySlugForAdmin(slug: string): Promise<FullAdminPost
       throw error;
     }
 
-    setCached(cacheKey, data);
+    cache.set(cacheKey, data, CACHE_TTL.medium, ['admin', 'posts', `post-${slug}`]);
     return data;
   } catch (error: any) {
     logger.error('Failed to fetch post by slug for admin', { slug, error: error.message || error });
@@ -192,25 +192,23 @@ export async function deletePostAction(postId: string): Promise<{ success: boole
       .delete()
       .eq('id', postId);
 
-    if (error) throw error;
+    // Enhanced cache invalidation
+    cacheHelpers.admin.invalidatePosts();
+    cacheHelpers.blog.invalidateAll();
 
-    // Clear relevant caches
-    cache.delete('admin_posts_list');
-    cache.delete(`admin_post_${postId}`);
-
-    logger.info('Post successfully deleted', { postId, userId: session.userId });
     revalidatePath('/admin_area/posts');
     revalidatePath('/blog');
-    return { success: true, message: 'Blog post succesvol verwijderd.' };
+    
+    logger.info('Post deleted successfully', { postId });
+    return { success: true, message: 'Post succesvol verwijderd.' };
   } catch (error: any) {
     logger.error('Failed to delete post', { postId, error: error.message || error });
-    let errorMessage = 'Kon blog post niet verwijderen door een serverfout.';
-    if (error.message?.includes('Unauthorized') || error.message?.includes('Forbidden')) {
-      errorMessage = error.message;
-    } else if (error.code === 'PGRST116') {
-      errorMessage = 'Blog post niet gevonden om te verwijderen.';
-    }
-    return { success: false, message: errorMessage };
+    return { 
+      success: false, 
+      message: error.message?.includes('Unauthorized') || error.message?.includes('Forbidden')
+        ? error.message
+        : 'Kon post niet verwijderen.' 
+    };
   }
 }
 
@@ -218,269 +216,305 @@ export async function deletePostAction(postId: string): Promise<{ success: boole
  * Maakt een nieuwe blog post aan.
  */
 export async function createPostAction(prevState: PostFormState | undefined, formData: FormData): Promise<PostFormState> {
-  logger.info('Create post action started');
+  logger.info('Attempting to create new post');
   const supabase = await createClient();
-
+  
   try {
     const session = await validateAdminSession();
     logger.info('Admin session validated for create post action', { userId: session.userId });
 
-    const validatedFields = PostSchema.safeParse(Object.fromEntries(formData));
-    if (!validatedFields.success) {
-      logger.warn('Post validation failed (create)', { errors: validatedFields.error.flatten().fieldErrors });
+    // Extract and validate form data
+    const formObject = Object.fromEntries(formData.entries());
+    const result = PostSchema.safeParse(formObject);
+    
+    if (!result.success) {
+      logger.warn('Post creation validation failed', { errors: result.error.flatten() });
       return {
         success: false,
-        message: 'Validatiefouten gevonden.',
-        errors: validatedFields.error.flatten().fieldErrors,
+        message: 'Validatiefout: Controleer de ingevoerde gegevens.',
+        errors: result.error.flatten().fieldErrors,
       };
     }
 
-    const { published, ...restData } = validatedFields.data;
-    const postDataToInsert = {
-      ...restData,
-      excerpt: restData.excerpt || null,
-      featuredImageUrl: restData.featuredImageUrl || null,
-      featuredImageAltText: restData.featuredImageAltText || null,
-      tags: restData.tags || [],
-      category: restData.category || null,
-      metaTitle: restData.metaTitle || null,
-      metaDescription: restData.metaDescription || null,
-      published,
-      publishedAt: published ? new Date().toISOString() : null,
-    };
+    const validatedData = result.data;
 
-    logger.info('Attempting to insert post', { slug: postDataToInsert.slug });
-    const { data: newPost, error: insertError } = await supabase
+    // Set publishedAt if published
+    const publishedAt = validatedData.published ? new Date().toISOString() : null;
+
+    const { data: post, error } = await supabase
       .from('Post')
-      .insert(postDataToInsert)
-      .select('id, slug')
+      .insert({
+        ...validatedData,
+        publishedAt,
+        featuredImageUrl: validatedData.featuredImageUrl || null,
+        excerpt: validatedData.excerpt || null,
+        featuredImageAltText: validatedData.featuredImageAltText || null,
+        category: validatedData.category || null,
+        metaTitle: validatedData.metaTitle || null,
+        metaDescription: validatedData.metaDescription || null,
+      })
+      .select()
       .single();
 
-    if (insertError || !newPost) {
-      logger.error('Post insert error', { error: insertError });
-      if (insertError?.code === '23505' && insertError?.message.includes('Post_slug_key')) {
-        return {
-          success: false,
-          message: 'De opgegeven slug bestaat al.',
-          errors: { slug: ['Deze slug is al in gebruik.'] }
-        };
-      }
-      throw insertError || new Error('Kon post niet aanmaken in database.');
-    }
+    if (error) throw error;
 
-    // Clear relevant caches
-    cache.delete('admin_posts_list');
-
-    logger.info('Post successfully created', { postId: newPost.id, slug: newPost.slug, userId: session.userId });
-    const newPostSlug = newPost.slug;
+    // Enhanced cache invalidation
+    cacheHelpers.admin.invalidatePosts();
+    cacheHelpers.blog.invalidateAll();
 
     revalidatePath('/admin_area/posts');
-    if (published) {
-      revalidatePath('/blog');
-      revalidatePath(`/blog/${newPostSlug}`);
-    }
-
+    revalidatePath('/blog');
+    
+    logger.info('Post created successfully', { postId: post.id, slug: post.slug });
+    
     return {
       success: true,
-      message: 'Blog post succesvol aangemaakt!',
-      postSlug: newPostSlug,
+      message: 'Post succesvol aangemaakt!',
+      postSlug: post.slug,
     };
   } catch (error: any) {
     logger.error('Failed to create post', { error: error.message || error });
     return {
       success: false,
-      message: 'Er is een fout opgetreden bij het aanmaken van de post.',
-      errors: { general: ['Server error'] }
+      message: error.message?.includes('duplicate key') 
+        ? 'Een post met deze slug bestaat al.'
+        : error.message?.includes('Unauthorized') || error.message?.includes('Forbidden')
+        ? error.message
+        : 'Kon post niet aanmaken.',
     };
   }
 }
 
 /**
- * Werkt een bestaande blog post bij.
+ * Bewerkt een bestaande blog post.
  */
 export async function updatePostAction(prevState: PostFormState | undefined, formData: FormData): Promise<PostFormState> {
-  logger.info('Update post action started with Supabase');
-  const postId = formData.get('postId') as string;
+  logger.info('Attempting to update post');
   const supabase = await createClient();
-
-  if (!postId) {
-      return { success: false, message: 'Post ID ontbreekt.', errors: { general: ['Post ID niet gevonden.'] } };
-  }
-  logger.info('Attempting to update post', { postId });
-
+  
   try {
-    // Autorisatie
     const session = await validateAdminSession();
-     logger.info('Admin session validated for update post action', { userId: session.userId, postId });
+    logger.info('Admin session validated for update post action', { userId: session.userId });
 
-    // Validatie
-    const validatedFields = PostSchema.safeParse(Object.fromEntries(formData));
-     if (!validatedFields.success) {
-      logger.warn('Post validation failed (update)', { postId, errors: validatedFields.error.flatten().fieldErrors });
+    const postId = formData.get('postId') as string;
+    if (!postId) {
+      throw new Error('Post ID is required for update.');
+    }
+
+    // Extract and validate form data
+    const formObject = Object.fromEntries(formData.entries());
+    delete formObject.postId; // Remove postId from validation
+    
+    const result = PostSchema.safeParse(formObject);
+    
+    if (!result.success) {
+      logger.warn('Post update validation failed', { errors: result.error.flatten() });
       return {
         success: false,
-        message: 'Validatiefouten gevonden.',
-        errors: { ...validatedFields.error.flatten().fieldErrors }, // Herstel spread, verwijder assertie
-        postSlug: formData.get('slug') as string | null // Geef huidige slug terug voor formulier
+        message: 'Validatiefout: Controleer de ingevoerde gegevens.',
+        errors: result.error.flatten().fieldErrors,
       };
     }
 
-    // Haal huidige publicatiestatus op om publishedAt correct te zetten
-    const { data: currentPost, error: currentPostError } = await supabase
-       .from('Post')
-       .select('published, publishedAt')
-       .eq('id', postId)
-       .single();
+    const validatedData = result.data;
 
-    if (currentPostError) {
-       logger.error('Could not fetch current post status before update', { postId, error: currentPostError });
-       // Ga door, maar publishedAt is mogelijk niet perfect
+    // Handle published state changes
+    let publishedAt: string | null = null;
+    if (validatedData.published) {
+      // Check if post was already published
+      const { data: existingPost } = await supabase
+        .from('Post')
+        .select('publishedAt')
+        .eq('id', postId)
+        .single();
+      
+      publishedAt = existingPost?.publishedAt || new Date().toISOString();
     }
 
-    // Prepare data for Supabase
-    const { published, ...restData } = validatedFields.data;
-    let publishedAtValue = currentPost?.publishedAt; // Behoud oude waarde standaard
+    const { data: post, error } = await supabase
+      .from('Post')
+      .update({
+        ...validatedData,
+        publishedAt,
+        featuredImageUrl: validatedData.featuredImageUrl || null,
+        excerpt: validatedData.excerpt || null,
+        featuredImageAltText: validatedData.featuredImageAltText || null,
+        category: validatedData.category || null,
+        metaTitle: validatedData.metaTitle || null,
+        metaDescription: validatedData.metaDescription || null,
+        updatedAt: new Date().toISOString(),
+      })
+      .eq('id', postId)
+      .select()
+      .single();
 
-    // Update publishedAt:
-    // 1. Als post NU gepubliceerd wordt en NOG NIET gepubliceerd was: zet timestamp
-    if (published && !currentPost?.published) {
-       publishedAtValue = new Date().toISOString();
-    }
-    // 2. Als post NIET MEER gepubliceerd wordt: zet op null
-    else if (!published) {
-       publishedAtValue = null;
-    }
-    // 3. Anders (was al gepubliceerd en blijft gepubliceerd): behoud bestaande waarde
+    if (error) throw error;
 
-    const postDataToUpdate = {
-      ...restData,
-      excerpt: restData.excerpt || null,
-      featuredImageUrl: restData.featuredImageUrl || null,
-      featuredImageAltText: restData.featuredImageAltText || null,
-      tags: restData.tags || [],
-      category: restData.category || null,
-      metaTitle: restData.metaTitle || null,
-      metaDescription: restData.metaDescription || null,
-      published: published,
-      publishedAt: publishedAtValue,
-      updatedAt: new Date().toISOString(), // Altijd updatedAt bijwerken
-    };
+    // Enhanced cache invalidation for specific post
+    cacheHelpers.admin.invalidatePosts();
+    cacheHelpers.blog.invalidatePost(post.slug);
+    cacheHelpers.blog.invalidatePagination();
 
-    // Database Update
-     logger.info('Attempting to update post in Supabase', { postId, slug: postDataToUpdate.slug });
-     const { data: updatedPost, error: updateError } = await supabase
-       .from('Post')
-       .update(postDataToUpdate)
-       .eq('id', postId)
-       .select('slug') // Vraag slug terug
-       .single();
-
-     if (updateError || !updatedPost) {
-       logger.error('Supabase update error Post:', { postId, error: updateError });
-       if (updateError?.code === '23505' && updateError?.message.includes('Post_slug_key')) {
-          return {
-            success: false,
-            message: 'De opgegeven slug bestaat al.',
-            errors: { slug: ['Deze slug is al in gebruik.'] },
-            postSlug: formData.get('slug') as string | null
-          };
-       }
-        if (updateError?.code === 'PGRST116') {
-             return { success: false, message: 'Post niet gevonden om bij te werken.', errors: { general: ['Post niet gevonden.'] } };
-        }
-       throw updateError || new Error('Kon post niet bijwerken in database.');
-     }
-
-     logger.info('Post successfully updated', { postId, slug: updatedPost.slug, userId: session.userId });
-     const updatedPostSlug = updatedPost.slug;
-
-    // Revalidate paths
     revalidatePath('/admin_area/posts');
-    revalidatePath(`/admin_area/posts/${updatedPostSlug}`); // Admin detail/edit
-    revalidatePath('/blog'); // Publieke lijst
-    revalidatePath(`/blog/${updatedPostSlug}`); // Publieke detail
-
+    revalidatePath(`/admin_area/posts/${post.slug}`);
+    revalidatePath('/blog');
+    revalidatePath(`/blog/${post.slug}`);
+    
+    logger.info('Post updated successfully', { postId: post.id, slug: post.slug });
+    
     return {
       success: true,
-      message: 'Blog post succesvol bijgewerkt!',
-      postSlug: updatedPostSlug,
+      message: 'Post succesvol bijgewerkt!',
+      postSlug: post.slug,
     };
-
   } catch (error: any) {
-     logger.error('Failed to update post', { postId, error: error.message || error });
-     return {
-       success: false,
-       message: error.message || 'Kon post niet bijwerken door een serverfout.',
-       errors: { general: [error.message || 'Serverfout.'] },
-       postSlug: formData.get('slug') as string | null // Geef slug terug voor formulier
-     };
+    logger.error('Failed to update post', { error: error.message || error });
+    return {
+      success: false,
+      message: error.message?.includes('duplicate key') 
+        ? 'Een post met deze slug bestaat al.'
+        : error.message?.includes('Unauthorized') || error.message?.includes('Forbidden')
+        ? error.message
+        : 'Kon post niet bijwerken.',
+    };
   }
 }
 
 // --- Publieke Actions ---
 
 /**
- * Haalt gepubliceerde blog posts op (voor publieke weergave).
- * @param limit Optioneel: Het maximale aantal posts om op te halen.
+ * Haalt gepubliceerde blog posts op met paginering en optionele zoekfunctionaliteit.
  */
-export async function getPublishedPosts(limit?: number): Promise<PublishedPostPreviewType[]> {
-  logger.info(`Fetching published posts for public view${limit ? ` (limit: ${limit})` : ''} with Supabase`);
+export async function getPublishedPosts(
+  page: number = 1,
+  limit: number = 12,
+  searchQuery?: string
+): Promise<PaginatedPostsResult> {
+  const cacheKey = `published_posts_page_${page}_limit_${limit}_search_${searchQuery || 'none'}`;
+  const cached = cache.get<PaginatedPostsResult>(cacheKey);
+  if (cached) {
+    logger.info('Returning cached published posts with pagination', { page, limit, searchQuery });
+    return cached;
+  }
+
+  logger.info('Fetching published posts with pagination', { page, limit, searchQuery });
   const supabase = await createClient();
+  
   try {
-    // Bouw de query op
+    // Calculate offset
+    const offset = (page - 1) * limit;
+    
+    // Base query
     let query = supabase
       .from('Post')
-      .select('id, slug, title, excerpt, featuredImageUrl, tags, category, publishedAt, featuredImageAltText')
-      .eq('published', true)
-      .order('publishedAt', { ascending: false });
+      .select('id, slug, title, excerpt, featuredImageUrl, featuredImageAltText, tags, category, publishedAt', { count: 'exact' })
+      .eq('published', true);
 
-    // Voeg limiet toe indien opgegeven
-    if (limit) {
-      query = query.limit(limit);
+    // Add search functionality if provided
+    if (searchQuery && searchQuery.trim()) {
+      const searchTerm = searchQuery.trim();
+      query = query.or(
+        `title.ilike.%${searchTerm}%,excerpt.ilike.%${searchTerm}%,content.ilike.%${searchTerm}%,tags.cs.{${searchTerm}}`
+      );
     }
 
-    // Voer de query uit
-    const { data, error } = await query;
+    // Add pagination and ordering
+    const { data, error, count } = await query
+      .order('publishedAt', { ascending: false })
+      .order('createdAt', { ascending: false })
+      .range(offset, offset + limit - 1);
 
     if (error) throw error;
 
-    // Filter posts zonder publishedAt (shouldn't happen with .eq('published', true) and order, but safety check)
-    const validPosts = (data || []).filter(post => post.publishedAt);
+    // Calculate pagination metadata
+    const totalItems = count || 0;
+    const totalPages = Math.ceil(totalItems / limit);
+    const hasNextPage = page < totalPages;
+    const hasPreviousPage = page > 1;
 
-    return validPosts;
+    const result: PaginatedPostsResult = {
+      posts: data || [],
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalItems,
+        itemsPerPage: limit,
+        hasNextPage,
+        hasPreviousPage,
+      },
+    };
+
+    // Cache with appropriate TTL and tags
+    const ttl = searchQuery ? CACHE_TTL.short : CACHE_TTL.medium;
+    const tags = ['blog', 'published-posts'];
+    if (searchQuery) tags.push('search');
+    
+    cache.set(cacheKey, result, ttl, tags);
+    return result;
   } catch (error: any) {
-    logger.error('Failed to fetch published posts', { error: error.message || error });
-    return [];
+    logger.error('Failed to fetch published posts with pagination', { 
+      page, 
+      limit, 
+      searchQuery, 
+      error: error.message || error 
+    });
+    throw new Error('Kon blog posts niet ophalen.');
   }
 }
 
+// Legacy function for backward compatibility - now calls the paginated version
+export async function getPublishedPostsLegacy(limit?: number): Promise<PublishedPostPreviewType[]> {
+  const result = await getPublishedPosts(1, limit || 12);
+  return result.posts;
+}
+
 /**
- * Haalt een enkele gepubliceerde post op basis van de slug.
+ * Zoekt in gepubliceerde blog posts.
+ */
+export async function searchPublishedPosts(
+  searchQuery: string,
+  page: number = 1,
+  limit: number = 12
+): Promise<PaginatedPostsResult> {
+  return getPublishedPosts(page, limit, searchQuery);
+}
+
+/**
+ * Haalt een enkele publieke post op.
  */
 export async function getPostBySlug(slug: string): Promise<FullPostType | null> {
-  logger.info('Fetching published post by slug with Supabase', { slug });
+  const cacheKey = `published_post_${slug}`;
+  const cached = cache.get<FullPostType>(cacheKey);
+  if (cached) {
+    logger.info('Returning cached published post', { slug });
+    return cached;
+  }
+
+  logger.info('Fetching published post by slug', { slug });
   if (!slug) return null;
+  
   const supabase = await createClient();
 
   try {
     const { data, error } = await supabase
       .from('Post')
-      .select('*') // Alle velden nodig voor detailweergave
+      .select('*')
       .eq('slug', slug)
-      .eq('published', true) // Moet gepubliceerd zijn
-      // .lte('publishedAt', new Date().toISOString()) // Optioneel: check toekomst datum
+      .eq('published', true)
       .single();
 
-      if (error) {
-         if (error.code === 'PGRST116') { // Not found (of niet gepubliceerd)
-            logger.warn('Published post not found by slug', { slug });
-            return null;
-         }
-         throw error;
+    if (error) {
+      if (error.code === 'PGRST116') {
+        logger.warn('Published post not found', { slug });
+        return null;
       }
-      return data;
-   } catch (error: any) {
-     logger.error('Failed to fetch published post by slug', { slug, error: error.message || error });
-     return null;
-   }
+      throw error;
+    }
+
+    cache.set(cacheKey, data, CACHE_TTL.long, ['blog', 'published-posts', `post-${slug}`]);
+    return data;
+  } catch (error: any) {
+    logger.error('Failed to fetch published post by slug', { slug, error: error.message || error });
+    return null;
+  }
 } 

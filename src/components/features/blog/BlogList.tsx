@@ -1,12 +1,15 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import { SimpleGrid, Container, Title, Text, Box } from '@mantine/core';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { SimpleGrid, Container, Title, Text, Box, Stack, Center, Loader } from '@mantine/core';
 import { motion } from 'framer-motion';
-import BlogPostCard from './BlogPostCard'; // Importeer de kaart component
-import type { PublishedPostPreviewType } from '@/lib/actions/blog'; // Importeer het post preview type
+import BlogPostCard from './BlogPostCard';
+import BlogSearch from './BlogSearch';
+import BlogPagination from './BlogPagination';
+import type { PublishedPostPreviewType, PaginatedPostsResult } from '@/lib/actions/blog';
+import { getPublishedPosts } from '@/lib/actions/blog';
 import BlogErrorBoundary from './BlogErrorBoundary';
-import { useAnalytics } from '@/hooks/useAnalytics';
+// import { useAnalytics } from '@/hooks/useAnalytics'; // DISABLED FOR NOW
 
 // Animation variants for the container
 const containerVariants = {
@@ -40,62 +43,95 @@ const itemVariants = {
   },
 } as const;
 
-// Definieer de props voor BlogList
+// Props interface for the new BlogList
 interface BlogListProps {
-  posts: PublishedPostPreviewType[];
+  initialData?: PaginatedPostsResult;
+  postsPerPage?: number;
 }
 
-export default function BlogList({ posts }: BlogListProps) {
-  const { trackEvent, trackPageView } = useAnalytics();
+export default function BlogList({ 
+  initialData,
+  postsPerPage = 12 
+}: BlogListProps) {
+  const initialLoadRef = useRef(false);
   
-  // Valideer posts array
-  if (!Array.isArray(posts)) {
-    throw new Error('Posts must be an array');
-  }
+  // State management
+  const [data, setData] = useState<PaginatedPostsResult | null>(initialData || null);
+  const [isLoading, setIsLoading] = useState(!initialData);
+  const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  // Track blog list view
+  // Fetch posts function
+  const fetchPosts = useCallback(async (page: number, search?: string) => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const result = await getPublishedPosts(page, postsPerPage, search);
+      setData(result);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Er is een fout opgetreden bij het laden van de blog posts.';
+      setError(errorMessage);
+      console.error('Error fetching posts:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [postsPerPage]);
+
+  // Handle search - STABLE function using state setters
+  const handleSearch = useCallback((query: string) => {
+    setSearchQuery(query);
+    setCurrentPage(1);
+    
+    setIsLoading(true);
+    setError(null);
+    
+    getPublishedPosts(1, postsPerPage, query)
+      .then((result) => {
+        setData(result);
+      })
+      .catch((err) => {
+        const errorMessage = err instanceof Error ? err.message : 'Er is een fout opgetreden bij het laden van de blog posts.';
+        setError(errorMessage);
+        console.error('Error fetching posts:', err);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, [postsPerPage]);
+
+  // Handle page change
+  const handlePageChange = useCallback((page: number) => {
+    setCurrentPage(page);
+    fetchPosts(page, searchQuery);
+    
+    // Scroll to top of results
+    const blogSection = document.querySelector('[data-blog-section]');
+    if (blogSection) {
+      blogSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [fetchPosts, searchQuery]);
+
+  // Initial load if no initial data provided
   useEffect(() => {
-    trackPageView('blog_section_viewed', {
-      section: 'blog_list',
-      total_posts: posts?.length || 0,
-      has_posts: !!(posts && posts.length > 0),
-      page_type: 'blog_listing'
-    });
-  }, [trackPageView, posts]);
+    if (!initialData && !initialLoadRef.current) {
+      initialLoadRef.current = true;
+      fetchPosts(1);
+    }
+  }, [initialData, fetchPosts]);
 
-  // Toon een bericht als er geen posts zijn
-  if (!posts || posts.length === 0) {
-    return (
-      <BlogErrorBoundary>
-        <section style={{ 
+  return (
+    <BlogErrorBoundary>
+      <section 
+        data-blog-section
+        style={{ 
           position: 'relative',
           overflow: 'hidden',
           background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%)',
           minHeight: '100vh',
-        }}>
-          <Container size="lg" py={{ base: 'xl', md: '3xl' }}>
-            <Box style={{ textAlign: 'center' }}>
-              <Title order={2} c="gray.2" mb="md">
-                Geen blog posts gevonden
-              </Title>
-              <Text c="gray.4" size="lg">
-                Momenteel geen blog posts om weer te geven.
-              </Text>
-            </Box>
-          </Container>
-        </section>
-      </BlogErrorBoundary>
-    );
-  }
-
-  return (
-    <BlogErrorBoundary>
-      <section style={{ 
-        position: 'relative',
-        overflow: 'hidden',
-        background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%)',
-        minHeight: '100vh',
-      }}>
+        }}
+      >
         {/* Animated background elements */}
         <motion.div
           style={{
@@ -149,7 +185,7 @@ export default function BlogList({ posts }: BlogListProps) {
             animate="visible"
             viewport={{ once: true, amount: 0.1 }}
           >
-            {/* Optionele titel voor de blog sectie */}
+            {/* Header and Search */}
             <motion.div
               variants={itemVariants}
               style={{ 
@@ -173,49 +209,109 @@ export default function BlogList({ posts }: BlogListProps) {
               >
                 Blog Posts
               </Title>
-              
-              <Text size="sm" c="gray.5">
-                {posts.length} blog post{posts.length !== 1 ? 's' : ''} gevonden
-              </Text>
+
+              {/* Search Component - RE-ENABLED */}
+              <Stack align="center" gap="md" mb="xl">
+                <BlogSearch
+                  onSearch={handleSearch}
+                  isLoading={isLoading}
+                  resultCount={data?.pagination.totalItems}
+                />
+              </Stack>
             </motion.div>
 
-            {/* Grid met Blog Post Kaarten */}
-            <motion.div variants={itemVariants}>
-              <SimpleGrid
-                cols={{ base: 1, sm: 2, md: 3 }} // Responsive kolommen
-                spacing="xl" // Ruimte tussen de kaarten
-                verticalSpacing={{ base: "xl", sm: "xl", lg: "2xl" }}
-                style={{
-                  gap: 'clamp(1.5rem, 4vw, 2.5rem)',
-                }}
-              >
-                {posts.map((post, index) => {
-                  // Validate each post before rendering
-                  if (!post || typeof post !== 'object') {
-                    console.error('Invalid post data:', post);
-                    return null;
-                  }
+            {/* Loading State */}
+            {isLoading && !data && (
+              <motion.div variants={itemVariants}>
+                <Center py="xl">
+                  <Stack align="center" gap="md">
+                    <Loader size="lg" color="blue.4" type="dots" />
+                    <Text c="dimmed">Blog posts laden...</Text>
+                  </Stack>
+                </Center>
+              </motion.div>
+            )}
 
-                  return (
-                    <motion.div 
-                      key={post.id} 
-                      variants={itemVariants}
-                      style={{
-                        height: '100%',
-                        // Hardware acceleration without 3D transforms
-                        willChange: 'transform, opacity',
-                        transform: 'translateZ(0)',
-                      }}
-                    >
-                      <BlogPostCard post={post} />
-                    </motion.div>
-                  );
-                })}
-              </SimpleGrid>
-            </motion.div>
+            {/* Error State */}
+            {error && (
+              <motion.div variants={itemVariants}>
+                <Box ta="center" py="xl">
+                  <Title order={3} c="red.4" mb="md">
+                    Er is een fout opgetreden
+                  </Title>
+                  <Text c="gray.4" size="lg">
+                    {error}
+                  </Text>
+                </Box>
+              </motion.div>
+            )}
+
+            {/* No Results State */}
+            {data && data.posts.length === 0 && !isLoading && (
+              <motion.div variants={itemVariants}>
+                <Box ta="center" py="xl">
+                  <Title order={3} c="gray.2" mb="md">
+                    {searchQuery 
+                      ? `Geen resultaten gevonden voor "${searchQuery}"` 
+                      : 'Geen blog posts gevonden'
+                    }
+                  </Title>
+                  <Text c="gray.4" size="lg">
+                    {searchQuery 
+                      ? 'Probeer een andere zoekterm.' 
+                      : 'Momenteel geen blog posts om weer te geven.'
+                    }
+                  </Text>
+                </Box>
+              </motion.div>
+            )}
+
+            {/* Posts Grid */}
+            {data && data.posts.length > 0 && (
+              <>
+                <motion.div variants={itemVariants}>
+                  <SimpleGrid
+                    cols={{ base: 1, sm: 2, md: 3 }}
+                    spacing="xl"
+                    verticalSpacing={{ base: "xl", sm: "xl", lg: "2xl" }}
+                    style={{
+                      gap: 'clamp(1.5rem, 4vw, 2.5rem)',
+                      opacity: isLoading ? 0.6 : 1,
+                      transition: 'opacity 0.3s ease',
+                    }}
+                  >
+                    {data.posts.map((post, index) => {
+                      // Validate each post before rendering
+                      if (!post || typeof post !== 'object') {
+                        console.error('Invalid post data:', post);
+                        return null;
+                      }
+
+                      return (
+                        <motion.div 
+                          key={`${post.id}-${post.slug}`}
+                          variants={itemVariants}
+                          custom={index}
+                          layout
+                        >
+                          <BlogPostCard post={post} />
+                        </motion.div>
+                      );
+                    })}
+                  </SimpleGrid>
+                </motion.div>
+
+                {/* Pagination */}
+                <motion.div variants={itemVariants}>
+                  <BlogPagination
+                    pagination={data.pagination}
+                    onPageChange={handlePageChange}
+                    isLoading={isLoading}
+                  />
+                </motion.div>
+              </>
+            )}
           </motion.div>
-
-          {/* TODO: Voeg hier eventueel paginering toe als er veel posts zijn */}
         </Container>
       </section>
     </BlogErrorBoundary>
