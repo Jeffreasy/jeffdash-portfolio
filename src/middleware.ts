@@ -85,6 +85,12 @@ export async function middleware(request: NextRequest) {
     '/manifest.json',
     '/icon.png',
     '/apple-icon.png',
+    '/logo.png',
+    '/android-chrome-192x192.png',
+    '/android-chrome-512x512.png',
+    '/apple-touch-icon.png',
+    '/favicon-16x16.png',
+    '/favicon-32x32.png',
     '/.well-known'
   ]
   
@@ -150,10 +156,10 @@ export const config = {
      * Match all request paths except for the ones starting with:
      * - _next/static (static files)
      * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * Feel free to modify this pattern to include more paths.
+     * - Static assets (images, icons, etc.)
+     * - API routes (handled separately)
      */
-    '/((?!_next/static|_next/image|favicon.ico|api/).*)', // Apply to most paths except static assets and API routes
+    '/((?!_next/static|_next/image|favicon|logo|android-chrome|apple-touch-icon|manifest|api/).*)',
     // Explicitly include paths needing protection or redirection logic
     '/admin_area/:path*',
     '/login',

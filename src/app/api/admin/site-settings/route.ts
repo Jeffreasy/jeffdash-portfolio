@@ -10,6 +10,13 @@ export async function GET() {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError) {
+      // Silent fail for development mode - don't log session missing errors
+      if (authError.message?.includes('Auth session missing') || authError.code === 'session_not_found') {
+        return NextResponse.json(
+          { error: 'Authentication required' },
+          { status: 401 }
+        );
+      }
       console.error('Auth error in site-settings GET:', authError);
       return NextResponse.json(
         { error: 'Authentication failed', details: authError.message },

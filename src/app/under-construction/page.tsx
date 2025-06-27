@@ -72,20 +72,25 @@ export default function UnderConstructionPage() {
       try {
         const response = await fetch('/api/site-status');
         if (response.ok) {
-          // Try to fetch additional settings from admin API (will fail if not admin, that's ok)
-          try {
-            const adminResponse = await fetch('/api/admin/site-settings');
-            if (adminResponse.ok) {
-              const adminData = await adminResponse.json();
-              const settingsMap: SiteSettings = {};
-              adminData.settings?.forEach((setting: any) => {
-                settingsMap[setting.key as keyof SiteSettings] = setting.value;
-              });
-              setSettings(settingsMap);
+          // Only try admin API in development mode or if explicitly needed
+          // Skip admin API call to prevent 401 logs in normal usage
+          const shouldTryAdminAPI = process.env.NODE_ENV === 'development' && false; // Set to true if needed
+          
+          if (shouldTryAdminAPI) {
+            try {
+              const adminResponse = await fetch('/api/admin/site-settings');
+              if (adminResponse.ok) {
+                const adminData = await adminResponse.json();
+                const settingsMap: SiteSettings = {};
+                adminData.settings?.forEach((setting: any) => {
+                  settingsMap[setting.key as keyof SiteSettings] = setting.value;
+                });
+                setSettings(settingsMap);
+              }
+            } catch (error) {
+              // Not admin or error, use defaults
+              console.log('Using default settings');
             }
-          } catch (error) {
-            // Not admin or error, use defaults
-            console.log('Using default settings');
           }
         }
       } catch (error) {
@@ -144,13 +149,7 @@ export default function UnderConstructionPage() {
           justifyContent: 'center',
           overflow: 'hidden',
           overflowY: 'auto',
-          background: `
-            linear-gradient(135deg, 
-              var(--mantine-color-dark-8) 0%, 
-              var(--mantine-color-dark-7) 50%,
-              var(--mantine-color-dark-8) 100%
-            )
-          `,
+          background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%)',
           userSelect: 'none',
           paddingTop: 'clamp(20px, 5vh, 40px)',
           paddingBottom: 'clamp(20px, 5vh, 40px)',
