@@ -6,6 +6,15 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 // Helper function to check under construction status
 async function getUnderConstructionStatus(supabase: any): Promise<boolean> {
+  // In development mode, prioritize environment variable over database
+  if (process.env.NODE_ENV === 'development') {
+    const envStatus = process.env.UNDER_CONSTRUCTION === 'true';
+    if (process.env.UNDER_CONSTRUCTION !== undefined) {
+      console.log(`Development mode: Using environment variable UNDER_CONSTRUCTION=${process.env.UNDER_CONSTRUCTION}`);
+      return envStatus;
+    }
+  }
+
   try {
     // First try to get from database
     const { data: setting, error } = await supabase
